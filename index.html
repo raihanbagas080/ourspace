@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>OurSpace</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/833/833472.png" />
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "fe2751d3-d1c2-449b-b835-f58c6912c8c6",
+        allowLocalhostAsSecureOrigin: true
+      });
+      const savedUser = JSON.parse(localStorage.getItem('ourspace_user') || 'null');
+      if (savedUser && savedUser.ID) {
+        await OneSignal.User.addTag("role", savedUser.ID);
+      }
+    });
+  </script>
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body { background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex justify-center">
+
+  <div id="app" class="w-full max-w-md bg-slate-900 min-h-screen flex flex-col relative shadow-2xl border-x border-slate-800/60">
+
+    <!-- LOADING OVERLAY -->
+    <div id="loader" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center">
+      <div class="w-10 h-10 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+      <p id="loader-text" class="text-sm text-slate-300 font-medium">Menghubungkan ruang kita...</p>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-800 border border-slate-700 text-white px-4 py-2.5 rounded-full shadow-xl text-xs font-medium flex items-center gap-2 transition-all">
+      <span id="toast-msg">Berhasil!</span>
+    </div>
+
+    <!-- SCREEN 1: LOGIN PROFIL + PIN -->
+    <div id="login-screen" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-500/20 mb-4">
+        <i data-lucide="heart" class="w-8 h-8 text-white fill-white"></i>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight">OurSpace</h1>
+      <p class="text-xs text-slate-400 mt-1 mb-8">Pilih profil kamu untuk masuk</p>
+
+      <div id="user-select-cards" class="grid grid-cols-2 gap-4 w-full mb-6"></div>
+
+      <div id="pin-box" class="hidden w-full bg-slate-800/80 border border-slate-700 rounded-2xl p-5">
+        <p class="text-sm font-medium mb-3">Masukkan PIN <span id="selected-user-name" class="text-rose-400 font-bold"></span></p>
+        <input id="pin-input" type="password" inputmode="numeric" maxlength="6" placeholder="••••"
+          class="w-full text-center text-2xl tracking-[0.5em] bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 focus:outline-none focus:border-rose-500 mb-4" />
+        <button onclick="submitLogin()" class="w-full bg-gradient-to-r from-rose-500 to-pink-600 hover:opacity-95 text-white font-semibold py-3 rounded-xl shadow-lg shadow-rose-500/20">
+          Masuk Sekarang
+        </button>
+        <p class="text-[11px] text-slate-500 mt-3">PIN default awal: 1234</p>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: MAIN APP -->
+    <div id="main-screen" class="hidden flex-1 flex flex-col h-screen overflow-hidden">
+
+      <!-- TOP HEADER -->
+      <header class="px-4 py-3 bg-slate-900/95 backdrop-blur border-b border-slate-800 flex items-center justify-between shrink-0 z-20">
+        <div class="flex items-center gap-2.5">
+          <img id="header-partner-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-rose-500/50 bg-slate-800" />
+          <div>
+            <h2 id="header-title" class="text-sm font-bold leading-tight">OurSpace</h2>
+            <p id="header-subtitle" class="text-[11px] text-emerald-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> Terhubung
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="enablePushNotif()" title="Aktifkan Notif" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400">
+            <i data-lucide="bell-ring" class="w-4 h-4"></i>
+          </button>
+          <button onclick="refreshData(true)" title="Sync Data" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </button>
+          <button onclick="openModal('modal-profile')" title="Profil" class="p-1 rounded-full border border-slate-700">
+            <img id="header-my-avatar" src="" class="w-7 h-7 rounded-full object-cover bg-slate-800" />
+          </button>
+        </div>
+      </header>
+
+      <!-- TAB 1: ROOM CHAT -->
+      <section id="tab-chat" class="flex-1 flex flex-col overflow-hidden">
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar"></div>
+        
+        <div class="px-3 py-1.5 bg-slate-900 border-t border-slate-800/60 flex gap-2 overflow-x-auto no-scrollbar shrink-0">
+          <button onclick="sendQuickEmoji('❤️')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">❤️</button>
+          <button onclick="sendQuickEmoji('🥰')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">🥰</button>
+          <button onclick="sendQuickEmoji('😘')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">😘</button>
+          <button onclick="sendQuickEmoji('🥺')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">🥺</button>
+          <button onclick="sendQuickEmoji('🤗')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">🤗</button>
+          <button onclick="sendQuickEmoji('😭')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">😭</button>
+          <button onclick="sendQuickEmoji('🍔')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">🍔</button>
+        </div>
+
+        <div id="chat-img-preview-box" class="hidden px-4 py-2 bg-slate-800 border-t border-slate-700 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <img id="chat-img-preview" src="" class="w-10 h-10 rounded-lg object-cover" />
+            <span class="text-xs text-slate-300">Foto siap dikirim</span>
+          </div>
+          <button onclick="clearChatImage()" class="text-xs text-rose-400 font-semibold">Batal</button>
+        </div>
+
+        <div class="p-3 bg-slate-900 border-t border-slate-800 flex items-center gap-2 shrink-0">
+          <label class="p-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
+            <i data-lucide="image" class="w-5 h-5"></i>
+            <input id="chat-file-input" type="file" accept="image/*" class="hidden" onchange="previewChatImage(event)" />
+          </label>
+          <input id="chat-input" type="text" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendChat()"
+            class="flex-1 bg-slate-800 border border-slate-700 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500" />
+          <button onclick="sendChat()" class="p-2.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 text-white shrink-0 shadow-md">
+            <i data-lucide="send" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- TAB 2: CELENGAN MULTI-KANTONG -->
+      <section id="tab-celengan" class="hidden flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar pb-24">
+        <div class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs text-rose-100 font-medium">Total Tabungan Berdua</p>
+              <h3 id="total-celengan-all" class="text-2xl font-extrabold mt-1">Rp 0</h3>
+            </div>
+            <button onclick="openModal('modal-new-pos')" class="bg-white/20 hover:bg-white/30 backdrop-blur px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1">
+              <i data-lucide="plus" class="w-4 h-4"></i> Pos Baru
+            </button>
+          </div>
+          <p class="text-[11px] text-rose-100 mt-3 opacity-90">Pisahkan target liburan, nikah, atau wishlist barang di tiap pos.</p>
+        </div>
+
+        <div id="celengan-pos-list" class="space-y-4"></div>
+      </section>
+
+      <!-- TAB 3: MEMORY VAULT -->
+      <section id="tab-vault" class="hidden flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar pb-24">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold">Memory Vault</h3>
+            <p class="text-xs text-slate-400">Galeri foto & cerita kita (Cloud 15 GB)</p>
+          </div>
+          <button onclick="openModal('modal-new-vault')" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow">
+            <i data-lucide="camera" class="w-4 h-4"></i> Upload Foto
+          </button>
+        </div>
+
+        <div id="vault-list" class="space-y-4"></div>
+      </section>
+
+      <!-- TAB 4: BUCKET LIST & WISHLIST -->
+      <section id="tab-wishlist" class="hidden flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar pb-24">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold">Bucket List & Wishlist</h3>
+            <p class="text-xs text-slate-400">Tempat makan, liburan & impian bareng</p>
+          </div>
+          <button onclick="openModal('modal-new-wish')" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Tambah
+          </button>
+        </div>
+
+        <div class="flex gap-2">
+          <button onclick="filterWish('ALL')" id="wish-filter-ALL" class="px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 text-white">Semua</button>
+          <button onclick="filterWish('Impian')" id="wish-filter-Impian" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Impian</button>
+          <button onclick="filterWish('Tercapai')" id="wish-filter-Tercapai" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Tercapai</button>
+        </div>
+
+        <div id="wishlist-list" class="grid grid-cols-1 gap-3"></div>
+      </section>
+
+      <!-- BOTTOM NAVIGATION BAR -->
+      <nav class="bg-slate-900 border-t border-slate-800 grid grid-cols-4 py-2 px-1 shrink-0 safe-bottom z-20">
+        <button onclick="switchTab('chat')" id="nav-chat" class="flex flex-col items-center gap-1 py-1 text-rose-500">
+          <i data-lucide="message-circle-heart" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Chat</span>
+        </button>
+        <button onclick="switchTab('celengan')" id="nav-celengan" class="flex flex-col items-center gap-1 py-1 text-slate-400">
+          <i data-lucide="piggy-bank" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Celengan</span>
+        </button>
+        <button onclick="switchTab('vault')" id="nav-vault" class="flex flex-col items-center gap-1 py-1 text-slate-400">
+          <i data-lucide="images" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Vault</span>
+        </button>
+        <button onclick="switchTab('wishlist')" id="nav-wishlist" class="flex flex-col items-center gap-1 py-1 text-slate-400">
+          <i data-lucide="gift" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Wishlist</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- MODAL: POS CELENGAN BARU -->
+    <div id="modal-new-pos" class="hidden fixed inset-0 z-40 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-base">Buat Pos Celengan Baru</h3>
+          <button onclick="closeModal('modal-new-pos')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <input id="pos-nama" type="text" placeholder="Nama Pos (misal: Liburan Bali)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <input id="pos-target" type="number" placeholder="Target Nominal (Rp)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Target Tanggal (Opsional)</label>
+          <input id="pos-tanggal" type="date" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200" />
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Foto Sampul Impian (Opsional)</label>
+          <input id="pos-cover" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200" />
+        </div>
+        <button onclick="submitNewPos()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-xl text-sm">Simpan Pos</button>
+      </div>
+    </div>
+
+    <!-- MODAL: TRANSAKSI CELENGAN -->
+    <div id="modal-tx-pos" class="hidden fixed inset-0 z-40 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 id="tx-modal-title" class="font-bold text-base">Catat Tabungan</h3>
+          <button onclick="closeModal('modal-tx-pos')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <input type="hidden" id="tx-pos-id" />
+        <select id="tx-jenis" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm">
+          <option value="Setor">Setor Tabungan (+)</option>
+          <option value="Tarik">Tarik Dana (-)</option>
+        </select>
+        <input id="tx-nominal" type="number" placeholder="Nominal (Rp)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <input id="tx-catatan" type="text" placeholder="Catatan (misal: Nabung minggu ke-1)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Upload Bukti Transfer (Opsional)</label>
+          <input id="tx-bukti" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200" />
+        </div>
+        <button onclick="submitNewTx()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 rounded-xl text-sm">Simpan Transaksi</button>
+      </div>
+    </div>
+
+    <!-- MODAL: DETAIL & MUTASI POS -->
+    <div id="modal-detail-pos" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[85vh] flex flex-col">
+        <div class="flex justify-between items-center mb-3">
+          <h3 id="detail-pos-title" class="font-bold text-base">Detail Pos</h3>
+          <button onclick="closeModal('modal-detail-pos')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="detail-pos-stats" class="bg-slate-800/80 rounded-xl p-3 mb-3 text-xs space-y-1"></div>
+        <p class="text-xs font-semibold text-slate-400 mb-2">Riwayat Mutasi</p>
+        <div id="detail-pos-mutasi" class="flex-1 overflow-y-auto space-y-2 no-scrollbar"></div>
+      </div>
+    </div>
+
+    <!-- MODAL: UPLOAD MEMORY VAULT -->
+    <div id="modal-new-vault" class="hidden fixed inset-0 z-40 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-base">Simpan Momen Baru</h3>
+          <button onclick="closeModal('modal-new-vault')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Pilih Foto Kenangan *</label>
+          <input id="vault-foto" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-rose-500 file:text-white" />
+        </div>
+        <input id="vault-judul" type="text" placeholder="Judul Momen (misal: First Date di Blok M)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <textarea id="vault-cerita" rows="3" placeholder="Tulis cerita singkat di balik foto ini..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm"></textarea>
+        <button onclick="submitNewVault()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-xl text-sm">Upload ke Vault</button>
+      </div>
+    </div>
+
+    <!-- MODAL: TAMBAH WISHLIST -->
+    <div id="modal-new-wish" class="hidden fixed inset-0 z-40 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-base">Tambah Bucket List / Wishlist</h3>
+          <button onclick="closeModal('modal-new-wish')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <input id="wish-nama" type="text" placeholder="Nama Tempat / Barang Impian" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <select id="wish-kategori" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm">
+          <option value="Kuliner">Kuliner & Kafe</option>
+          <option value="Liburan">Liburan & Date</option>
+          <option value="Barang">Barang Impian</option>
+        </select>
+        <input id="wish-harga" type="number" placeholder="Estimasi Biaya (Rp)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <input id="wish-link" type="url" placeholder="Link Google Maps / Shopee (Opsional)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Foto Referensi (Opsional)</label>
+          <input id="wish-foto" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200" />
+        </div>
+        <button onclick="submitNewWish()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-xl text-sm">Simpan Wishlist</button>
+      </div>
+    </div>
+
+    <!-- MODAL: EDIT PROFIL & NOTIFIKASI -->
+    <div id="modal-profile" class="hidden fixed inset-0 z-40 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-base">Pengaturan Profil</h3>
+          <button onclick="closeModal('modal-profile')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <button onclick="enablePushNotif()" class="w-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
+          <i data-lucide="bell-ring" class="w-4 h-4"></i> Aktifkan Notifikasi Mengambang HP
+        </button>
+        <input id="prof-nama" type="text" placeholder="Nama Panggilan Baru" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <input id="prof-pin" type="password" inputmode="numeric" maxlength="6" placeholder="PIN Baru (kosongkan jika tetap)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Ganti Foto Profil (PP)</label>
+          <input id="prof-foto" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200" />
+        </div>
+        <button onclick="submitProfile()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-xl text-sm">Simpan Perubahan</button>
+        <button onclick="logout()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 font-semibold py-2.5 rounded-xl text-xs">Ganti Akun / Keluar</button>
+      </div>
+    </div>
+
+    <!-- LIGHTBOX PREVIEW GAMBAR -->
+    <div id="lightbox" onclick="this.classList.add('hidden')" class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
+      <img id="lightbox-img" src="" class="max-w-full max-h-[85vh] rounded-xl object-contain" />
+    </div>
+
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbx1zo665zHesf9k-JZIj1Q_8pPhXu9vTwVQ_ozQjGYSc_hRbmZig-yzm5Entg1_HnyD/exec';
+
+    let appData = { users: [], chat: [], celenganPos: [], celenganMutasi: [], vault: [], wishlist: [] };
+    let currentUser = JSON.parse(localStorage.getItem('ourspace_user') || 'null');
+    let selectedLoginUser = null;
+    let activeTab = 'chat';
+    let wishFilter = 'ALL';
+    let chatImageBase64 = '';
+    let pollTimer = null;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      lucide.createIcons();
+      await fetchAllData(true);
+      if (currentUser) {
+        const fresh = appData.users.find(u => u.ID === currentUser.ID);
+        if (fresh) {
+          currentUser = fresh;
+          localStorage.setItem('ourspace_user', JSON.stringify(fresh));
+        }
+        showMainApp();
+      } else {
+        showLoginScreen();
+      }
+    });
+
+    async function fetchAllData(showLoading = false) {
+      if (showLoading) setLoader(true, 'Memuat data...');
+      try {
+        const res = await fetch(API_URL);
+        const json = await res.json();
+        if (json.status === 'success') {
+          appData = json.data;
+          if (currentUser) renderAll();
+        }
+      } catch (e) {
+        showToast('Gagal memuat data, cek koneksi');
+      }
+      if (showLoading) setLoader(false);
+    }
+
+    async function postAction(payload, loadingMsg = 'Menyimpan...') {
+      setLoader(true, loadingMsg);
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.status === 'success') {
+          await fetchAllData(false);
+          setLoader(false);
+          return true;
+        } else {
+          showToast('Error: ' + json.message);
+        }
+      } catch (e) {
+        showToast('Koneksi terganggu, coba lagi');
+      }
+      setLoader(false);
+      return false;
+    }
+
+    function showLoginScreen() {
+      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('main-screen').classList.add('hidden');
+      const container = document.getElementById('user-select-cards');
+      const users = appData.users.length ? appData.users : [
+        { ID: 'user1', Nama: 'Abang', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Abang' },
+        { ID: 'user2', Nama: 'Adek', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Adek' }
+      ];
+      container.innerHTML = users.map(u => `
+        <button onclick="selectLoginUser('${u.ID}')" id="card-${u.ID}"
+          class="bg-slate-800/80 border-2 border-slate-700 rounded-2xl p-4 flex flex-col items-center gap-2.5 transition-all">
+          <img src="${u.Avatar_URL}" class="w-16 h-16 rounded-full object-cover bg-slate-700" />
+          <span class="font-bold text-sm">${escapeHtml(u.Nama)}</span>
+        </button>
+      `).join('');
+    }
+
+    function selectLoginUser(userId) {
+      selectedLoginUser = appData.users.find(u => u.ID === userId);
+      document.querySelectorAll('#user-select-cards button').forEach(b => b.classList.remove('border-rose-500', 'bg-slate-800'));
+      document.getElementById('card-' + userId).classList.add('border-rose-500', 'bg-slate-800');
+      document.getElementById('selected-user-name').textContent = selectedLoginUser.Nama;
+      document.getElementById('pin-box').classList.remove('hidden');
+      document.getElementById('pin-input').focus();
+    }
+
+    function submitLogin() {
+      const pin = document.getElementById('pin-input').value.trim();
+      if (!selectedLoginUser) return;
+      if (String(pin) === String(selectedLoginUser.PIN)) {
+        currentUser = selectedLoginUser;
+        localStorage.setItem('ourspace_user', JSON.stringify(currentUser));
+        enablePushNotif();
+        showMainApp();
+      } else {
+        showToast('PIN salah bro!');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('ourspace_user');
+      currentUser = null;
+      if (pollTimer) clearInterval(pollTimer);
+      closeModal('modal-profile');
+      showLoginScreen();
+    }
+
+    function showMainApp() {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('main-screen').classList.remove('hidden');
+      renderAll();
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(() => {
+        if (activeTab === 'chat' && !document.hidden) fetchAllData(false);
+      }, 6000);
+    }
+
+    function enablePushNotif() {
+      if (!window.OneSignalDeferred) return;
+      OneSignalDeferred.push(async function(OneSignal) {
+        try {
+          await OneSignal.Notifications.requestPermission();
+          if (currentUser && currentUser.ID) {
+            await OneSignal.User.addTag("role", currentUser.ID);
+            showToast('Notifikasi mengambang aktif!');
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      });
+    }
+
+    function renderAll() {
+      const partner = appData.users.find(u => u.ID !== currentUser.ID) || { Nama: 'Pasangan', Avatar_URL: '' };
+      document.getElementById('header-title').textContent = partner.Nama;
+      document.getElementById('header-partner-avatar').src = partner.Avatar_URL;
+      document.getElementById('header-my-avatar').src = currentUser.Avatar_URL;
+      document.getElementById('prof-nama').value = currentUser.Nama;
+
+      renderChat();
+      renderCelengan();
+      renderVault();
+      renderWishlist();
+      lucide.createIcons();
+    }
+
+    function renderChat() {
+      const box = document.getElementById('chat-messages');
+      const isAtBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+      const partner = appData.users.find(u => u.ID !== currentUser.ID) || { Avatar_URL: '' };
+
+      if (!appData.chat.length) {
+        box.innerHTML = `<div class="text-center text-xs text-slate-500 mt-10">Belum ada pesan. Mulai sapa duluan! ❤️</div>`;
+        return;
+      }
+
+      box.innerHTML = appData.chat.map(m => {
+        const isMe = m.Sender_ID === currentUser.ID;
+        const time = formatTime(m.Waktu);
+        const imgHtml = m.Media_URL ? `<img src="${m.Media_URL}" onclick="openLightbox('${m.Media_URL}')" class="rounded-xl max-h-56 w-auto mb-1.5 cursor-pointer object-cover" />` : '';
+        const textHtml = m.Pesan ? `<p class="text-sm leading-relaxed break-words whitespace-pre-wrap">${escapeHtml(m.Pesan)}</p>` : '';
+
+        if (isMe) {
+          return `
+            <div class="flex justify-end items-end gap-2">
+              <div class="max-w-[78%] bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-2xl rounded-br-sm px-3.5 py-2.5 shadow">
+                ${imgHtml}
+                ${textHtml}
+                <p class="text-[10px] text-rose-100/80 text-right mt-1">${time}</p>
+              </div>
+            </div>`;
+        } else {
+          return `
+            <div class="flex justify-start items-end gap-2">
+              <img src="${partner.Avatar_URL}" class="w-7 h-7 rounded-full object-cover bg-slate-800 shrink-0" />
+              <div class="max-w-[78%] bg-slate-800 border border-slate-700/70 text-slate-100 rounded-2xl rounded-bl-sm px-3.5 py-2.5 shadow">
+                ${imgHtml}
+                ${textHtml}
+                <p class="text-[10px] text-slate-400 mt-1">${time}</p>
+              </div>
+            </div>`;
+        }
+      }).join('');
+
+      if (isAtBottom) box.scrollTop = box.scrollHeight;
+    }
+
+    async function previewChatImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      chatImageBase64 = await compressImage(file);
+      document.getElementById('chat-img-preview').src = chatImageBase64;
+      document.getElementById('chat-img-preview-box').classList.remove('hidden');
+    }
+
+    function clearChatImage() {
+      chatImageBase64 = '';
+      document.getElementById('chat-file-input').value = '';
+      document.getElementById('chat-img-preview-box').classList.add('hidden');
+    }
+
+    async function sendChat() {
+      const input = document.getElementById('chat-input');
+      const pesan = input.value.trim();
+      if (!pesan && !chatImageBase64) return;
+
+      const imgToSend = chatImageBase64;
+      input.value = '';
+      clearChatImage();
+
+      appData.chat.push({
+        ID: 'TEMP_' + Date.now(),
+        Waktu: new Date().toISOString(),
+        Sender_ID: currentUser.ID,
+        Pesan: pesan,
+        Media_URL: imgToSend
+      });
+      renderChat();
+      const box = document.getElementById('chat-messages');
+      box.scrollTop = box.scrollHeight;
+
+      await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'sendChat',
+          senderId: currentUser.ID,
+          pesan: pesan,
+          imageBase64: imgToSend
+        })
+      });
+      fetchAllData(false);
+    }
+
+    function sendQuickEmoji(emoji) {
+      document.getElementById('chat-input').value = emoji;
+      sendChat();
+    }
+
+    function renderCelengan() {
+      const list = document.getElementById('celengan-pos-list');
+      let grandTotal = 0;
+
+      if (!appData.celenganPos.length) {
+        document.getElementById('total-celengan-all').textContent = 'Rp 0';
+        list.innerHTML = `<div class="text-center text-xs text-slate-500 py-8 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Belum ada pos tabungan. Klik "+ Pos Baru" di atas!</div>`;
+        return;
+      }
+
+      list.innerHTML = appData.celenganPos.map(pos => {
+        const mutasi = appData.celenganMutasi.filter(m => m.ID_Pos === pos.ID_Pos);
+        const terkumpul = mutasi.reduce((acc, m) => m.Jenis === 'Setor' ? acc + Number(m.Nominal) : acc - Number(m.Nominal), 0);
+        grandTotal += terkumpul;
+        const target = Number(pos.Target_Nominal) || 1;
+        const pct = Math.min(100, Math.round((terkumpul / target) * 100));
+        const tglText = pos.Target_Tanggal ? `Target: ${formatDate(pos.Target_Tanggal)}` : 'Tanpa batas waktu';
+
+        return `
+          <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl overflow-hidden shadow-lg">
+            <div class="h-28 w-full relative">
+              <img src="${pos.Cover_URL}" class="w-full h-full object-cover" />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+              <div class="absolute bottom-2.5 left-3.5 right-3.5 flex justify-between items-end">
+                <div>
+                  <h4 class="font-bold text-base text-white">${escapeHtml(pos.Nama_Pos)}</h4>
+                  <p class="text-[11px] text-slate-300">${tglText}</p>
+                </div>
+                <span class="bg-rose-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg">${pct}%</span>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <div>
+                <div class="flex justify-between text-xs mb-1.5">
+                  <span class="text-emerald-400 font-bold">${formatRupiah(terkumpul)}</span>
+                  <span class="text-slate-400">dari ${formatRupiah(target)}</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all" style="width: ${pct}%"></div>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="openDetailPos('${pos.ID_Pos}')" class="py-2 rounded-xl bg-slate-700/70 hover:bg-slate-700 text-xs font-semibold text-slate-200">
+                  Riwayat (${mutasi.length})
+                </button>
+                <button onclick="openTxModal('${pos.ID_Pos}', '${escapeHtml(pos.Nama_Pos)}')" class="py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
+                  + Setor / Tarik
+                </button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      document.getElementById('total-celengan-all').textContent = formatRupiah(grandTotal);
+    }
+
+    async function submitNewPos() {
+      const namaPos = document.getElementById('pos-nama').value.trim();
+      const targetNominal = document.getElementById('pos-target').value;
+      const targetTanggal = document.getElementById('pos-tanggal').value;
+      const file = document.getElementById('pos-cover').files[0];
+
+      if (!namaPos || !targetNominal) return showToast('Nama pos & target nominal wajib diisi');
+      const imageBase64 = file ? await compressImage(file) : '';
+
+      const ok = await postAction({
+        action: 'addCelenganPos',
+        senderId: currentUser.ID,
+        namaPos,
+        targetNominal,
+        targetTanggal,
+        imageBase64
+      }, 'Membuat pos...');
+
+      if (ok) {
+        closeModal('modal-new-pos');
+        document.getElementById('pos-nama').value = '';
+        document.getElementById('pos-target').value = '';
+        showToast('Pos tabungan berhasil dibuat!');
+      }
+    }
+
+    function openTxModal(idPos, namaPos) {
+      document.getElementById('tx-pos-id').value = idPos;
+      document.getElementById('tx-modal-title').textContent = 'Transaksi: ' + namaPos;
+      openModal('modal-tx-pos');
+    }
+
+    async function submitNewTx() {
+      const idPos = document.getElementById('tx-pos-id').value;
+      const jenis = document.getElementById('tx-jenis').value;
+      const nominal = document.getElementById('tx-nominal').value;
+      const catatan = document.getElementById('tx-catatan').value.trim();
+      const file = document.getElementById('tx-bukti').files[0];
+
+      if (!nominal || Number(nominal) <= 0) return showToast('Masukkan nominal yang valid');
+      const imageBase64 = file ? await compressImage(file) : '';
+
+      const ok = await postAction({
+        action: 'addCelenganTx',
+        senderId: currentUser.ID,
+        idPos,
+        jenis,
+        nominal,
+        catatan,
+        imageBase64
+      }, 'Mencatat transaksi...');
+
+      if (ok) {
+        closeModal('modal-tx-pos');
+        document.getElementById('tx-nominal').value = '';
+        document.getElementById('tx-catatan').value = '';
+        document.getElementById('tx-bukti').value = '';
+        showToast('Tabungan tercatat!');
+      }
+    }
+
+    function openDetailPos(idPos) {
+      const pos = appData.celenganPos.find(p => p.ID_Pos === idPos);
+      const mutasi = appData.celenganMutasi.filter(m => m.ID_Pos === idPos).reverse();
+      document.getElementById('detail-pos-title').textContent = pos.Nama_Pos;
+
+      const u1 = appData.users[0] || { ID: 'user1', Nama: 'User 1' };
+      const u2 = appData.users[1] || { ID: 'user2', Nama: 'User 2' };
+      const sumU1 = mutasi.filter(m => m.Sender_ID === u1.ID).reduce((a, b) => b.Jenis === 'Setor' ? a + Number(b.Nominal) : a - Number(b.Nominal), 0);
+      const sumU2 = mutasi.filter(m => m.Sender_ID === u2.ID).reduce((a, b) => b.Jenis === 'Setor' ? a + Number(b.Nominal) : a - Number(b.Nominal), 0);
+
+      document.getElementById('detail-pos-stats').innerHTML = `
+        <div class="flex justify-between"><span>Kontribusi ${escapeHtml(u1.Nama)}:</span><span class="font-bold text-rose-400">${formatRupiah(sumU1)}</span></div>
+        <div class="flex justify-between"><span>Kontribusi ${escapeHtml(u2.Nama)}:</span><span class="font-bold text-pink-400">${formatRupiah(sumU2)}</span></div>
+      `;
+
+      document.getElementById('detail-pos-mutasi').innerHTML = mutasi.length ? mutasi.map(m => {
+        const sender = appData.users.find(u => u.ID === m.Sender_ID)?.Nama || m.Sender_ID;
+        const isSetor = m.Jenis === 'Setor';
+        return `
+          <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-3 flex justify-between items-center">
+            <div>
+              <p class="text-xs font-bold ${isSetor ? 'text-emerald-400' : 'text-rose-400'}">${isSetor ? '+' : '-'} ${formatRupiah(m.Nominal)}</p>
+              <p class="text-[11px] text-slate-300">${escapeHtml(sender)} • ${escapeHtml(m.Catatan || m.Jenis)}</p>
+              <p class="text-[10px] text-slate-500">${formatDate(m.Waktu)}</p>
+            </div>
+            ${m.Bukti_URL ? `<button onclick="openLightbox('${m.Bukti_URL}')" class="text-[11px] bg-slate-700 px-2.5 py-1.5 rounded-lg text-sky-400">Bukti</button>` : ''}
+          </div>`;
+      }).join('') : `<p class="text-xs text-slate-500 text-center py-4">Belum ada mutasi di pos ini.</p>`;
+
+      openModal('modal-detail-pos');
+    }
+
+    function renderVault() {
+      const list = document.getElementById('vault-list');
+      if (!appData.vault.length) {
+        list.innerHTML = `<div class="text-center text-xs text-slate-500 py-10 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Belum ada foto di Memory Vault. Upload momen pertama kalian!</div>`;
+        return;
+      }
+      list.innerHTML = appData.vault.map(v => {
+        const uploader = appData.users.find(u => u.ID === v.Sender_ID);
+        return `
+          <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl overflow-hidden shadow-lg">
+            <div class="px-3.5 py-2.5 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <img src="${uploader?.Avatar_URL || ''}" class="w-6 h-6 rounded-full object-cover bg-slate-700" />
+                <span class="text-xs font-semibold">${escapeHtml(uploader?.Nama || 'Kita')}</span>
+              </div>
+              <span class="text-[10px] text-slate-400">${formatDate(v.Tanggal)}</span>
+            </div>
+            <img src="${v.Foto_URL}" onclick="openLightbox('${v.Foto_URL}')" class="w-full max-h-80 object-cover cursor-pointer bg-slate-950" />
+            <div class="p-3.5">
+              <h4 class="font-bold text-sm text-white">${escapeHtml(v.Judul)}</h4>
+              ${v.Cerita ? `<p class="text-xs text-slate-300 mt-1 leading-relaxed">${escapeHtml(v.Cerita)}</p>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function submitNewVault() {
+      const file = document.getElementById('vault-foto').files[0];
+      const judul = document.getElementById('vault-judul').value.trim();
+      const cerita = document.getElementById('vault-cerita').value.trim();
+
+      if (!file || !judul) return showToast('Foto & judul wajib diisi');
+      const imageBase64 = await compressImage(file);
+
+      const ok = await postAction({
+        action: 'addVault',
+        senderId: currentUser.ID,
+        judul,
+        cerita,
+        imageBase64
+      }, 'Mengunggah kenangan...');
+
+      if (ok) {
+        closeModal('modal-new-vault');
+        document.getElementById('vault-foto').value = '';
+        document.getElementById('vault-judul').value = '';
+        document.getElementById('vault-cerita').value = '';
+        showToast('Momen tersimpan di Vault!');
+      }
+    }
+
+    function filterWish(status) {
+      wishFilter = status;
+      ['ALL', 'Impian', 'Tercapai'].forEach(s => {
+        const btn = document.getElementById('wish-filter-' + s);
+        if (s === status) {
+          btn.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 text-white';
+        } else {
+          btn.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300';
+        }
+      });
+      renderWishlist();
+    }
+
+    function renderWishlist() {
+      const list = document.getElementById('wishlist-list');
+      const items = wishFilter === 'ALL' ? appData.wishlist : appData.wishlist.filter(w => w.Status === wishFilter);
+
+      if (!items.length) {
+        list.innerHTML = `<div class="text-center text-xs text-slate-500 py-10 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Daftar wishlist masih kosong.</div>`;
+        return;
+      }
+
+      list.innerHTML = items.map(w => {
+        const done = w.Status === 'Tercapai';
+        return `
+          <div class="bg-slate-800/90 border ${done ? 'border-emerald-500/40' : 'border-slate-700/80'} rounded-2xl p-3 flex gap-3 items-center">
+            <img src="${w.Foto_URL}" onclick="openLightbox('${w.Foto_URL}')" class="w-20 h-20 rounded-xl object-cover shrink-0 bg-slate-700 cursor-pointer" />
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-700 text-slate-300">${escapeHtml(w.Kategori)}</span>
+                ${done ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">Tercapai ✓</span>` : ''}
+              </div>
+              <h4 class="font-bold text-sm truncate mt-1 ${done ? 'line-through text-slate-400' : 'text-white'}">${escapeHtml(w.Nama_Item)}</h4>
+              <p class="text-xs text-rose-400 font-semibold mt-0.5">${Number(w.Harga) > 0 ? formatRupiah(w.Harga) : 'Gratis / Fleksibel'}</p>
+              <div class="flex items-center gap-2 mt-2">
+                <button onclick="toggleWish('${w.ID}')" class="text-[11px] px-2.5 py-1 rounded-lg font-semibold ${done ? 'bg-slate-700 text-slate-300' : 'bg-emerald-500 text-white'}">
+                  ${done ? 'Batal Centang' : 'Tandai Tercapai'}
+                </button>
+                ${w.Link_URL ? `<a href="${w.Link_URL}" target="_blank" class="text-[11px] px-2.5 py-1 rounded-lg bg-slate-700 text-sky-400">Buka Link</a>` : ''}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function submitNewWish() {
+      const namaItem = document.getElementById('wish-nama').value.trim();
+      const kategori = document.getElementById('wish-kategori').value;
+      const harga = document.getElementById('wish-harga').value;
+      const linkUrl = document.getElementById('wish-link').value.trim();
+      const file = document.getElementById('wish-foto').files[0];
+
+      if (!namaItem) return showToast('Nama item wajib diisi');
+      const imageBase64 = file ? await compressImage(file) : '';
+
+      const ok = await postAction({
+        action: 'addWishlist',
+        senderId: currentUser.ID,
+        namaItem,
+        kategori,
+        harga,
+        linkUrl,
+        imageBase64
+      }, 'Menyimpan wishlist...');
+
+      if (ok) {
+        closeModal('modal-new-wish');
+        document.getElementById('wish-nama').value = '';
+        document.getElementById('wish-harga').value = '';
+        document.getElementById('wish-link').value = '';
+        showToast('Wishlist ditambahkan!');
+      }
+    }
+
+    async function toggleWish(id) {
+      await postAction({
+        action: 'toggleWishlist',
+        senderId: currentUser.ID,
+        id
+      }, 'Memperbarui status...');
+    }
+
+    async function submitProfile() {
+      const nama = document.getElementById('prof-nama').value.trim();
+      const pin = document.getElementById('prof-pin').value.trim();
+      const file = document.getElementById('prof-foto').files[0];
+      const imageBase64 = file ? await compressImage(file) : '';
+
+      const ok = await postAction({
+        action: 'updateProfile',
+        senderId: currentUser.ID,
+        nama,
+        pin,
+        imageBase64
+      }, 'Menyimpan profil...');
+
+      if (ok) {
+        const updated = appData.users.find(u => u.ID === currentUser.ID);
+        if (updated) {
+          currentUser = updated;
+          localStorage.setItem('ourspace_user', JSON.stringify(updated));
+        }
+        renderAll();
+        closeModal('modal-profile');
+        showToast('Profil diperbarui!');
+      }
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      ['chat', 'celengan', 'vault', 'wishlist'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
+        const nav = document.getElementById('nav-' + t);
+        nav.classList.toggle('text-rose-500', t === tab);
+        nav.classList.toggle('text-slate-400', t !== tab);
+      });
+      if (tab === 'chat') {
+        const box = document.getElementById('chat-messages');
+        box.scrollTop = box.scrollHeight;
+      }
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function openLightbox(url) {
+      document.getElementById('lightbox-img').src = url;
+      document.getElementById('lightbox').classList.remove('hidden');
+    }
+    function refreshData(manual = false) { fetchAllData(manual); }
+
+    function setLoader(show, text = '') {
+      document.getElementById('loader-text').textContent = text;
+      document.getElementById('loader').classList.toggle('hidden', !show);
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 3000);
+    }
+
+    function compressImage(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxW = 850;
+            const scale = Math.min(1, maxW / img.width);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', 0.75));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function formatRupiah(num) {
+      return 'Rp ' + Number(num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function formatTime(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+  </script>
+</body>
+</html>
