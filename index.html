@@ -638,38 +638,71 @@
         </div>
       </section>
 
-      <!-- ========================================== -->
-      <!-- TAB 5: CUSTOM LIST & MULTI-LINK WISHLIST   -->
-      <!-- ========================================== -->
-      <section id="tab-wishlist" class="hidden flex-1 w-full overflow-y-auto p-4 md:p-6 no-scrollbar">
-        <div class="max-w-6xl mx-auto space-y-4">
-          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <p class="text-xs text-slate-400">Total Estimasi List Barang & Persiapan</p>
-              <div class="flex items-baseline gap-3 mt-1">
-                <h3 id="wish-total-budget" class="text-xl font-extrabold">Rp 0</h3>
+      <!-- ==================== TAB 5: CUSTOM LIST & WISHLIST ==================== -->
+      <section id="tab-wishlist" class="hidden flex-1 overflow-y-auto px-4 md:px-8 py-4 space-y-4">
+        <div class="max-w-5xl mx-auto space-y-4">
+          <!-- Ringkasan Atas (Otomatis menyesuaikan Model Barang / Model Ceklis) -->
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <p id="wish-summary-label" class="text-[11px] text-slate-400">Total Estimasi List Barang & Persiapan</p>
+              <div class="flex flex-wrap items-baseline gap-2">
+                <h3 id="wish-total-budget" class="text-xl font-extrabold text-rose-500">Rp 0</h3>
                 <span id="wish-bought-summary" class="text-xs text-emerald-500 font-semibold">Terbeli: Rp 0 (0/0 item)</span>
               </div>
+              <div id="wish-check-progress-wrap" class="hidden w-full max-w-xs h-2 bg-slate-700 rounded-full overflow-hidden mt-2">
+                <div id="wish-check-progress-bar" class="h-full bg-emerald-500 rounded-full transition-all" style="width: 0%"></div>
+              </div>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <button onclick="openModal('modal-new-wish-cat')" class="bg-slate-700 border border-slate-600 px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5">
+            <div class="flex items-center gap-2">
+              <button onclick="openModal('modal-new-wish-cat')" class="bg-slate-700 border border-slate-600 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5">
                 <i data-lucide="folder-plus" class="w-4 h-4 text-rose-500"></i> + List Custom
               </button>
-              <button onclick="openNewWishModal()" class="bg-rose-500 hover:bg-rose-600 keep-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow">
+              <button onclick="openNewWishModal()" class="bg-rose-500 hover:bg-rose-600 keep-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow">
                 <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Item
               </button>
             </div>
           </div>
 
-          <div id="wish-category-tabs" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+          <!-- Pemilih 2 Model Tampilan (Kartu Barang vs Ceklis / Alur) -->
+          <div class="grid grid-cols-2 gap-2 bg-slate-800 border border-slate-700 p-1.5 rounded-2xl">
+            <button id="wish-mode-card" onclick="switchWishViewMode('card')"
+              class="py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-rose-500 keep-white shadow transition-all">
+              <span>🛍️</span>
+              <span>Kartu Barang</span>
+              <span id="wish-count-card" class="text-[10px] opacity-85">(0)</span>
+            </button>
+            <button id="wish-mode-checklist" onclick="switchWishViewMode('checklist')"
+              class="py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 text-slate-400 transition-all">
+              <span>☑️</span>
+              <span>Ceklis / Alur</span>
+              <span id="wish-count-checklist" class="text-[10px] opacity-85">(0)</span>
+            </button>
+          </div>
 
-          <div class="flex gap-2">
+          <!-- Bar Kategori List -->
+          <div id="wish-category-tabs" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar items-center"></div>
+
+          <!-- Filter Status -->
+          <div class="flex items-center gap-2">
             <button onclick="filterWishStatus('ALL')" id="wish-filter-ALL" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-700">Semua Status</button>
             <button onclick="filterWishStatus('Impian')" id="wish-filter-Impian" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-400">Belum Dibeli</button>
             <button onclick="filterWishStatus('Tercapai')" id="wish-filter-Tercapai" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-400">Sudah Terbeli ✓</button>
           </div>
 
-          <div id="wishlist-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6 items-start"></div>
+          <!-- Input Tambah Cepat Khusus Mode Ceklis -->
+          <div id="wish-quick-check-box" class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-2.5 flex items-center gap-2 shadow-sm">
+            <input id="quick-check-input" type="text" autocomplete="off"
+              onkeydown="if(event.key==='Enter'){ event.preventDefault(); quickAddChecklistItem(); }"
+              placeholder="+ Ketik langkah / tugas baru lalu Enter..."
+              class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs min-w-0" />
+            <button type="button" onclick="quickAddChecklistItem()"
+              class="bg-rose-500 hover:bg-rose-600 keep-white px-4 py-2 rounded-xl text-xs font-bold shrink-0">
+              Tambah
+            </button>
+          </div>
+
+          <!-- Wadah Daftar Item (Grid untuk Kartu Barang, List Vertikal untuk Ceklis) -->
+          <div id="wishlist-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6"></div>
         </div>
       </section>
 
@@ -706,38 +739,99 @@
     <!-- HIDDEN HTML5 AUDIO ELEMENT -->
     <audio id="shared-audio" preload="auto"></audio>
 
-    <!-- ========================================== -->
-    <!-- MODAL: BUAT CUSTOM LIST / KATEGORI BARU    -->
-    <!-- ========================================== -->
-    <div id="modal-new-wish-cat" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 space-y-3">
-        <div class="flex justify-between items-center">
-          <h3 class="font-bold text-base">Buat List Custom Baru</h3>
-          <button onclick="closeModal('modal-new-wish-cat')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">Pilih Ikon</label>
-          <select id="new-wish-cat-icon" class="w-full border rounded-xl px-3 py-2 text-sm">
-            <option value="📌">📌 Pin / Umum</option>
-            <option value="💍">💍 Cincin / Seserahan</option>
-            <option value="🛋️">🛋️ Furniture / Kamar</option>
-            <option value="🍳">🍳 Alat Dapur</option>
-            <option value="💄">💄 Skincare / Kosmetik</option>
-            <option value="👗">👗 Outfit / Baju Couple</option>
-            <option value="🛵">🛵 Kendaraan / Aksesoris</option>
-            <option value="🎮">🎮 Hobi & Gadget</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">Nama List Custom *</label>
-          <input id="new-wish-cat-name" type="text" autocomplete="off" placeholder="Contoh: Seserahan / Perabot Dapur" onkeypress="if(event.key==='Enter') createNewWishCategory()"
-            class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
-        </div>
-        <button onclick="createNewWishCategory()" class="w-full bg-rose-500 hover:bg-rose-600 keep-white font-semibold py-2.5 rounded-xl text-sm">
-          Simpan List Custom
+      <!-- MODAL: TAMBAH KATEGORI / LIST CUSTOM BARU -->
+  <div id="modal-new-wish-cat" class="hidden fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-sm p-5 space-y-3.5">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-base">Buat List Custom Baru</h3>
+        <button onclick="closeModal('modal-new-wish-cat')" class="p-1 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div>
+        <label class="text-[11px] text-slate-400 mb-1 block">Pilih Model List</label>
+        <select id="new-wish-cat-model" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm font-semibold">
+          <option value="checklist">☑️ Ceklis / Alur (Urus KUA, Kerjaan, To-Do)</option>
+          <option value="card">🛍️ Kartu Barang (Foto, Harga & Multi-Link)</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-4 gap-2">
+        <select id="new-wish-cat-icon" class="col-span-1 bg-slate-900 border border-slate-700 rounded-xl px-2 py-2.5 text-base text-center">
+          <option value="☑️">☑️</option>
+          <option value="🕌">🕌</option>
+          <option value="📋">📋</option>
+          <option value="💼">💼</option>
+          <option value="💍">💍</option>
+          <option value="🏠">🏠</option>
+          <option value="👗">👗</option>
+          <option value="🎁">🎁</option>
+          <option value="✈️">✈️</option>
+          <option value="🍔">🍔</option>
+        </select>
+        <input id="new-wish-cat-name" type="text" autocomplete="off" placeholder="Nama List (misal: Alur KUA)" class="col-span-3 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+      </div>
+      <button onclick="createNewWishCategory()" class="w-full bg-rose-500 hover:bg-rose-600 keep-white font-semibold py-2.5 rounded-xl text-sm">Simpan List Custom</button>
+    </div>
+  </div>
+
+  <!-- MODAL: TAMBAH / EDIT ITEM LIST & WISHLIST -->
+  <div id="modal-new-wish" class="hidden fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-md p-5 space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center">
+        <h3 id="wish-modal-heading" class="font-bold text-base">Tambah Item List</h3>
+        <button onclick="closeModal('modal-new-wish')" class="p-1 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <input type="hidden" id="wish-edit-id" value="" />
+      <input type="hidden" id="wish-form-type" value="card" />
+
+      <!-- Pilihan Model Item -->
+      <div class="grid grid-cols-2 gap-2 bg-slate-900 border border-slate-700 p-1 rounded-xl">
+        <button type="button" id="wform-type-card" onclick="setWishFormType('card')"
+          class="py-2 rounded-lg text-xs font-bold bg-rose-500 keep-white">
+          🛍️ Kartu Barang
+        </button>
+        <button type="button" id="wform-type-checklist" onclick="setWishFormType('checklist')"
+          class="py-2 rounded-lg text-xs font-bold text-slate-400">
+          ☑️ Ceklis / Tugas
         </button>
       </div>
+
+      <div>
+        <label id="wish-nama-label" class="text-[11px] text-slate-400 mb-1 block">Nama Barang / Kebutuhan</label>
+        <input id="wish-nama" type="text" autocomplete="off" placeholder="Contoh: Cincin Nikah / Kulkas 2 Pintu" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div>
+          <label class="text-[11px] text-slate-400 mb-1 block">Pilih Kategori List</label>
+          <select id="wish-kategori" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm"></select>
+        </div>
+        <div id="wish-harga-wrap">
+          <label class="text-[11px] text-slate-400 mb-1 block">Estimasi Harga (Rp)</label>
+          <input id="wish-harga" type="number" placeholder="Opsional" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        </div>
+      </div>
+
+      <div>
+        <label id="wish-desc-label" class="text-[11px] text-slate-400 mb-1 block">Deskripsi / Spesifikasi</label>
+        <textarea id="wish-deskripsi" rows="2" placeholder="Catatan warna, ukuran, dokumen syarat, dll..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm resize-none"></textarea>
+      </div>
+
+      <div id="wish-foto-wrap">
+        <label class="text-[11px] text-slate-400 mb-1 block">Foto Referensi (Opsional)</label>
+        <input id="wish-foto" type="file" accept="image/*" class="w-full text-xs text-slate-400" />
+      </div>
+
+      <!-- Multi Link (Maksimal 3 Link) -->
+      <div class="border-t border-slate-700 pt-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-[11px] font-semibold text-slate-400">Link Referensi / Maps / Web (Maks. 3)</label>
+          <button type="button" id="btn-add-wish-link" onclick="addWishLinkSlot()" class="text-[11px] text-rose-500 font-bold">+ Tambah Link</button>
+        </div>
+        <div id="wish-links-container" class="space-y-2"></div>
+      </div>
+
+      <button onclick="submitNewWish()" class="w-full bg-rose-500 hover:bg-rose-600 keep-white font-semibold py-2.5 rounded-xl text-sm">Simpan ke List</button>
     </div>
+  </div>
 
     <!-- ========================================== -->
     <!-- MODAL: BUAT ALBUM MUSIK BARU               -->
@@ -1216,6 +1310,8 @@
     let currentTab = 'chat';
     let currentTheme = localStorage.getItem('ourspace_theme') || 'dark';
     let wishCatFilter = 'ALL';
+    let wishStatusFilter = 'ALL';
+    let wishViewMode = 'card';
     let wishStatusFilter = 'ALL';
     let wishFormLinks = [{ source: 'Shopee', customSource: '', url: '' }];
     let chatAttachmentFile = null;
@@ -3370,17 +3466,47 @@
       showToast(`${uploadedUrls.length} media tersimpan di Galeri!`);
     }
 
-    // ========================================================
-    // 4. CUSTOM LIST & MULTI-LINK (MAX 3) WISHLIST
+        // ========================================================
+    // 4. CUSTOM LIST & MULTI-LINK (2 VERSI: KARTU BARANG & CEKLIS)
     // ========================================================
     function getAllWishCategories() {
       const customCats = Object.values(state.wishlistCategories || {}).map(c => ({
         ID: c.ID,
         Nama: c.Nama,
         Icon: c.Icon || '📌',
+        Model: c.Model || 'card',
         isDefault: false
       }));
       return [...DEFAULT_WISH_CATEGORIES, ...customCats];
+    }
+
+    function switchWishViewMode(mode) {
+      wishViewMode = mode === 'checklist' ? 'checklist' : 'card';
+      updateWishModeUI();
+      renderWishlist();
+      lucide.createIcons();
+    }
+
+    function updateWishModeUI() {
+      const isCheck = wishViewMode === 'checklist';
+      const btnCard = document.getElementById('wish-mode-card');
+      const btnCheck = document.getElementById('wish-mode-checklist');
+      const quickBox = document.getElementById('wish-quick-check-box');
+      const fImpian = document.getElementById('wish-filter-Impian');
+      const fTercapai = document.getElementById('wish-filter-Tercapai');
+
+      if (btnCard && btnCheck) {
+        btnCard.className = !isCheck
+          ? 'py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-rose-500 keep-white shadow transition-all'
+          : 'py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 text-slate-400 transition-all';
+        btnCheck.className = isCheck
+          ? 'py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-rose-500 keep-white shadow transition-all'
+          : 'py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 text-slate-400 transition-all';
+      }
+
+      if (quickBox) quickBox.classList.toggle('hidden', !isCheck);
+      if (fImpian) fImpian.textContent = isCheck ? 'Belum Selesai' : 'Belum Dibeli';
+      if (fTercapai) fTercapai.textContent = isCheck ? 'Selesai ✓' : 'Sudah Terbeli ✓';
     }
 
     function renderWishCategoryControls() {
@@ -3416,7 +3542,8 @@
 
     async function createNewWishCategory() {
       const name = document.getElementById('new-wish-cat-name').value.trim();
-      const icon = document.getElementById('new-wish-cat-icon').value || '📌';
+      const icon = document.getElementById('new-wish-cat-icon').value || '☑️';
+      const model = document.getElementById('new-wish-cat-model').value || 'checklist';
       if (!name) return showToast('Nama list custom wajib diisi');
 
       const newRef = db.ref('wishlistCategories').push();
@@ -3424,6 +3551,7 @@
         ID: newRef.key,
         Nama: name,
         Icon: icon,
+        Model: model,
         Created_By: currentUser.Nama
       });
 
@@ -3433,7 +3561,7 @@
       const sel = document.getElementById('wish-kategori');
       if (sel) sel.value = name;
       filterWishCat(name);
-      showToast(`List custom "${name}" dibuat!`);
+      showToast(`List "${name}" (${model === 'checklist' ? 'Ceklis' : 'Kartu'}) dibuat!`);
     }
 
     function deleteCustomWishCategory(id, name) {
@@ -3448,6 +3576,12 @@
 
     function filterWishCat(cat) {
       wishCatFilter = cat;
+      if (cat !== 'ALL') {
+        const foundCat = getAllWishCategories().find(c => c.Nama === cat);
+        if (foundCat && foundCat.Model) {
+          wishViewMode = foundCat.Model;
+        }
+      }
       renderWishCategoryControls();
       renderWishlist();
       lucide.createIcons();
@@ -3466,79 +3600,25 @@
       lucide.createIcons();
     }
 
-    function renderWishLinkInputs() {
-      const container = document.getElementById('wish-links-container');
-      const addBtn = document.getElementById('btn-add-wish-link');
-      if (!container) return;
+    function setWishFormType(type) {
+      const isCheck = type === 'checklist';
+      document.getElementById('wish-form-type').value = isCheck ? 'checklist' : 'card';
 
-      addBtn.classList.toggle('hidden', wishFormLinks.length >= 3);
+      const btnCard = document.getElementById('wform-type-card');
+      const btnCheck = document.getElementById('wform-type-checklist');
+      btnCard.className = !isCheck ? 'py-2 rounded-lg text-xs font-bold bg-rose-500 keep-white' : 'py-2 rounded-lg text-xs font-bold text-slate-400';
+      btnCheck.className = isCheck ? 'py-2 rounded-lg text-xs font-bold bg-rose-500 keep-white' : 'py-2 rounded-lg text-xs font-bold text-slate-400';
 
-      container.innerHTML = wishFormLinks.map((lnk, idx) => {
-        const isCustom = lnk.source === 'Custom';
-        const optionsHtml = LINK_SOURCES.map(src => `<option value="${src}" ${lnk.source === src ? 'selected' : ''}>${src}</option>`).join('');
-        return `
-          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 space-y-2">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-[10px] font-bold text-slate-400">Link #${idx + 1}</span>
-              ${wishFormLinks.length > 1 ? `<button type="button" onclick="removeWishLinkSlot(${idx})" class="text-[11px] text-rose-500 font-semibold">Hapus</button>` : ''}
-            </div>
-            <div class="grid ${isCustom ? 'grid-cols-2' : 'grid-cols-1'} gap-2">
-              <select onchange="updateWishLinkSource(${idx}, this.value)" class="w-full border rounded-lg px-2.5 py-1.5 text-xs font-semibold">
-                ${optionsHtml}
-              </select>
-              ${isCustom ? `<input type="text" autocomplete="off" placeholder="Nama sumber (misal: IKEA)" value="${escapeHtml(lnk.customSource || '')}" oninput="updateWishLinkCustomSource(${idx}, this.value)" class="w-full border rounded-lg px-2.5 py-1.5 text-xs" />` : ''}
-            </div>
-            <input type="url" autocomplete="off" placeholder="https://..." value="${escapeHtml(lnk.url || '')}" oninput="updateWishLinkUrl(${idx}, this.value)" class="w-full border rounded-lg px-2.5 py-1.5 text-xs" />
-          </div>
-        `;
-      }).join('');
-    }
-
-    function addWishLinkSlot() {
-      if (wishFormLinks.length >= 3) return showToast('Maksimal 3 link per item');
-      const nextDefault = wishFormLinks.length === 1 ? 'Tokopedia' : 'TikTok Shop';
-      wishFormLinks.push({ source: nextDefault, customSource: '', url: '' });
-      renderWishLinkInputs();
-    }
-
-    function removeWishLinkSlot(idx) {
-      wishFormLinks.splice(idx, 1);
-      if (!wishFormLinks.length) wishFormLinks.push({ source: 'Shopee', customSource: '', url: '' });
-      renderWishLinkInputs();
-    }
-
-    function updateWishLinkSource(idx, val) {
-      wishFormLinks[idx].source = val;
-      renderWishLinkInputs();
-    }
-
-    function updateWishLinkCustomSource(idx, val) {
-      wishFormLinks[idx].customSource = val;
-    }
-
-    function updateWishLinkUrl(idx, val) {
-      wishFormLinks[idx].url = val;
-    }
-
-    function getNormalizedItemLinks(w) {
-      if (Array.isArray(w.Links) && w.Links.length > 0) return w.Links;
-      if (w.Links && typeof w.Links === 'object') return Object.values(w.Links);
-      if (w.Link_URL) return [{ source: 'Link', url: w.Link_URL }];
-      return [];
-    }
-
-    function getLinkBadgeStyle(source) {
-      const s = String(source || '').toLowerCase();
-      if (s.includes('shopee')) return { bg: 'bg-orange-500/15 border-orange-500/40 text-orange-500', icon: '🛍️' };
-      if (s.includes('tokped') || s.includes('tokopedia')) return { bg: 'bg-emerald-500/15 border-emerald-500/40 text-emerald-500', icon: '🟢' };
-      if (s.includes('tiktok')) return { bg: 'bg-pink-500/15 border-pink-500/40 text-pink-500', icon: '🎵' };
-      if (s.includes('map')) return { bg: 'bg-sky-500/15 border-sky-500/40 text-sky-500', icon: '📍' };
-      return { bg: 'bg-slate-700 border-slate-600 text-sky-500', icon: '🔗' };
+      document.getElementById('wish-harga-wrap').classList.toggle('hidden', isCheck);
+      document.getElementById('wish-foto-wrap').classList.toggle('hidden', isCheck);
+      document.getElementById('wish-nama-label').textContent = isCheck ? 'Nama Tugas / Langkah Alur' : 'Nama Barang / Kebutuhan';
+      document.getElementById('wish-nama').placeholder = isCheck ? 'Contoh: Minta surat pengantar RT/RW' : 'Contoh: Cincin Nikah / Kulkas 2 Pintu';
+      document.getElementById('wish-desc-label').textContent = isCheck ? 'Catatan / Syarat Dokumen (Opsional)' : 'Deskripsi / Spesifikasi';
     }
 
     function openNewWishModal() {
       renderWishCategoryControls();
-      document.getElementById('wish-modal-heading').textContent = 'Tambah List Barang / Persiapan';
+      document.getElementById('wish-modal-heading').textContent = wishViewMode === 'checklist' ? 'Tambah Tugas / Ceklis Baru' : 'Tambah List Barang';
       document.getElementById('wish-edit-id').value = '';
       document.getElementById('wish-nama').value = '';
       if (wishCatFilter !== 'ALL') {
@@ -3547,7 +3627,8 @@
       document.getElementById('wish-harga').value = '';
       document.getElementById('wish-deskripsi').value = '';
       document.getElementById('wish-foto').value = '';
-      wishFormLinks = [{ source: 'Shopee', customSource: '', url: '' }];
+      setWishFormType(wishViewMode);
+      wishFormLinks = [{ source: wishViewMode === 'checklist' ? 'Google Maps' : 'Shopee', customSource: '', url: '' }];
       renderWishLinkInputs();
       openModal('modal-new-wish');
       lucide.createIcons();
@@ -3557,13 +3638,15 @@
       const w = state.wishlist[id];
       if (!w) return;
       renderWishCategoryControls();
-      document.getElementById('wish-modal-heading').textContent = 'Edit Item List';
+      const itemType = w.Tipe || 'card';
+      document.getElementById('wish-modal-heading').textContent = itemType === 'checklist' ? 'Edit Tugas / Ceklis' : 'Edit Item Barang';
       document.getElementById('wish-edit-id').value = w.ID;
       document.getElementById('wish-nama').value = w.Nama_Item || '';
       document.getElementById('wish-kategori').value = w.Kategori || 'Persiapan Nikah';
       document.getElementById('wish-harga').value = w.Harga || '';
       document.getElementById('wish-deskripsi').value = w.Deskripsi || '';
       document.getElementById('wish-foto').value = '';
+      setWishFormType(itemType);
 
       const existingLinks = getNormalizedItemLinks(w);
       if (existingLinks.length) {
@@ -3576,35 +3659,146 @@
           };
         });
       } else {
-        wishFormLinks = [{ source: 'Shopee', customSource: '', url: '' }];
+        wishFormLinks = [{ source: itemType === 'checklist' ? 'Google Maps' : 'Shopee', customSource: '', url: '' }];
       }
       renderWishLinkInputs();
       openModal('modal-new-wish');
       lucide.createIcons();
     }
 
-    function deleteWishItem(id, namaItem) {
-      askConfirmDelete(`Hapus "${namaItem}"?`, 'Item ini akan dihapus dari daftar.', async () => {
-        await db.ref(`wishlist/${id}`).remove();
-        showToast('Item list dihapus');
+    async function quickAddChecklistItem() {
+      const input = document.getElementById('quick-check-input');
+      const namaItem = input.value.trim();
+      if (!namaItem) return;
+
+      let targetCat = wishCatFilter;
+      if (targetCat === 'ALL') {
+        const firstCheckCat = getAllWishCategories().find(c => c.Model === 'checklist');
+        targetCat = firstCheckCat ? firstCheckCat.Nama : 'Persiapan Nikah';
+      }
+
+      input.value = '';
+      const newRef = db.ref('wishlist').push();
+      await newRef.set({
+        ID: newRef.key,
+        Tipe: 'checklist',
+        Nama_Item: namaItem,
+        Kategori: targetCat,
+        Harga: 0,
+        Deskripsi: '',
+        Foto_URL: '',
+        Links: [],
+        Link_URL: '',
+        Status: 'Impian',
+        Created_By: currentUser.Nama,
+        Waktu: Date.now()
       });
+
+      triggerPartnerPush(`☑️ Ceklis Baru (${targetCat})`, `${currentUser.Nama}: ${namaItem}`);
+      showToast('Ditambahkan ke ceklis!');
     }
 
     function renderWishlist() {
+      updateWishModeUI();
       const list = document.getElementById('wishlist-list');
-      const all = Object.values(state.wishlist).reverse();
+      const allRaw = Object.values(state.wishlist || {});
 
-      const catFiltered = wishCatFilter === 'ALL' ? all : all.filter(w => w.Kategori === wishCatFilter);
-      const items = wishStatusFilter === 'ALL' ? catFiltered : catFiltered.filter(w => w.Status === wishStatusFilter);
+      const catFilteredAll = wishCatFilter === 'ALL' ? allRaw : allRaw.filter(w => w.Kategori === wishCatFilter);
+      const cardAll = catFilteredAll.filter(w => (w.Tipe || 'card') === 'card');
+      const checkAll = catFilteredAll.filter(w => w.Tipe === 'checklist');
 
-      const totalEst = catFiltered.reduce((acc, w) => acc + Number(w.Harga || 0), 0);
-      const boughtList = catFiltered.filter(w => w.Status === 'Tercapai');
+      const countCardEl = document.getElementById('wish-count-card');
+      const countCheckEl = document.getElementById('wish-count-checklist');
+      if (countCardEl) countCardEl.textContent = `(${cardAll.length})`;
+      if (countCheckEl) countCheckEl.textContent = `(${checkAll.length})`;
+
+      const sumLabel = document.getElementById('wish-summary-label');
+      const totalEl = document.getElementById('wish-total-budget');
+      const subEl = document.getElementById('wish-bought-summary');
+      const progWrap = document.getElementById('wish-check-progress-wrap');
+      const progBar = document.getElementById('wish-check-progress-bar');
+
+      // === MODE 2: CEKLIS / ALUR ===
+      if (wishViewMode === 'checklist') {
+        const doneCount = checkAll.filter(w => w.Status === 'Tercapai').length;
+        const pct = checkAll.length ? Math.round((doneCount / checkAll.length) * 100) : 0;
+
+        sumLabel.textContent = wishCatFilter === 'ALL' ? 'Progress Semua Ceklis & Alur' : `Progress Ceklis: ${wishCatFilter}`;
+        totalEl.textContent = `${doneCount} / ${checkAll.length} Selesai`;
+        subEl.textContent = `(${pct}% rampung)`;
+        progWrap.classList.remove('hidden');
+        progBar.style.width = `${pct}%`;
+
+        list.className = 'flex flex-col gap-2.5 pb-6';
+        const items = wishStatusFilter === 'ALL' ? checkAll : checkAll.filter(w => w.Status === wishStatusFilter);
+
+        if (!items.length) {
+          list.innerHTML = `<div class="text-center text-xs text-slate-500 py-10 bg-slate-800 rounded-2xl border border-dashed border-slate-700">Belum ada daftar ceklis di kategori ini. Ketik langkah pertama di kolom atas!</div>`;
+          return;
+        }
+
+        list.innerHTML = items.map((w, idx) => {
+          const done = w.Status === 'Tercapai';
+          const links = getNormalizedItemLinks(w);
+          const linksHtml = links.length ? `
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              ${links.map((lnk, i) => {
+                const st = getLinkBadgeStyle(lnk.source);
+                return `
+                  <a href="${lnk.url}" target="_blank" onclick="event.stopPropagation()"
+                    class="text-[10px] py-1 px-2 rounded-lg border ${st.bg} font-semibold inline-flex items-center gap-1">
+                    <span>${st.icon}</span>
+                    <span>${escapeHtml(lnk.source || `Link ${i + 1}`)}</span>
+                    <i data-lucide="external-link" class="w-2.5 h-2.5"></i>
+                  </a>`;
+              }).join('')}
+            </div>` : '';
+
+          return `
+            <div onclick="toggleWish('${w.ID}')"
+              class="bg-slate-800 border ${done ? 'border-emerald-500/40 opacity-85' : 'border-slate-700'} rounded-2xl p-3.5 flex items-start gap-3 shadow-sm cursor-pointer transition-all">
+              <button type="button"
+                class="w-6 h-6 rounded-lg mt-0.5 shrink-0 flex items-center justify-center border-2 transition-colors ${done ? 'bg-emerald-500 border-emerald-500 keep-white' : 'border-slate-500 bg-slate-900'}">
+                ${done ? '<i data-lucide="check" class="w-4 h-4"></i>' : ''}
+              </button>
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="text-sm font-bold leading-snug ${done ? 'line-through text-slate-400' : ''}">${escapeHtml(w.Nama_Item)}</span>
+                  ${wishCatFilter === 'ALL' ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-700 text-slate-400">${escapeHtml(w.Kategori)}</span>` : ''}
+                </div>
+                ${w.Deskripsi ? `<p class="text-xs text-slate-400 mt-1 leading-relaxed whitespace-pre-wrap">${escapeHtml(w.Deskripsi)}</p>` : ''}
+                ${linksHtml}
+              </div>
+              <div class="flex items-center gap-1 shrink-0" onclick="event.stopPropagation()">
+                <button onclick="openEditWishModal('${w.ID}')" title="Edit" class="p-1.5 rounded-lg bg-slate-700 text-slate-400 hover:text-sky-500">
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="deleteWishItem('${w.ID}', '${escapeHtml(w.Nama_Item)}')" title="Hapus" class="p-1.5 rounded-lg bg-slate-700 text-slate-400 hover:text-rose-500">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>`;
+        }).join('');
+        return;
+      }
+
+      // === MODE 1: KARTU BARANG ===
+      progWrap.classList.add('hidden');
+      const cardReversed = [...cardAll].reverse();
+      const items = wishStatusFilter === 'ALL' ? cardReversed : cardReversed.filter(w => w.Status === wishStatusFilter);
+
+      const totalEst = cardAll.reduce((acc, w) => acc + Number(w.Harga || 0), 0);
+      const boughtList = cardAll.filter(w => w.Status === 'Tercapai');
       const totalBought = boughtList.reduce((acc, w) => acc + Number(w.Harga || 0), 0);
-      document.getElementById('wish-total-budget').textContent = formatRupiah(totalEst);
-      document.getElementById('wish-bought-summary').textContent = `Terbeli: ${formatRupiah(totalBought)} (${boughtList.length}/${catFiltered.length} item)`;
+
+      sumLabel.textContent = 'Total Estimasi List Barang & Persiapan';
+      totalEl.textContent = formatRupiah(totalEst);
+      subEl.textContent = `Terbeli: ${formatRupiah(totalBought)} (${boughtList.length}/${cardAll.length} item)`;
+
+      list.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6';
 
       if (!items.length) {
-        list.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-10 bg-slate-800 rounded-2xl border border-dashed border-slate-700">Belum ada item di kategori ini. Klik "+ Tambah Item" di atas!</div>`;
+        list.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-10 bg-slate-800 rounded-2xl border border-dashed border-slate-700">Belum ada kartu barang di kategori ini. Klik "+ Tambah Item" di atas!</div>`;
         return;
       }
 
@@ -3662,13 +3856,14 @@
 
     async function submitNewWish() {
       const editId = document.getElementById('wish-edit-id').value;
+      const itemType = document.getElementById('wish-form-type').value || 'card';
       const namaItem = document.getElementById('wish-nama').value.trim();
       const kategori = document.getElementById('wish-kategori').value;
       const harga = document.getElementById('wish-harga').value;
       const deskripsi = document.getElementById('wish-deskripsi').value.trim();
       const file = document.getElementById('wish-foto').files[0];
 
-      if (!namaItem) return showToast('Nama barang / kebutuhan wajib diisi');
+      if (!namaItem) return showToast(itemType === 'checklist' ? 'Nama tugas wajib diisi' : 'Nama barang wajib diisi');
 
       const cleanedLinks = wishFormLinks
         .filter(l => l.url && l.url.trim())
@@ -3679,41 +3874,53 @@
         }));
 
       if (editId && state.wishlist[editId]) {
-        let fotoUrl = state.wishlist[editId].Foto_URL;
-        if (file) fotoUrl = (await uploadMedia(file, false)) || fotoUrl;
+        let fotoUrl = state.wishlist[editId].Foto_URL || '';
+        if (itemType === 'card' && file) fotoUrl = (await uploadMedia(file, false)) || fotoUrl;
 
         await db.ref(`wishlist/${editId}`).update({
+          Tipe: itemType,
           Nama_Item: namaItem,
           Kategori: kategori,
-          Harga: Number(harga || 0),
+          Harga: itemType === 'checklist' ? 0 : Number(harga || 0),
           Deskripsi: deskripsi,
-          Foto_URL: fotoUrl,
+          Foto_URL: itemType === 'checklist' ? '' : fotoUrl,
           Links: cleanedLinks,
           Link_URL: cleanedLinks[0]?.url || ''
         });
+        wishViewMode = itemType;
         closeModal('modal-new-wish');
         showToast('Item list diperbarui!');
         return;
       }
 
-      let fotoUrl = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600';
-      if (file) fotoUrl = (await uploadMedia(file, false)) || fotoUrl;
+      let fotoUrl = '';
+      if (itemType === 'card') {
+        fotoUrl = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600';
+        if (file) fotoUrl = (await uploadMedia(file, false)) || fotoUrl;
+      }
 
       const newRef = db.ref('wishlist').push();
       await newRef.set({
         ID: newRef.key,
+        Tipe: itemType,
         Nama_Item: namaItem,
         Kategori: kategori,
-        Harga: Number(harga || 0),
+        Harga: itemType === 'checklist' ? 0 : Number(harga || 0),
         Deskripsi: deskripsi,
         Foto_URL: fotoUrl,
         Links: cleanedLinks,
         Link_URL: cleanedLinks[0]?.url || '',
-        Status: 'Impian'
+        Status: 'Impian',
+        Created_By: currentUser.Nama,
+        Waktu: Date.now()
       });
 
+      wishViewMode = itemType;
       closeModal('modal-new-wish');
-      triggerPartnerPush('📋 List Baru Ditambahkan!', `${currentUser.Nama} nambahin (${kategori}): ${namaItem}`);
+      triggerPartnerPush(
+        itemType === 'checklist' ? '☑️ Ceklis Baru!' : '📋 List Barang Baru!',
+        `${currentUser.Nama} nambahin (${kategori}): ${namaItem}`
+      );
       showToast('Berhasil ditambahkan ke list!');
     }
 
@@ -3723,7 +3930,11 @@
       const nextStatus = item.Status === 'Impian' ? 'Tercapai' : 'Impian';
       await db.ref(`wishlist/${id}/Status`).set(nextStatus);
       if (nextStatus === 'Tercapai') {
-        triggerPartnerPush('🎉 List Terbeli / Tercapai!', `${currentUser.Nama} nyentang: ${item.Nama_Item}`);
+        const isCheck = item.Tipe === 'checklist';
+        triggerPartnerPush(
+          isCheck ? '☑️ Tugas / Ceklis Selesai!' : '🎉 Barang Terbeli!',
+          `${currentUser.Nama} nyentang: ${item.Nama_Item}`
+        );
       }
     }
 
