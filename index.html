@@ -2,10 +2,13 @@
 <html lang="id" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>OurSpace</title>
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#0f172a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/833/833472.png" />
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,32 +16,59 @@
   
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
+    window.OneSignalReady = false;
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
-      await OneSignal.init({
-        appId: "fe2751d3-d1c2-449b-b835-f58c6912c8c6",
-        allowLocalhostAsSecureOrigin: true
-      });
-      const savedUser = JSON.parse(localStorage.getItem('ourspace_user') || 'null');
-      if (savedUser && savedUser.ID) {
-        await OneSignal.User.addTag("role", savedUser.ID);
+      try {
+        await OneSignal.init({
+          appId: "fe2751d3-d1c2-449b-b835-f58c6912c8c6",
+          allowLocalhostAsSecureOrigin: true
+        });
+        window.OneSignalReady = true;
+
+        const syncTag = async () => {
+          const savedUser = JSON.parse(localStorage.getItem('ourspace_user') || 'null');
+          if (savedUser && savedUser.ID) {
+            await OneSignal.User.PushSubscription.optIn();
+            await OneSignal.User.addTag("role", savedUser.ID);
+          }
+        };
+
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          await syncTag();
+        }
+
+        OneSignal.Notifications.addEventListener('permissionChange', async (granted) => {
+          if (granted) await syncTag();
+        });
+      } catch (e) {
+        console.error('OneSignal init error:', e);
       }
     });
   </script>
 
   <style>
-    * { -webkit-tap-highlight-color: transparent; }
-    body { background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: #020617;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
+    .safe-top { padding-top: max(12px, env(safe-area-inset-top)); }
+    .safe-bottom { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
     @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .animate-spin-slow { animation: spinSlow 6s linear infinite; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex justify-center">
+<body class="bg-slate-950 text-slate-100 flex justify-center">
 
-  <div id="app" class="w-full max-w-md bg-slate-900 min-h-screen flex flex-col relative shadow-2xl border-x border-slate-800/60">
+  <div id="app" style="height: 100dvh;" class="w-full max-w-md bg-slate-900 flex flex-col relative shadow-2xl border-x border-slate-800/60 overflow-hidden">
 
     <!-- LOADING OVERLAY -->
     <div id="loader" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center">
@@ -47,15 +77,15 @@
     </div>
 
     <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-800 border border-slate-700 text-white px-4 py-2.5 rounded-full shadow-xl text-xs font-medium flex items-center gap-2 transition-all">
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-800 border border-rose-500/40 text-white px-4 py-2.5 rounded-full shadow-2xl text-xs font-semibold flex items-center gap-2 max-w-[90vw] text-center">
       <span id="toast-msg">Berhasil!</span>
     </div>
 
     <!-- ========================================== -->
     <!-- SCREEN 1: LOGIN PROFIL + PIN               -->
     <!-- ========================================== -->
-    <div id="login-screen" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center">
-      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-500/20 mb-4">
+    <div id="login-screen" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center overflow-y-auto">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-500/20 mb-4 shrink-0">
         <i data-lucide="heart" class="w-8 h-8 text-white fill-white"></i>
       </div>
       <h1 class="text-2xl font-bold tracking-tight">OurSpace</h1>
@@ -66,6 +96,7 @@
       <div id="pin-box" class="hidden w-full bg-slate-800/80 border border-slate-700 rounded-2xl p-5">
         <p class="text-sm font-medium mb-3">Masukkan PIN <span id="selected-user-name" class="text-rose-400 font-bold"></span></p>
         <input id="pin-input" type="password" inputmode="numeric" maxlength="6" placeholder="••••"
+          onkeypress="if(event.key==='Enter') submitLogin()"
           class="w-full text-center text-2xl tracking-[0.5em] bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 focus:outline-none focus:border-rose-500 mb-4" />
         <button onclick="submitLogin()" class="w-full bg-gradient-to-r from-rose-500 to-pink-600 hover:opacity-95 text-white font-semibold py-3 rounded-xl shadow-lg shadow-rose-500/20">
           Masuk Sekarang
@@ -77,10 +108,10 @@
     <!-- ========================================== -->
     <!-- SCREEN 2: MAIN APP                         -->
     <!-- ========================================== -->
-    <div id="main-screen" class="hidden flex-1 flex flex-col h-screen overflow-hidden">
+    <div id="main-screen" style="height: 100dvh;" class="hidden flex-1 flex flex-col overflow-hidden">
 
-      <!-- TOP HEADER WITH LAST SEEN & MUSIC BUTTON -->
-      <header class="px-4 py-3 bg-slate-900/95 backdrop-blur border-b border-slate-800 flex items-center justify-between shrink-0 z-20">
+      <!-- TOP HEADER -->
+      <header class="px-4 pb-3 safe-top bg-slate-900/95 backdrop-blur border-b border-slate-800 flex items-center justify-between shrink-0 z-20">
         <div class="flex items-center gap-2.5 min-w-0">
           <div class="relative shrink-0">
             <img id="header-partner-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-rose-500/50 bg-slate-800" />
@@ -99,8 +130,8 @@
           <button onclick="refreshData(true)" title="Sync Data" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300">
             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
           </button>
-          <button onclick="openSettingsModal()" title="Pengaturan" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1.5">
-            <img id="header-my-avatar" src="" class="w-5 h-5 rounded-full object-cover bg-slate-700" />
+          <button onclick="openSettingsModal()" title="Pengaturan" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1.5">
+            <img id="header-my-avatar" src="" class="w-6 h-6 rounded-full object-cover bg-slate-700" />
             <i data-lucide="settings" class="w-4 h-4 text-slate-400"></i>
           </button>
         </div>
@@ -124,25 +155,25 @@
 
       <!-- AUTOPLAY UNBLOCK BANNER -->
       <div id="autoplay-banner" onclick="forceJoinMusic()" class="hidden px-4 py-2 bg-emerald-600 text-white text-xs font-semibold flex items-center justify-between cursor-pointer shrink-0">
-        <span id="autoplay-text">🎧 Pasangan sedang memutar lagu — Ketuk untuk gabung</span>
-        <span class="bg-white/20 px-2 py-0.5 rounded text-[10px]">Dengar</span>
+        <span id="autoplay-text" class="truncate mr-2">🎧 Pasangan sedang memutar lagu — Ketuk untuk gabung</span>
+        <span class="bg-white/20 px-2.5 py-0.5 rounded text-[10px] shrink-0">Dengar</span>
       </div>
 
       <!-- TAB 1: ROOM CHAT WITH CUSTOM WALLPAPER -->
       <section id="tab-chat" class="flex-1 flex flex-col overflow-hidden relative bg-slate-900 bg-cover bg-center">
-        <div id="chat-wallpaper-overlay" class="hidden absolute inset-0 bg-slate-950/65 pointer-events-none"></div>
+        <div id="chat-wallpaper-overlay" class="hidden absolute inset-0 bg-slate-950/60 pointer-events-none"></div>
         
         <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar relative z-10"></div>
         
         <!-- Quick Emoji Bar -->
         <div class="px-3 py-1.5 bg-slate-900/95 backdrop-blur border-t border-slate-800/60 flex gap-2 overflow-x-auto no-scrollbar shrink-0 relative z-10">
-          <button onclick="sendQuickEmoji('❤️')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">❤️</button>
-          <button onclick="sendQuickEmoji('🥰')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">🥰</button>
-          <button onclick="sendQuickEmoji('😘')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">😘</button>
-          <button onclick="sendQuickEmoji('🥺')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">🥺</button>
-          <button onclick="sendQuickEmoji('🤗')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">🤗</button>
-          <button onclick="sendQuickEmoji('😭')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">😭</button>
-          <button onclick="sendQuickEmoji('🍔')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm">🍔</button>
+          <button onclick="sendQuickEmoji('❤️')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">❤️</button>
+          <button onclick="sendQuickEmoji('🥰')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">🥰</button>
+          <button onclick="sendQuickEmoji('😘')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">😘</button>
+          <button onclick="sendQuickEmoji('🥺')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">🥺</button>
+          <button onclick="sendQuickEmoji('🤗')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">🤗</button>
+          <button onclick="sendQuickEmoji('😭')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">😭</button>
+          <button onclick="sendQuickEmoji('🍔')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">🍔</button>
         </div>
 
         <!-- Image Preview before sending -->
@@ -155,8 +186,110 @@
         </div>
 
         <!-- Chat Input Bar -->
-        <div class="p-3 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex items-center gap-2 shrink-0 relative z-10">
+        <div class="p-2.5 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex items-center gap-2 shrink-0 relative z-10">
           <label class="p-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
+            <i data-lucide="image" class="w-5 h-5"></i>
+            <input id="chat-file-input" type="file" accept="image/*" class="hidden" onchange="previewChatImage(event)" />
+          </label>
+          <input id="chat-input" type="text" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendChat()"
+            class="flex-1 bg-slate-800 border border-slate-700 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500 min-w-0" />
+          <button onclick="sendChat()" class="p-2.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 text-white shrink-0 shadow-md">
+            <i data-lucide="send" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- TAB 2: CELENGAN MULTI-KANTONG -->
+      <section id="tab-celengan" class="hidden flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+        <div class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg">
+          <div class="flex justify-between items-start gap-2">
+            <div>
+              <p class="text-xs text-rose-100 font-medium">Total Tabungan Berdua</p>
+              <h3 id="total-celengan-all" class="text-2xl font-extrabold mt-1">Rp 0</h3>
+            </div>
+            <button onclick="openModal('modal-new-pos')" class="bg-white/20 hover:bg-white/30 backdrop-blur px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 shrink-0">
+              <i data-lucide="plus" class="w-4 h-4"></i> Pos Baru
+            </button>
+          </div>
+          <p class="text-[11px] text-rose-100 mt-3 opacity-90">Pisahkan target liburan, nikah, atau wishlist barang di tiap pos.</p>
+        </div>
+        <div id="celengan-pos-list" class="space-y-4 pb-4"></div>
+      </section>
+
+      <!-- TAB 3: MEMORY VAULT -->
+      <section id="tab-vault" class="hidden flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base font-bold">Memory Vault</h3>
+            <p class="text-xs text-slate-400">Galeri foto & cerita kita (Cloud 15 GB)</p>
+          </div>
+          <button onclick="openModal('modal-new-vault')" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow shrink-0">
+            <i data-lucide="camera" class="w-4 h-4"></i> Upload Foto
+          </button>
+        </div>
+        <div id="vault-list" class="space-y-4 pb-4"></div>
+      </section>
+
+      <!-- TAB 4: BUCKET LIST & WISHLIST -->
+      <section id="tab-wishlist" class="hidden flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base font-bold">Bucket List & Wishlist</h3>
+            <p class="text-xs text-slate-400">Tempat makan, liburan & impian bareng</p>
+          </div>
+          <button onclick="openModal('modal-new-wish')" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow shrink-0">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Tambah
+          </button>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="filterWish('ALL')" id="wish-filter-ALL" class="px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 text-white">Semua</button>
+          <button onclick="filterWish('Impian')" id="wish-filter-Impian" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Impian</button>
+          <button onclick="filterWish('Tercapai')" id="wish-filter-Tercapai" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Tercapai</button>
+        </div>
+        <div id="wishlist-list" class="grid grid-cols-1 gap-3 pb-4"></div>
+      </section>
+
+      <!-- BOTTOM NAVIGATION BAR -->
+      <nav class="bg-slate-900 border-t border-slate-800 grid grid-cols-4 pt-2 px-1 shrink-0 safe-bottom z-20">
+        <button onclick="switchTab('chat')" id="nav-chat" class="flex flex-col items-center gap-1 py-1 text-rose-500">
+          <i data-lucide="message-circle-heart" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Chat</span>
+        </button>
+        <button onclick="switchTab('celengan')" id="nav-celengan" class="flex flex-col items-center gap-1 py-1 text-slate-400">
+          <i data-lucide="piggy-bank" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Celengan</span>
+        </button>
+        <button onclick="switchTab('vault')" id="nav-vault" class="flex flex-col items-center gap-1 py-1 text-slate-400">
+          <i data-lucide="images" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Vault</span>
+        </button>
+        <button onclick="switchTab('wishlist')" id="nav-wishlist" class="flex flex-col items-center gap-1 py-1 text-slate-400">
+          <i data-lucide="gift" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Wishlist</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- HIDDEN HTML5 AUDIO ELEMENT -->
+    <audio id="shared-audio" preload="auto"></audio>
+
+    <!-- ========================================== -->
+    <!-- MODAL: DENGERIN MUSIK BARENG               -->
+    <!-- ========================================== -->
+    <div id="modal-music" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[85dvh] flex flex-col space-y-4">
+        <div class="flex justify-between items-center shrink-0">
+          <div class="flex items-center gap-2">
+            <i data-lucide="headphones" class="w-5 h-5 text-rose-500"></i>
+            <h3 class="font-bold text-base">Dengerin Musik Bareng</h3>
+          </div>
+          <button onclick="closeModal('modal-music')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- NOW PLAYING CARD -->
+        <div class="bg-gradient-to-br from-slate-800 to-rose-950/50 border border-slate-700 rounded-2xl p-4 space-y-3 shrink-0">
+          <div class="flex items-center gap-3">
+te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
             <i data-lucide="image" class="w-5 h-5"></i>
             <input id="chat-file-input" type="file" accept="image/*" class="hidden" onchange="previewChatImage(event)" />
           </label>
