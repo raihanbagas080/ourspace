@@ -1,6 +1,14 @@
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
 
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 firebase.initializeApp({
   apiKey: "AIzaSyByUZl_n0H65j2MPT7R1GOE2YB_zH9RbXc",
   authDomain: "our-space-aad66.firebaseapp.com",
@@ -12,28 +20,23 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
-const APP_LOGO = 'https://cdn-icons-png.flaticon.com/512/833/833472.png';
 
 messaging.onBackgroundMessage((payload) => {
   const title = payload.notification?.title || payload.data?.title || 'OurSpace';
-  const body = payload.notification?.body || payload.data?.body || 'Ada pesan baru untukmu';
-
-  self.registration.showNotification(title, {
+  const body = payload.notification?.body || payload.data?.body || '';
+  return self.registration.showNotification(title, {
     body: body,
-    icon: APP_LOGO,
-    badge: APP_LOGO,
-    tag: 'ourspace-msg',
-    renotify: true,
-    vibrate: [150, 80, 150],
-    data: { url: '/' }
+    icon: '/icon-192.png',
+    badge: '/badge-96.png',
+    vibrate: [200, 100, 200]
   });
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      for (const client of list) {
         if ('focus' in client) return client.focus();
       }
       if (clients.openWindow) return clients.openWindow('/');
