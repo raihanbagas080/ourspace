@@ -10,52 +10,14 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/833/833472.png" />
-  
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-  <script>
-    window.OneSignalInstance = null;
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function(OneSignal) {
-      try {
-        await OneSignal.init({
-          appId: "fe2751d3-d1c2-449b-b835-f58c6912c8c6",
-          allowLocalhostAsSecureOrigin: true
-        });
-        window.OneSignalInstance = OneSignal;
 
-        const syncDeviceToSheet = async () => {
-          const savedUser = JSON.parse(localStorage.getItem('ourspace_user') || 'null');
-          if (!savedUser || !savedUser.ID) return;
-          await OneSignal.User.PushSubscription.optIn();
-          await OneSignal.User.addTag("role", savedUser.ID);
-
-          setTimeout(async () => {
-            const subId = OneSignal.User.PushSubscription.id;
-            if (subId && typeof window.savePushIdToBackend === 'function') {
-              await window.savePushIdToBackend(savedUser.ID, subId);
-            }
-          }, 1500);
-        };
-
-        OneSignal.User.PushSubscription.addEventListener('change', async (event) => {
-          const savedUser = JSON.parse(localStorage.getItem('ourspace_user') || 'null');
-          const newId = event?.current?.id;
-          if (savedUser && savedUser.ID && newId && typeof window.savePushIdToBackend === 'function') {
-            await window.savePushIdToBackend(savedUser.ID, newId);
-          }
-        });
-
-        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-          await syncDeviceToSheet();
-        }
-      } catch (e) {
-        console.error('OneSignal init error:', e);
-      }
-    });
-  </script>
+  <!-- FIREBASE SDK v10 COMPAT -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
 
   <style>
     * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
@@ -80,10 +42,9 @@
 
   <div id="app" style="height: 100dvh;" class="w-full max-w-md bg-slate-900 flex flex-col relative shadow-2xl border-x border-slate-800/60 overflow-hidden">
 
-    <!-- LOADING OVERLAY -->
-    <div id="loader" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center">
-      <div class="w-10 h-10 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-      <p id="loader-text" class="text-sm text-slate-300 font-medium">Menghubungkan ruang kita...</p>
+    <!-- SUBTLE UPLOAD PROGRESS BAR -->
+    <div id="upload-bar" class="hidden fixed top-0 left-0 right-0 z-50 bg-rose-500 text-white text-[11px] font-semibold text-center py-1 shadow">
+      <span id="upload-bar-text">Mengunggah media...</span>
     </div>
 
     <!-- TOAST NOTIFICATION -->
@@ -129,16 +90,13 @@
           </div>
           <div class="min-w-0">
             <h2 id="header-title" class="text-sm font-bold leading-tight truncate">OurSpace</h2>
-            <p id="header-subtitle" class="text-[11px] text-slate-400 truncate">Memeriksa status...</p>
+            <p id="header-subtitle" class="text-[11px] text-slate-400 truncate">Menghubungkan...</p>
           </div>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
           <button onclick="openModal('modal-music')" title="Dengerin Musik Bareng" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 relative">
             <i data-lucide="headphones" class="w-4 h-4"></i>
             <span id="music-badge" class="hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          </button>
-          <button onclick="refreshData(true)" title="Sync Data" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300">
-            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
           </button>
           <button onclick="openSettingsModal()" title="Pengaturan" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1.5">
             <img id="header-my-avatar" src="" class="w-6 h-6 rounded-full object-cover bg-slate-700" />
@@ -172,9 +130,9 @@
       <!-- TAB 1: ROOM CHAT WITH CUSTOM WALLPAPER -->
       <section id="tab-chat" class="flex-1 flex flex-col overflow-hidden relative bg-slate-900 bg-cover bg-center">
         <div id="chat-wallpaper-overlay" class="hidden absolute inset-0 bg-slate-950/60 pointer-events-none"></div>
-        
+
         <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar relative z-10"></div>
-        
+
         <!-- Quick Emoji Bar -->
         <div class="px-3 py-1.5 bg-slate-900/95 backdrop-blur border-t border-slate-800/60 flex gap-2 overflow-x-auto no-scrollbar shrink-0 relative z-10">
           <button onclick="sendQuickEmoji('❤️')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">❤️</button>
@@ -231,7 +189,7 @@
         <div class="flex items-center justify-between gap-2">
           <div>
             <h3 class="text-base font-bold">Memory Vault</h3>
-            <p class="text-xs text-slate-400">Galeri foto & cerita kita (Cloud 15 GB)</p>
+            <p class="text-xs text-slate-400">Galeri foto & cerita kenangan kita</p>
           </div>
           <button onclick="openModal('modal-new-vault')" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow shrink-0">
             <i data-lucide="camera" class="w-4 h-4"></i> Upload Foto
@@ -338,7 +296,6 @@
               Upload & Putar
             </button>
           </div>
-          <p class="text-[10px] text-slate-500">Maksimal ukuran file 15 MB agar lancar tersimpan di Google Drive.</p>
         </div>
 
         <div class="flex-1 overflow-y-auto space-y-2 no-scrollbar min-h-0">
@@ -362,9 +319,9 @@
 
         <!-- BAGIAN 1: NOTIFIKASI -->
         <div class="space-y-2.5">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">1. Notifikasi Mengambang</h4>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">1. Notifikasi Android (FCM)</h4>
           <button onclick="enablePushNotif(false)" class="w-full bg-amber-500/20 border border-amber-500/40 active:scale-95 transition-transform text-amber-300 font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2">
-            <i data-lucide="bell-ring" class="w-4 h-4"></i> Daftarkan HP Ini ke Notifikasi
+            <i data-lucide="bell-ring" class="w-4 h-4"></i> Aktifkan Notifikasi di HP Ini
           </button>
           <button onclick="sendTestNotif()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 active:scale-95 transition-transform text-slate-200 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
             <i data-lucide="send" class="w-3.5 h-3.5 text-emerald-400"></i> Tes Kirim Notif ke Pasangan
@@ -518,108 +475,309 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbx1zo665zHesf9k-JZIj1Q_8pPhXu9vTwVQ_ozQjGYSc_hRbmZig-yzm5Entg1_HnyD/exec';
+    // ========================================================
+    // KONFIGURASI FIREBASE & CLOUDINARY (SUDAH TERISI LENGKAP)
+    // ========================================================
+    const APP_CONFIG = {
+      firebaseConfig: {
+        apiKey: "AIzaSyByUZl_n0H65j2MPT7R1GOE2YB_zH9RbXc",
+        authDomain: "our-space-aad66.firebaseapp.com",
+        databaseURL: "https://our-space-aad66-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "our-space-aad66",
+        storageBucket: "our-space-aad66.firebasestorage.app",
+        messagingSenderId: "1091560854681",
+        appId: "1:1091560854681:web:e4d98d6758e834ceed9408"
+      },
+      vapidKey: "BBLzzuiTSJxLa9MnGGuB9HYLOxf2csUVyA3mMiIhK4slf7keGC3Adfq2Bof_KvX-XBOTF5GhbZK1rPXAcYziAgs",
+      cloudinaryCloudName: "b3ixgt75",
+      cloudinaryUploadPreset: "ourspace",
+      pushRelayUrl: "https://script.google.com/macros/s/AKfycbx1zo665zHesf9k-JZIj1Q_8pPhXu9vTwVQ_ozQjGYSc_hRbmZig-yzm5Entg1_HnyD/exec"
+    };
 
-    let appData = { users: [], chat: [], celenganPos: [], celenganMutasi: [], vault: [], wishlist: [], music: [], settings: {} };
+    // INIT FIREBASE
+    firebase.initializeApp(APP_CONFIG.firebaseConfig);
+    const db = firebase.database();
+    let messaging = null;
+    try {
+      if (firebase.messaging.isSupported()) {
+        messaging = firebase.messaging();
+      }
+    } catch (e) {}
+
+    // STATE APLIKASI (INSTANT CACHE DARI LOCALSTORAGE)
+    let state = JSON.parse(localStorage.getItem('ourspace_cache') || 'null') || {
+      users: {
+        user1: { ID: 'user1', Nama: 'Mas', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mas' },
+        user2: { ID: 'user2', Nama: 'Bul', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bul' }
+      },
+      chat: {},
+      celenganPos: {},
+      celenganMutasi: {},
+      vault: {},
+      wishlist: {},
+      music: {},
+      settings: {}
+    };
+
     let currentUser = JSON.parse(localStorage.getItem('ourspace_user') || 'null');
-    let selectedLoginUser = null;
-    let activeTab = 'chat';
+    let selectedLoginUserId = null;
     let wishFilter = 'ALL';
-    let chatImageBase64 = '';
-    let pollTimer = null;
+    let chatImageFile = null;
     let lastMusicSyncStamp = '';
 
     const audioEl = document.getElementById('shared-audio');
 
-    window.savePushIdToBackend = async function(userId, pushId) {
-      if (!userId || !pushId) return;
+    function saveCache() {
       try {
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'savePushId',
-            senderId: userId,
-            pushId: pushId
-          })
-        });
-        const statusEl = document.getElementById('notif-status-text');
-        if (statusEl) {
-          statusEl.textContent = `Status: ID Perangkat Terdaftar (${pushId.slice(0, 8)}...)`;
-          statusEl.className = 'text-[11px] text-emerald-400 text-center font-semibold';
-        }
+        localStorage.setItem('ourspace_cache', JSON.stringify(state));
       } catch (e) {}
-    };
+    }
 
+    // BOOTSTRAP INSTAN (0 DETIK LOADING)
     window.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       setupAudioListeners();
-      await fetchAllData(true);
-      if (currentUser) {
-        const fresh = appData.users.find(u => u.ID === currentUser.ID);
-        if (fresh) {
-          currentUser = fresh;
-          localStorage.setItem('ourspace_user', JSON.stringify(fresh));
-        }
+      await ensureInitialUsers();
+      startRealtimeListeners();
+
+      if (currentUser && state.users[currentUser.ID]) {
+        currentUser = state.users[currentUser.ID];
         showMainApp();
       } else {
         showLoginScreen();
       }
     });
 
-    async function fetchAllData(showLoading = false) {
-      if (showLoading) setLoader(true, 'Memuat data...');
-      try {
-        const url = currentUser ? `${API_URL}?userId=${encodeURIComponent(currentUser.ID)}` : API_URL;
-        const res = await fetch(url);
-        const json = await res.json();
-        if (json.status === 'success') {
-          appData = json.data;
-          if (currentUser) {
-            const updatedMe = appData.users.find(u => u.ID === currentUser.ID);
-            if (updatedMe) currentUser = updatedMe;
-            renderAll();
-          }
-        }
-      } catch (e) {
-        if (showLoading) showToast('Gagal memuat data, cek koneksi');
+    async function ensureInitialUsers() {
+      const snap = await db.ref('users').once('value');
+      if (!snap.exists()) {
+        await db.ref('users').set({
+          user1: { ID: 'user1', Nama: 'Mas', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mas', online: false, lastSeen: Date.now() },
+          user2: { ID: 'user2', Nama: 'Bul', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bul', online: false, lastSeen: Date.now() }
+        });
       }
-      if (showLoading) setLoader(false);
     }
 
-    async function postAction(payload, loadingMsg = 'Menyimpan...') {
-      setLoader(true, loadingMsg);
+    // REALTIME LISTENERS (UPDATE OTOMATIS < 0.1 DETIK)
+    function startRealtimeListeners() {
+      db.ref('users').on('value', snap => {
+        if (snap.exists()) {
+          state.users = snap.val();
+          saveCache();
+          if (currentUser && state.users[currentUser.ID]) {
+            currentUser = state.users[currentUser.ID];
+            localStorage.setItem('ourspace_user', JSON.stringify(currentUser));
+            renderHeaderAndStatus();
+          } else {
+            renderLoginCards();
+          }
+        }
+      });
+
+      db.ref('chat').limitToLast(80).on('value', snap => {
+        state.chat = snap.val() || {};
+        saveCache();
+        if (currentUser) renderChat();
+      });
+
+      db.ref('celenganPos').on('value', snap => {
+        state.celenganPos = snap.val() || {};
+        saveCache();
+        if (currentUser) renderCelengan();
+      });
+
+      db.ref('celenganMutasi').on('value', snap => {
+        state.celenganMutasi = snap.val() || {};
+        saveCache();
+        if (currentUser) renderCelengan();
+      });
+
+      db.ref('vault').on('value', snap => {
+        state.vault = snap.val() || {};
+        saveCache();
+        if (currentUser) renderVault();
+      });
+
+      db.ref('wishlist').on('value', snap => {
+        state.wishlist = snap.val() || {};
+        saveCache();
+        if (currentUser) renderWishlist();
+      });
+
+      db.ref('music').on('value', snap => {
+        state.music = snap.val() || {};
+        saveCache();
+        if (currentUser) renderMusicPlaylist();
+      });
+
+      db.ref('settings').on('value', snap => {
+        state.settings = snap.val() || {};
+        saveCache();
+        if (currentUser) {
+          applyChatWallpaper(state.settings.chat_wallpaper || '');
+          syncSharedMusicState();
+          lucide.createIcons();
+        }
+      });
+
+      // Foreground FCM listener
+      if (messaging) {
+        messaging.onMessage((payload) => {
+          const title = payload.notification?.title || 'OurSpace';
+          const body = payload.notification?.body || '';
+          showToast(`${title}: ${body}`);
+        });
+      }
+    }
+
+    // PRESENCE SYSTEM (ONLINE / TERAKHIR DILIHAT NATIVE FIREBASE)
+    function setupPresence(userId) {
+      const userStatusRef = db.ref(`users/${userId}`);
+      db.ref('.info/connected').on('value', (snap) => {
+        if (snap.val() === true) {
+          userStatusRef.onDisconnect().update({
+            online: false,
+            lastSeen: firebase.database.ServerValue.TIMESTAMP
+          });
+          userStatusRef.update({
+            online: true,
+            lastSeen: firebase.database.ServerValue.TIMESTAMP
+          });
+        }
+      });
+    }
+
+    // PUSH NOTIFICATION (FCM)
+    async function enablePushNotif(silent = false) {
+      const statusEl = document.getElementById('notif-status-text');
+      if (!messaging) {
+        if (!silent) showToast('Browser ini belum mendukung FCM');
+        return;
+      }
+
+      if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
+        const msg = 'Izin notif diblokir Chrome. Buka Setelan Situs -> Notifikasi -> Izinkan.';
+        if (statusEl) statusEl.textContent = msg;
+        if (!silent) showToast(msg);
+        return;
+      }
+
       try {
-        const res = await fetch(API_URL, {
+        if (!silent) showToast('Mengaktifkan notifikasi Google FCM...');
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          if (!silent) showToast('Izin notifikasi ditolak');
+          return;
+        }
+
+        const swReg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        const token = await messaging.getToken({
+          vapidKey: APP_CONFIG.vapidKey,
+          serviceWorkerRegistration: swReg
+        });
+
+        if (token && currentUser && currentUser.ID) {
+          await db.ref(`users/${currentUser.ID}/fcmToken`).set(token);
+          if (statusEl) {
+            statusEl.textContent = `Status: Aktif (${token.slice(0, 10)}...)`;
+            statusEl.className = 'text-[11px] text-emerald-400 text-center font-semibold';
+          }
+          if (!silent) showToast('Notifikasi aktif untuk ' + currentUser.Nama + '!');
+        }
+      } catch (err) {
+        if (statusEl) statusEl.textContent = 'Gagal: ' + (err.message || err);
+        if (!silent) showToast('Error notif: ' + (err.message || err));
+      }
+    }
+
+    async function triggerPartnerPush(title, body) {
+      if (!currentUser) return;
+      const partnerId = currentUser.ID === 'user1' ? 'user2' : 'user1';
+      const partnerToken = state.users[partnerId]?.fcmToken;
+      if (!partnerToken) return;
+
+      fetch(APP_CONFIG.pushRelayUrl, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'sendFcm',
+          targetToken: partnerToken,
+          title: title,
+          body: body
+        })
+      }).catch(() => {});
+    }
+
+    async function sendTestNotif() {
+      const partnerId = currentUser.ID === 'user1' ? 'user2' : 'user1';
+      const partner = state.users[partnerId];
+      if (!partner?.fcmToken) {
+        return showToast(`HP ${partner?.Nama || 'pasangan'} belum mengaktifkan notifikasi di menu Pengaturan.`);
+      }
+      showToast('Mengirim tes notifikasi...');
+      try {
+        const res = await fetch(APP_CONFIG.pushRelayUrl, {
           method: 'POST',
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            action: 'sendFcm',
+            targetToken: partner.fcmToken,
+            title: '🔔 Tes Notifikasi OurSpace',
+            body: `Halo ${partner.Nama}! Pesan tes dari ${currentUser.Nama} berhasil masuk ❤️`
+          })
         });
         const json = await res.json();
-        if (json.status === 'success') {
-          await fetchAllData(false);
-          setLoader(false);
-          return true;
-        } else {
-          showToast(json.message || 'Terjadi kesalahan');
-        }
+        showToast(json.status === 'success' ? 'Notifikasi terkirim ke HP pasangan!' : json.message);
       } catch (e) {
-        showToast('Koneksi terganggu, coba lagi');
+        showToast('Gagal menghubungi relay notifikasi');
       }
-      setLoader(false);
-      return false;
+    }
+
+    // MEDIA UPLOAD (CLOUDINARY + BASE64 FALLBACK FOR IMAGES)
+    async function uploadMedia(file, isAudio = false) {
+      const hasCloudinary = APP_CONFIG.cloudinaryCloudName && !APP_CONFIG.cloudinaryCloudName.startsWith('ISI_');
+      if (!hasCloudinary) {
+        if (isAudio) {
+          showToast('Isi Cloudinary Cloud Name dulu di index.html agar bisa upload lagu MP3');
+          return null;
+        }
+        return await compressImage(file, 720, 0.72);
+      }
+
+      setUploadBar(true, isAudio ? 'Mengunggah lagu ke cloud...' : 'Mengunggah foto...');
+      try {
+        const fileToUpload = isAudio ? file : await dataUrlToBlob(await compressImage(file, 1080, 0.8));
+        const formData = new FormData();
+        formData.append('file', fileToUpload);
+        formData.append('upload_preset', APP_CONFIG.cloudinaryUploadPreset);
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${APP_CONFIG.cloudinaryCloudName}/auto/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const json = await res.json();
+        setUploadBar(false);
+        if (json.secure_url) return json.secure_url;
+        showToast('Gagal upload media: ' + (json.error?.message || 'Error'));
+        return null;
+      } catch (e) {
+        setUploadBar(false);
+        showToast('Koneksi upload gagal');
+        return null;
+      }
     }
 
     // LOGIN & AUTH
     function showLoginScreen() {
       document.getElementById('login-screen').classList.remove('hidden');
       document.getElementById('main-screen').classList.add('hidden');
+      renderLoginCards();
+    }
+
+    function renderLoginCards() {
       const container = document.getElementById('user-select-cards');
-      const users = appData.users.length ? appData.users : [
-        { ID: 'user1', Nama: 'Mas', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mas' },
-        { ID: 'user2', Nama: 'Bul', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bul' }
-      ];
-      container.innerHTML = users.map(u => `
+      const usersList = Object.values(state.users);
+      container.innerHTML = usersList.map(u => `
         <button onclick="selectLoginUser('${u.ID}')" id="card-${u.ID}"
-          class="bg-slate-800/80 border-2 border-slate-700 rounded-2xl p-4 flex flex-col items-center gap-2.5 transition-all">
+          class="bg-slate-800/80 border-2 ${selectedLoginUserId === u.ID ? 'border-rose-500 bg-slate-800' : 'border-slate-700'} rounded-2xl p-4 flex flex-col items-center gap-2.5 transition-all">
           <img src="${u.Avatar_URL}" class="w-16 h-16 rounded-full object-cover bg-slate-700" />
           <span class="font-bold text-sm">${escapeHtml(u.Nama)}</span>
         </button>
@@ -627,21 +785,21 @@
     }
 
     function selectLoginUser(userId) {
-      selectedLoginUser = appData.users.find(u => u.ID === userId);
-      document.querySelectorAll('#user-select-cards button').forEach(b => b.classList.remove('border-rose-500', 'bg-slate-800'));
-      document.getElementById('card-' + userId).classList.add('border-rose-500', 'bg-slate-800');
-      document.getElementById('selected-user-name').textContent = selectedLoginUser.Nama;
+      selectedLoginUserId = userId;
+      renderLoginCards();
+      const userObj = state.users[userId];
+      document.getElementById('selected-user-name').textContent = userObj.Nama;
       document.getElementById('pin-box').classList.remove('hidden');
       document.getElementById('pin-input').focus();
     }
 
     function submitLogin() {
       const pin = document.getElementById('pin-input').value.trim();
-      if (!selectedLoginUser) return;
-      if (String(pin) === String(selectedLoginUser.PIN)) {
-        currentUser = selectedLoginUser;
+      const userObj = state.users[selectedLoginUserId];
+      if (!userObj) return;
+      if (String(pin) === String(userObj.PIN)) {
+        currentUser = userObj;
         localStorage.setItem('ourspace_user', JSON.stringify(currentUser));
-        enablePushNotif(true);
         showMainApp();
       } else {
         showToast('PIN salah bro!');
@@ -649,9 +807,14 @@
     }
 
     function logout() {
+      if (currentUser) {
+        db.ref(`users/${currentUser.ID}`).update({
+          online: false,
+          lastSeen: firebase.database.ServerValue.TIMESTAMP
+        });
+      }
       localStorage.removeItem('ourspace_user');
       currentUser = null;
-      if (pollTimer) clearInterval(pollTimer);
       audioEl.pause();
       closeModal('modal-settings');
       showLoginScreen();
@@ -660,102 +823,9 @@
     function showMainApp() {
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('main-screen').classList.remove('hidden');
-      renderAll();
-      enablePushNotif(true);
-      if (pollTimer) clearInterval(pollTimer);
-      pollTimer = setInterval(() => {
-        if (!document.hidden) fetchAllData(false);
-      }, 5000);
-    }
-
-    async function enablePushNotif(silent = false) {
-      const statusEl = document.getElementById('notif-status-text');
-      if (!silent) {
-        showToast('Mendaftarkan perangkat...');
-        if (statusEl) statusEl.textContent = 'Status: Meminta izin & ID perangkat...';
-      }
-
-      if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
-        const msg = 'Izin notif masih diblokir Chrome. Buka Setelan Situs -> Notifikasi -> Izinkan.';
-        if (statusEl) {
-          statusEl.textContent = msg;
-          statusEl.className = 'text-[11px] text-rose-400 text-center';
-        }
-        if (!silent) showToast(msg);
-        return;
-      }
-
-      const runOneSignal = async (OneSignal) => {
-        try {
-          if (typeof Notification !== 'undefined' && Notification.permission !== 'granted') {
-            await OneSignal.Notifications.requestPermission();
-          }
-          await OneSignal.User.PushSubscription.optIn();
-          if (currentUser && currentUser.ID) {
-            await OneSignal.User.addTag("role", currentUser.ID);
-          }
-
-          let subId = OneSignal.User.PushSubscription.id;
-          if (!subId) {
-            await new Promise(r => setTimeout(r, 2000));
-            subId = OneSignal.User.PushSubscription.id;
-          }
-
-          if (subId && currentUser && currentUser.ID) {
-            await window.savePushIdToBackend(currentUser.ID, subId);
-            if (!silent) showToast('Berhasil! HP ' + currentUser.Nama + ' terdaftar notif.');
-          } else {
-            const fallbackMsg = 'Izin browser aktif, menunggu ID perangkat. Coba muat ulang halaman.';
-            if (statusEl) statusEl.textContent = fallbackMsg;
-            if (!silent) showToast(fallbackMsg);
-          }
-        } catch (err) {
-          const errMsg = 'Gagal daftar notif: ' + (err.message || err);
-          if (statusEl) statusEl.textContent = errMsg;
-          if (!silent) showToast(errMsg);
-        }
-      };
-
-      if (window.OneSignalInstance) {
-        await runOneSignal(window.OneSignalInstance);
-      } else if (window.OneSignalDeferred) {
-        let called = false;
-        setTimeout(() => {
-          if (!called && !silent) {
-            showToast('Script notif belum termuat, pastikan AdGuard DNS dimatikan sebentar lalu Reload.');
-          }
-        }, 5000);
-        window.OneSignalDeferred.push(async function(OneSignal) {
-          called = true;
-          window.OneSignalInstance = OneSignal;
-          await runOneSignal(OneSignal);
-        });
-      }
-    }
-
-    async function sendTestNotif() {
-      const ok = await postAction({
-        action: 'testPush',
-        senderId: currentUser.ID
-      }, 'Mengirim tes notifikasi...');
-      if (ok) showToast('Tes notifikasi terkirim ke HP pasangan!');
-    }
-
-    // RENDER ALL VIEWS
-    function renderAll() {
-      const partner = appData.users.find(u => u.ID !== currentUser.ID) || { Nama: 'Pasangan', Avatar_URL: '', Last_Seen: '' };
-      document.getElementById('header-title').textContent = partner.Nama;
-      document.getElementById('header-partner-avatar').src = partner.Avatar_URL;
-      document.getElementById('header-my-avatar').src = currentUser.Avatar_URL;
-
-      const statusEl = document.getElementById('notif-status-text');
-      if (statusEl && currentUser.Push_ID) {
-        statusEl.textContent = `Status: ID Perangkat Terdaftar (${String(currentUser.Push_ID).slice(0, 8)}...)`;
-        statusEl.className = 'text-[11px] text-emerald-400 text-center font-semibold';
-      }
-
-      renderLastSeen(partner.Last_Seen);
-      applyChatWallpaper(appData.settings?.chat_wallpaper || '');
+      setupPresence(currentUser.ID);
+      renderHeaderAndStatus();
+      applyChatWallpaper(state.settings.chat_wallpaper || '');
       syncSharedMusicState();
       renderMusicPlaylist();
       renderChat();
@@ -763,44 +833,45 @@
       renderVault();
       renderWishlist();
       lucide.createIcons();
+      enablePushNotif(true);
     }
 
-    // LAST SEEN STATUS
-    function renderLastSeen(lastSeenIso) {
+    function renderHeaderAndStatus() {
+      const partnerId = currentUser.ID === 'user1' ? 'user2' : 'user1';
+      const partner = state.users[partnerId] || { Nama: 'Pasangan', Avatar_URL: '', online: false, lastSeen: 0 };
+      document.getElementById('header-title').textContent = partner.Nama;
+      document.getElementById('header-partner-avatar').src = partner.Avatar_URL;
+      document.getElementById('header-my-avatar').src = currentUser.Avatar_URL;
+
+      const statusEl = document.getElementById('notif-status-text');
+      if (statusEl && currentUser.fcmToken) {
+        statusEl.textContent = `Status: Aktif (${String(currentUser.fcmToken).slice(0, 10)}...)`;
+        statusEl.className = 'text-[11px] text-emerald-400 text-center font-semibold';
+      }
+
       const subEl = document.getElementById('header-subtitle');
       const dotEl = document.getElementById('online-dot');
-      if (!lastSeenIso) {
-        subEl.textContent = 'Offline';
-        subEl.className = 'text-[11px] text-slate-400 truncate';
-        dotEl.classList.add('hidden');
-        return;
-      }
-      const lastDate = new Date(lastSeenIso);
-      const now = new Date();
-      const diffSec = Math.floor((now - lastDate) / 1000);
-
-      if (diffSec < 25) {
+      if (partner.online) {
         subEl.textContent = 'Online';
         subEl.className = 'text-[11px] text-emerald-400 font-semibold truncate';
         dotEl.classList.remove('hidden');
       } else {
         dotEl.classList.add('hidden');
         subEl.className = 'text-[11px] text-slate-400 truncate';
-        const timeStr = lastDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-        const isToday = lastDate.toDateString() === now.toDateString();
-        const yesterday = new Date(now);
-        yesterday.setDate(now.getDate() - 1);
-        const isYesterday = lastDate.toDateString() === yesterday.toDateString();
-
-        if (isToday) {
-          subEl.textContent = `Terakhir dilihat hari ini ${timeStr}`;
-        } else if (isYesterday) {
-          subEl.textContent = `Terakhir dilihat kemarin ${timeStr}`;
-        } else {
-          const dateStr = lastDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-          subEl.textContent = `Terakhir dilihat ${dateStr} ${timeStr}`;
-        }
+        subEl.textContent = partner.lastSeen ? formatLastSeenTime(partner.lastSeen) : 'Offline';
       }
+    }
+
+    function formatLastSeenTime(ts) {
+      const lastDate = new Date(ts);
+      const now = new Date();
+      const timeStr = lastDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      if (lastDate.toDateString() === now.toDateString()) return `Terakhir dilihat hari ini ${timeStr}`;
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      if (lastDate.toDateString() === yesterday.toDateString()) return `Terakhir dilihat kemarin ${timeStr}`;
+      const dateStr = lastDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+      return `Terakhir dilihat ${dateStr} ${timeStr}`;
     }
 
     // WALLPAPER CHAT
@@ -817,28 +888,20 @@
     }
 
     async function applyPresetWallpaper(url) {
-      applyChatWallpaper(url);
-      const ok = await postAction({
-        action: 'updateWallpaper',
-        senderId: currentUser.ID,
-        wallpaperUrl: url
-      }, 'Mengganti wallpaper...');
-      if (ok) showToast('Wallpaper ruang chat diperbarui!');
+      await db.ref('settings/chat_wallpaper').set(url);
+      triggerPartnerPush('🖼️ Wallpaper Chat Diubah', `${currentUser.Nama} mengganti wallpaper ruang chat`);
+      showToast('Wallpaper ruang chat diperbarui!');
     }
 
     async function uploadCustomWallpaper() {
       const file = document.getElementById('wp-file-input').files[0];
       if (!file) return showToast('Pilih foto wallpaper dulu');
-      const imageBase64 = await compressImage(file, 1080);
-      const ok = await postAction({
-        action: 'updateWallpaper',
-        senderId: currentUser.ID,
-        imageBase64
-      }, 'Mengunggah wallpaper...');
-      if (ok) {
-        document.getElementById('wp-file-input').value = '';
-        showToast('Wallpaper baru terpasang!');
-      }
+      const url = await uploadMedia(file, false);
+      if (!url) return;
+      await db.ref('settings/chat_wallpaper').set(url);
+      document.getElementById('wp-file-input').value = '';
+      triggerPartnerPush('🖼️ Wallpaper Chat Diubah', `${currentUser.Nama} mengganti wallpaper ruang chat`);
+      showToast('Wallpaper baru terpasang!');
     }
 
     // DENGERIN MUSIK BARENG
@@ -869,55 +932,55 @@
       const file = document.getElementById('music-file-input').files[0];
       const judul = document.getElementById('music-title-input').value.trim();
       if (!file) return showToast('Pilih file lagu offline (MP3/M4A) dulu');
-      if (file.size > 15 * 1024 * 1024) return showToast('Ukuran file maksimal 15 MB');
 
-      const audioBase64 = await fileToBase64(file);
-      const ok = await postAction({
-        action: 'uploadMusic',
-        senderId: currentUser.ID,
-        judul: judul || file.name,
-        fileName: file.name,
-        mimeType: file.type || 'audio/mpeg',
-        audioBase64
-      }, 'Mengunggah lagu ke Drive...');
+      const audioUrl = await uploadMedia(file, true);
+      if (!audioUrl) return;
 
-      if (ok) {
-        document.getElementById('music-file-input').value = '';
-        document.getElementById('music-title-input').value = '';
-        showToast('Lagu terupload & mulai diputar bareng!');
-      }
+      const trackTitle = judul || file.name;
+      const newRef = db.ref('music').push();
+      await newRef.set({
+        ID: newRef.key,
+        Judul: trackTitle,
+        Audio_URL: audioUrl,
+        Uploaded_By: currentUser.Nama,
+        Waktu: Date.now()
+      });
+
+      document.getElementById('music-file-input').value = '';
+      document.getElementById('music-title-input').value = '';
+      await playTrackFromPlaylist(audioUrl, trackTitle);
     }
 
     function syncSharedMusicState() {
-      const s = appData.settings || {};
+      const m = state.settings?.music;
       const miniBar = document.getElementById('mini-music-bar');
       const badge = document.getElementById('music-badge');
 
-      if (!s.music_url) {
+      if (!m || !m.url) {
         miniBar.classList.add('hidden');
         badge.classList.add('hidden');
         return;
       }
 
       miniBar.classList.remove('hidden');
-      const isPlaying = String(s.music_playing) === 'true';
-      document.getElementById('mini-music-title').textContent = s.music_title || 'Lagu Kita';
-      document.getElementById('mini-music-sub').textContent = isPlaying ? `Diputar bareng • DJ: ${s.music_dj || 'Kita'}` : `Dijeda oleh ${s.music_dj || 'Kita'}`;
-      document.getElementById('modal-music-title').textContent = s.music_title || 'Lagu Kita';
-      document.getElementById('modal-music-dj').textContent = isPlaying ? `Sedang diputar oleh ${s.music_dj || 'Kita'}` : `Dijeda`;
+      const isPlaying = Boolean(m.playing);
+      document.getElementById('mini-music-title').textContent = m.title || 'Lagu Kita';
+      document.getElementById('mini-music-sub').textContent = isPlaying ? `Diputar bareng • DJ: ${m.dj || 'Kita'}` : `Dijeda oleh ${m.dj || 'Kita'}`;
+      document.getElementById('modal-music-title').textContent = m.title || 'Lagu Kita';
+      document.getElementById('modal-music-dj').textContent = isPlaying ? `Sedang diputar oleh ${m.dj || 'Kita'}` : 'Dijeda';
 
-      if (audioEl.src !== s.music_url) {
-        audioEl.src = s.music_url;
+      if (audioEl.src !== m.url) {
+        audioEl.src = m.url;
       }
 
-      const stamp = `${s.music_url}_${s.music_playing}_${s.music_updated_at}`;
+      const stamp = `${m.url}_${m.playing}_${m.updatedAt}`;
       if (stamp !== lastMusicSyncStamp) {
         lastMusicSyncStamp = stamp;
-        const baseSeek = Number(s.music_seek || 0);
-        const elapsed = isPlaying && s.music_updated_at ? Math.max(0, (Date.now() - new Date(s.music_updated_at).getTime()) / 1000) : 0;
+        const baseSeek = Number(m.seek || 0);
+        const elapsed = isPlaying && m.updatedAt ? Math.max(0, (Date.now() - Number(m.updatedAt)) / 1000) : 0;
         const targetTime = baseSeek + elapsed;
 
-        if (Math.abs(audioEl.currentTime - targetTime) > 2.5) {
+        if (Math.abs(audioEl.currentTime - targetTime) > 2) {
           audioEl.currentTime = targetTime;
         }
 
@@ -925,7 +988,7 @@
           audioEl.play().then(() => {
             document.getElementById('autoplay-banner').classList.add('hidden');
           }).catch(() => {
-            document.getElementById('autoplay-text').textContent = `🎧 ${s.music_dj || 'Pasangan'} memutar "${s.music_title}" — Ketuk untuk dengar`;
+            document.getElementById('autoplay-text').textContent = `🎧 ${m.dj || 'Pasangan'} memutar "${m.title}" — Ketuk untuk dengar`;
             document.getElementById('autoplay-banner').classList.remove('hidden');
           });
         } else {
@@ -941,83 +1004,77 @@
     }
 
     function forceJoinMusic() {
-      const s = appData.settings || {};
-      const baseSeek = Number(s.music_seek || 0);
-      const elapsed = s.music_updated_at ? Math.max(0, (Date.now() - new Date(s.music_updated_at).getTime()) / 1000) : 0;
+      const m = state.settings?.music || {};
+      const baseSeek = Number(m.seek || 0);
+      const elapsed = m.updatedAt ? Math.max(0, (Date.now() - Number(m.updatedAt)) / 1000) : 0;
       audioEl.currentTime = baseSeek + elapsed;
       audioEl.play();
       document.getElementById('autoplay-banner').classList.add('hidden');
     }
 
     async function togglePlayPauseMusic() {
-      const s = appData.settings || {};
-      if (!s.music_url) return showToast('Pilih atau upload lagu dulu di menu musik');
+      const m = state.settings?.music;
+      if (!m || !m.url) return showToast('Pilih atau upload lagu dulu di menu musik');
       const nextPlaying = audioEl.paused;
-      if (nextPlaying) {
-        audioEl.play();
-      } else {
-        audioEl.pause();
-      }
-      await postAction({
-        action: 'syncMusic',
-        senderId: currentUser.ID,
-        url: s.music_url,
-        title: s.music_title,
+      if (nextPlaying) audioEl.play(); else audioEl.pause();
+
+      await db.ref('settings/music').update({
         playing: nextPlaying,
         seek: Math.floor(audioEl.currentTime || 0),
-        notify: nextPlaying
-      }, nextPlaying ? 'Memutar lagu bareng...' : 'Menjeda lagu...');
+        updatedAt: Date.now(),
+        dj: currentUser.Nama
+      });
+      if (nextPlaying) {
+        triggerPartnerPush('🎵 Dengerin Musik Bareng!', `${currentUser.Nama} memutar: ${m.title}`);
+      }
     }
 
     async function seekMusic(pct) {
       if (!audioEl.duration) return;
       const newTime = Math.floor((pct / 100) * audioEl.duration);
       audioEl.currentTime = newTime;
-      const s = appData.settings || {};
-      await postAction({
-        action: 'syncMusic',
-        senderId: currentUser.ID,
-        url: s.music_url,
-        title: s.music_title,
-        playing: !audioEl.paused,
+      await db.ref('settings/music').update({
         seek: newTime,
-        notify: false
-      }, 'Menyinkronkan posisi lagu...');
+        updatedAt: Date.now(),
+        dj: currentUser.Nama
+      });
     }
 
     function syncNowManually() {
       lastMusicSyncStamp = '';
-      fetchAllData(true);
-      showToast('Posisi detik disinkronkan!');
+      syncSharedMusicState();
+      showToast('Detik lagu disinkronkan!');
     }
 
     async function playTrackFromPlaylist(url, title) {
       audioEl.src = url;
       audioEl.currentTime = 0;
       audioEl.play();
-      await postAction({
-        action: 'syncMusic',
-        senderId: currentUser.ID,
-        url,
-        title,
+      await db.ref('settings/music').set({
+        url: url,
+        title: title,
         playing: true,
         seek: 0,
-        notify: true
-      }, 'Memutar lagu...');
+        updatedAt: Date.now(),
+        dj: currentUser.Nama
+      });
+      triggerPartnerPush('🎵 Dengerin Musik Bareng!', `${currentUser.Nama} memutar: ${title}`);
     }
 
     async function deleteTrack(id) {
-      await postAction({ action: 'deleteMusic', senderId: currentUser.ID, id }, 'Menghapus lagu...');
+      await db.ref(`music/${id}`).remove();
+      showToast('Lagu dihapus dari playlist');
     }
 
     function renderMusicPlaylist() {
       const list = document.getElementById('music-playlist');
-      if (!appData.music || !appData.music.length) {
+      const tracks = Object.values(state.music).reverse();
+      if (!tracks.length) {
         list.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Belum ada lagu di playlist. Upload lagu MP3 dari HP kamu di atas!</p>`;
         return;
       }
-      const curUrl = appData.settings?.music_url || '';
-      list.innerHTML = appData.music.map(m => {
+      const curUrl = state.settings?.music?.url || '';
+      list.innerHTML = tracks.map(m => {
         const active = m.Audio_URL === curUrl;
         return `
           <div class="bg-slate-800/90 border ${active ? 'border-rose-500' : 'border-slate-700/70'} rounded-xl p-3 flex items-center justify-between gap-2">
@@ -1040,15 +1097,17 @@
     // 1. RENDER & SEND CHAT
     function renderChat() {
       const box = document.getElementById('chat-messages');
-      const isAtBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
-      const partner = appData.users.find(u => u.ID !== currentUser.ID) || { Avatar_URL: '' };
+      const isAtBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 140;
+      const partnerId = currentUser.ID === 'user1' ? 'user2' : 'user1';
+      const partner = state.users[partnerId] || { Avatar_URL: '' };
+      const msgs = Object.values(state.chat);
 
-      if (!appData.chat.length) {
+      if (!msgs.length) {
         box.innerHTML = `<div class="text-center text-xs text-slate-400 mt-10 bg-slate-900/70 py-2 px-4 rounded-full w-fit mx-auto">Belum ada pesan. Mulai sapa duluan! ❤️</div>`;
         return;
       }
 
-      box.innerHTML = appData.chat.map(m => {
+      box.innerHTML = msgs.map(m => {
         const isMe = m.Sender_ID === currentUser.ID;
         const time = formatTime(m.Waktu);
         const imgHtml = m.Media_URL ? `<img src="${m.Media_URL}" onclick="openLightbox('${m.Media_URL}')" class="rounded-xl max-h-56 w-auto mb-1.5 cursor-pointer object-cover" />` : '';
@@ -1082,13 +1141,14 @@
     async function previewChatImage(e) {
       const file = e.target.files[0];
       if (!file) return;
-      chatImageBase64 = await compressImage(file);
-      document.getElementById('chat-img-preview').src = chatImageBase64;
+      chatImageFile = file;
+      const preview = await compressImage(file, 400, 0.7);
+      document.getElementById('chat-img-preview').src = preview;
       document.getElementById('chat-img-preview-box').classList.remove('hidden');
     }
 
     function clearChatImage() {
-      chatImageBase64 = '';
+      chatImageFile = null;
       document.getElementById('chat-file-input').value = '';
       document.getElementById('chat-img-preview-box').classList.add('hidden');
     }
@@ -1096,33 +1156,29 @@
     async function sendChat() {
       const input = document.getElementById('chat-input');
       const pesan = input.value.trim();
-      if (!pesan && !chatImageBase64) return;
+      const fileToSend = chatImageFile;
+      if (!pesan && !fileToSend) return;
 
-      const imgToSend = chatImageBase64;
       input.value = '';
       clearChatImage();
 
-      appData.chat.push({
-        ID: 'TEMP_' + Date.now(),
-        Waktu: new Date().toISOString(),
+      let mediaUrl = '';
+      if (fileToSend) {
+        mediaUrl = await uploadMedia(fileToSend, false) || '';
+      }
+
+      const newRef = db.ref('chat').push();
+      await newRef.set({
+        ID: newRef.key,
+        Waktu: Date.now(),
         Sender_ID: currentUser.ID,
         Pesan: pesan,
-        Media_URL: imgToSend
+        Media_URL: mediaUrl
       });
-      renderChat();
+
       const box = document.getElementById('chat-messages');
       box.scrollTop = box.scrollHeight;
-
-      await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'sendChat',
-          senderId: currentUser.ID,
-          pesan: pesan,
-          imageBase64: imgToSend
-        })
-      });
-      fetchAllData(false);
+      triggerPartnerPush(currentUser.Nama, mediaUrl ? '📷 Mengirim foto' : pesan);
     }
 
     function sendQuickEmoji(emoji) {
@@ -1133,16 +1189,18 @@
     // 2. CELENGAN MULTI-KANTONG
     function renderCelengan() {
       const list = document.getElementById('celengan-pos-list');
+      const posList = Object.values(state.celenganPos);
+      const mutasiList = Object.values(state.celenganMutasi);
       let grandTotal = 0;
 
-      if (!appData.celenganPos.length) {
+      if (!posList.length) {
         document.getElementById('total-celengan-all').textContent = 'Rp 0';
         list.innerHTML = `<div class="text-center text-xs text-slate-500 py-8 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Belum ada pos tabungan. Klik "+ Pos Baru" di atas!</div>`;
         return;
       }
 
-      list.innerHTML = appData.celenganPos.map(pos => {
-        const mutasi = appData.celenganMutasi.filter(m => m.ID_Pos === pos.ID_Pos);
+      list.innerHTML = posList.map(pos => {
+        const mutasi = mutasiList.filter(m => m.ID_Pos === pos.ID_Pos);
         const terkumpul = mutasi.reduce((acc, m) => m.Jenis === 'Setor' ? acc + Number(m.Nominal) : acc - Number(m.Nominal), 0);
         grandTotal += terkumpul;
         const target = Number(pos.Target_Nominal) || 1;
@@ -1194,23 +1252,23 @@
       const file = document.getElementById('pos-cover').files[0];
 
       if (!namaPos || !targetNominal) return showToast('Nama pos & target nominal wajib diisi');
-      const imageBase64 = file ? await compressImage(file) : '';
+      let coverUrl = 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=600';
+      if (file) coverUrl = (await uploadMedia(file, false)) || coverUrl;
 
-      const ok = await postAction({
-        action: 'addCelenganPos',
-        senderId: currentUser.ID,
-        namaPos,
-        targetNominal,
-        targetTanggal,
-        imageBase64
-      }, 'Membuat pos...');
+      const newRef = db.ref('celenganPos').push();
+      await newRef.set({
+        ID_Pos: newRef.key,
+        Nama_Pos: namaPos,
+        Target_Nominal: Number(targetNominal),
+        Target_Tanggal: targetTanggal || '',
+        Cover_URL: coverUrl
+      });
 
-      if (ok) {
-        closeModal('modal-new-pos');
-        document.getElementById('pos-nama').value = '';
-        document.getElementById('pos-target').value = '';
-        showToast('Pos tabungan berhasil dibuat!');
-      }
+      closeModal('modal-new-pos');
+      document.getElementById('pos-nama').value = '';
+      document.getElementById('pos-target').value = '';
+      triggerPartnerPush('🎯 Target Tabungan Baru!', `${currentUser.Nama} bikin pos: ${namaPos}`);
+      showToast('Pos tabungan berhasil dibuat!');
     }
 
     function openTxModal(idPos, namaPos) {
@@ -1227,34 +1285,35 @@
       const file = document.getElementById('tx-bukti').files[0];
 
       if (!nominal || Number(nominal) <= 0) return showToast('Masukkan nominal yang valid');
-      const imageBase64 = file ? await compressImage(file) : '';
+      const buktiUrl = file ? ((await uploadMedia(file, false)) || '') : '';
 
-      const ok = await postAction({
-        action: 'addCelenganTx',
-        senderId: currentUser.ID,
-        idPos,
-        jenis,
-        nominal,
-        catatan,
-        imageBase64
-      }, 'Mencatat transaksi...');
+      const newRef = db.ref('celenganMutasi').push();
+      await newRef.set({
+        ID_Tx: newRef.key,
+        Waktu: Date.now(),
+        ID_Pos: idPos,
+        Sender_ID: currentUser.ID,
+        Jenis: jenis,
+        Nominal: Number(nominal),
+        Catatan: catatan,
+        Bukti_URL: buktiUrl
+      });
 
-      if (ok) {
-        closeModal('modal-tx-pos');
-        document.getElementById('tx-nominal').value = '';
-        document.getElementById('tx-catatan').value = '';
-        document.getElementById('tx-bukti').value = '';
-        showToast('Tabungan tercatat!');
-      }
+      closeModal('modal-tx-pos');
+      document.getElementById('tx-nominal').value = '';
+      document.getElementById('tx-catatan').value = '';
+      document.getElementById('tx-bukti').value = '';
+      triggerPartnerPush('💰 Update Celengan!', `${currentUser.Nama} ${jenis.toLowerCase()} ${formatRupiah(nominal)}`);
+      showToast('Tabungan tercatat!');
     }
 
     function openDetailPos(idPos) {
-      const pos = appData.celenganPos.find(p => p.ID_Pos === idPos);
-      const mutasi = appData.celenganMutasi.filter(m => m.ID_Pos === idPos).reverse();
+      const pos = state.celenganPos[idPos];
+      const mutasi = Object.values(state.celenganMutasi).filter(m => m.ID_Pos === idPos).reverse();
       document.getElementById('detail-pos-title').textContent = pos.Nama_Pos;
 
-      const u1 = appData.users[0] || { ID: 'user1', Nama: 'Mas' };
-      const u2 = appData.users[1] || { ID: 'user2', Nama: 'Bul' };
+      const u1 = state.users.user1 || { ID: 'user1', Nama: 'Mas' };
+      const u2 = state.users.user2 || { ID: 'user2', Nama: 'Bul' };
       const sumU1 = mutasi.filter(m => m.Sender_ID === u1.ID).reduce((a, b) => b.Jenis === 'Setor' ? a + Number(b.Nominal) : a - Number(b.Nominal), 0);
       const sumU2 = mutasi.filter(m => m.Sender_ID === u2.ID).reduce((a, b) => b.Jenis === 'Setor' ? a + Number(b.Nominal) : a - Number(b.Nominal), 0);
 
@@ -1264,7 +1323,7 @@
       `;
 
       document.getElementById('detail-pos-mutasi').innerHTML = mutasi.length ? mutasi.map(m => {
-        const sender = appData.users.find(u => u.ID === m.Sender_ID)?.Nama || m.Sender_ID;
+        const sender = state.users[m.Sender_ID]?.Nama || m.Sender_ID;
         const isSetor = m.Jenis === 'Setor';
         return `
           <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-3 flex justify-between items-center">
@@ -1283,12 +1342,13 @@
     // 3. MEMORY VAULT
     function renderVault() {
       const list = document.getElementById('vault-list');
-      if (!appData.vault.length) {
+      const items = Object.values(state.vault).reverse();
+      if (!items.length) {
         list.innerHTML = `<div class="text-center text-xs text-slate-500 py-10 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Belum ada foto di Memory Vault. Upload momen pertama kalian!</div>`;
         return;
       }
-      list.innerHTML = appData.vault.map(v => {
-        const uploader = appData.users.find(u => u.ID === v.Sender_ID);
+      list.innerHTML = items.map(v => {
+        const uploader = state.users[v.Sender_ID];
         return `
           <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl overflow-hidden shadow-lg">
             <div class="px-3.5 py-2.5 flex items-center justify-between">
@@ -1313,23 +1373,25 @@
       const cerita = document.getElementById('vault-cerita').value.trim();
 
       if (!file || !judul) return showToast('Foto & judul wajib diisi');
-      const imageBase64 = await compressImage(file);
+      const fotoUrl = await uploadMedia(file, false);
+      if (!fotoUrl) return;
 
-      const ok = await postAction({
-        action: 'addVault',
-        senderId: currentUser.ID,
-        judul,
-        cerita,
-        imageBase64
-      }, 'Mengunggah kenangan...');
+      const newRef = db.ref('vault').push();
+      await newRef.set({
+        ID: newRef.key,
+        Tanggal: Date.now(),
+        Judul: judul,
+        Foto_URL: fotoUrl,
+        Cerita: cerita,
+        Sender_ID: currentUser.ID
+      });
 
-      if (ok) {
-        closeModal('modal-new-vault');
-        document.getElementById('vault-foto').value = '';
-        document.getElementById('vault-judul').value = '';
-        document.getElementById('vault-cerita').value = '';
-        showToast('Momen tersimpan di Vault!');
-      }
+      closeModal('modal-new-vault');
+      document.getElementById('vault-foto').value = '';
+      document.getElementById('vault-judul').value = '';
+      document.getElementById('vault-cerita').value = '';
+      triggerPartnerPush('📸 Memori Baru Disimpan', `${currentUser.Nama} upload foto: ${judul}`);
+      showToast('Momen tersimpan di Vault!');
     }
 
     // 4. WISHLIST
@@ -1346,7 +1408,8 @@
 
     function renderWishlist() {
       const list = document.getElementById('wishlist-list');
-      const items = wishFilter === 'ALL' ? appData.wishlist : appData.wishlist.filter(w => w.Status === wishFilter);
+      const all = Object.values(state.wishlist).reverse();
+      const items = wishFilter === 'ALL' ? all : all.filter(w => w.Status === wishFilter);
 
       if (!items.length) {
         list.innerHTML = `<div class="text-center text-xs text-slate-500 py-10 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Daftar wishlist masih kosong.</div>`;
@@ -1384,32 +1447,39 @@
       const file = document.getElementById('wish-foto').files[0];
 
       if (!namaItem) return showToast('Nama item wajib diisi');
-      const imageBase64 = file ? await compressImage(file) : '';
+      let fotoUrl = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600';
+      if (file) fotoUrl = (await uploadMedia(file, false)) || fotoUrl;
 
-      const ok = await postAction({
-        action: 'addWishlist',
-        senderId: currentUser.ID,
-        namaItem,
-        kategori,
-        harga,
-        linkUrl,
-        imageBase64
-      }, 'Menyimpan wishlist...');
+      const newRef = db.ref('wishlist').push();
+      await newRef.set({
+        ID: newRef.key,
+        Nama_Item: namaItem,
+        Kategori: kategori,
+        Harga: Number(harga || 0),
+        Foto_URL: fotoUrl,
+        Link_URL: linkUrl,
+        Status: 'Impian'
+      });
 
-      if (ok) {
-        closeModal('modal-new-wish');
-        document.getElementById('wish-nama').value = '';
-        document.getElementById('wish-harga').value = '';
-        document.getElementById('wish-link').value = '';
-        showToast('Wishlist ditambahkan!');
-      }
+      closeModal('modal-new-wish');
+      document.getElementById('wish-nama').value = '';
+      document.getElementById('wish-harga').value = '';
+      document.getElementById('wish-link').value = '';
+      triggerPartnerPush('✨ Wishlist Baru!', `${currentUser.Nama} nambahin: ${namaItem}`);
+      showToast('Wishlist ditambahkan!');
     }
 
     async function toggleWish(id) {
-      await postAction({ action: 'toggleWishlist', senderId: currentUser.ID, id }, 'Memperbarui status...');
+      const item = state.wishlist[id];
+      if (!item) return;
+      const nextStatus = item.Status === 'Impian' ? 'Tercapai' : 'Impian';
+      await db.ref(`wishlist/${id}/Status`).set(nextStatus);
+      if (nextStatus === 'Tercapai') {
+        triggerPartnerPush('🎉 Wishlist Tercapai!', `${currentUser.Nama} nyentang: ${item.Nama_Item}`);
+      }
     }
 
-    // 5. PENGATURAN & PROFIL
+    // 5. PENGATURAN & PROFIL (MENDUKUNG PIN AWALAN 0)
     function openSettingsModal() {
       document.getElementById('prof-nama').value = currentUser.Nama;
       document.getElementById('prof-pin').value = '';
@@ -1420,31 +1490,23 @@
       const nama = document.getElementById('prof-nama').value.trim();
       const pin = document.getElementById('prof-pin').value.trim();
       const file = document.getElementById('prof-foto').files[0];
-      const imageBase64 = file ? await compressImage(file) : '';
 
-      const ok = await postAction({
-        action: 'updateProfile',
-        senderId: currentUser.ID,
-        nama,
-        pin,
-        imageBase64
-      }, 'Menyimpan pengaturan...');
-
-      if (ok) {
-        const updated = appData.users.find(u => u.ID === currentUser.ID);
-        if (updated) {
-          currentUser = updated;
-          localStorage.setItem('ourspace_user', JSON.stringify(updated));
-        }
-        renderAll();
-        closeModal('modal-settings');
-        showToast('Profil & PIN diperbarui!');
+      const updates = {};
+      if (nama) updates.Nama = nama;
+      if (pin) updates.PIN = String(pin);
+      if (file) {
+        const avatarUrl = await uploadMedia(file, false);
+        if (avatarUrl) updates.Avatar_URL = avatarUrl;
       }
+
+      await db.ref(`users/${currentUser.ID}`).update(updates);
+      document.getElementById('prof-foto').value = '';
+      closeModal('modal-settings');
+      showToast('Profil & PIN diperbarui!');
     }
 
     // UI HELPERS
     function switchTab(tab) {
-      activeTab = tab;
       ['chat', 'celengan', 'vault', 'wishlist'].forEach(t => {
         document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
         const nav = document.getElementById('nav-' + t);
@@ -1463,29 +1525,20 @@
       document.getElementById('lightbox-img').src = url;
       document.getElementById('lightbox').classList.remove('hidden');
     }
-    function refreshData(manual = false) { fetchAllData(manual); }
 
-    function setLoader(show, text = '') {
-      document.getElementById('loader-text').textContent = text;
-      document.getElementById('loader').classList.toggle('hidden', !show);
+    function setUploadBar(show, text = '') {
+      document.getElementById('upload-bar-text').textContent = text;
+      document.getElementById('upload-bar').classList.toggle('hidden', !show);
     }
 
     function showToast(msg) {
       const t = document.getElementById('toast');
       document.getElementById('toast-msg').textContent = msg;
       t.classList.remove('hidden');
-      setTimeout(() => t.classList.add('hidden'), 3500);
+      setTimeout(() => t.classList.add('hidden'), 3200);
     }
 
-    function fileToBase64(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function compressImage(file, maxW = 850) {
+    function compressImage(file, maxW = 850, quality = 0.75) {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -1497,12 +1550,17 @@
             canvas.height = img.height * scale;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL('image/jpeg', 0.75));
+            resolve(canvas.toDataURL('image/jpeg', quality));
           };
           img.src = e.target.result;
         };
         reader.readAsDataURL(file);
       });
+    }
+
+    async function dataUrlToBlob(dataUrl) {
+      const res = await fetch(dataUrl);
+      return await res.blob();
     }
 
     function formatSeconds(sec) {
@@ -1516,16 +1574,14 @@
       return 'Rp ' + Number(num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
-    function formatTime(iso) {
-      if (!iso) return '';
-      const d = new Date(iso);
-      return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    function formatTime(ts) {
+      if (!ts) return '';
+      return new Date(ts).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     }
 
-    function formatDate(iso) {
-      if (!iso) return '';
-      const d = new Date(iso);
-      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    function formatDate(ts) {
+      if (!ts) return '';
+      return new Date(ts).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
     function escapeHtml(str) {
