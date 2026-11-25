@@ -16,7 +16,7 @@
   
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
-    window.OneSignalReady = false;
+    window.OneSignalInstance = null;
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
       try {
@@ -24,23 +24,33 @@
           appId: "fe2751d3-d1c2-449b-b835-f58c6912c8c6",
           allowLocalhostAsSecureOrigin: true
         });
-        window.OneSignalReady = true;
+        window.OneSignalInstance = OneSignal;
 
-        const syncTag = async () => {
+        const syncDeviceToSheet = async () => {
           const savedUser = JSON.parse(localStorage.getItem('ourspace_user') || 'null');
-          if (savedUser && savedUser.ID) {
-            await OneSignal.User.PushSubscription.optIn();
-            await OneSignal.User.addTag("role", savedUser.ID);
-          }
+          if (!savedUser || !savedUser.ID) return;
+          await OneSignal.User.PushSubscription.optIn();
+          await OneSignal.User.addTag("role", savedUser.ID);
+
+          setTimeout(async () => {
+            const subId = OneSignal.User.PushSubscription.id;
+            if (subId && typeof window.savePushIdToBackend === 'function') {
+              await window.savePushIdToBackend(savedUser.ID, subId);
+            }
+          }, 1500);
         };
 
-        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-          await syncTag();
-        }
-
-        OneSignal.Notifications.addEventListener('permissionChange', async (granted) => {
-          if (granted) await syncTag();
+        OneSignal.User.PushSubscription.addEventListener('change', async (event) => {
+          const savedUser = JSON.parse(localStorage.getItem('ourspace_user') || 'null');
+          const newId = event?.current?.id;
+          if (savedUser && savedUser.ID && newId && typeof window.savePushIdToBackend === 'function') {
+            await window.savePushIdToBackend(savedUser.ID, newId);
+          }
         });
+
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          await syncDeviceToSheet();
+        }
       } catch (e) {
         console.error('OneSignal init error:', e);
       }
@@ -286,7 +296,6 @@
           <button onclick="closeModal('modal-music')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
 
-        <!-- NOW PLAYING CARD -->
         <div class="bg-gradient-to-br from-slate-800 to-rose-950/50 border border-slate-700 rounded-2xl p-4 space-y-3 shrink-0">
           <div class="flex items-center gap-3">
             <div id="modal-disc" class="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
@@ -317,7 +326,6 @@
           </div>
         </div>
 
-        <!-- UPLOAD LAGU OFFLINE -->
         <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-3.5 space-y-2.5 shrink-0">
           <p class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
             <i data-lucide="upload-cloud" class="w-4 h-4 text-rose-400"></i> Upload Lagu Offline (MP3 / M4A)
@@ -333,7 +341,6 @@
           <p class="text-[10px] text-slate-500">Maksimal ukuran file 15 MB agar lancar tersimpan di Google Drive.</p>
         </div>
 
-        <!-- PLAYLIST -->
         <div class="flex-1 overflow-y-auto space-y-2 no-scrollbar min-h-0">
           <p class="text-xs font-semibold text-slate-400">Playlist Lagu Kita</p>
           <div id="music-playlist" class="space-y-2"></div>
@@ -354,12 +361,15 @@
         </div>
 
         <!-- BAGIAN 1: NOTIFIKASI -->
-        <div class="space-y-2">
+        <div class="space-y-2.5">
           <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">1. Notifikasi Mengambang</h4>
-          <button onclick="enablePushNotif()" class="w-full bg-amber-500/20 border border-amber-500/40 active:bg-amber-500/30 text-amber-300 font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2">
-            <i data-lucide="bell-ring" class="w-4 h-4"></i> Sinkronkan Notifikasi ke HP Ini
+          <button onclick="enablePushNotif(false)" class="w-full bg-amber-500/20 border border-amber-500/40 active:scale-95 transition-transform text-amber-300 font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2">
+            <i data-lucide="bell-ring" class="w-4 h-4"></i> Daftarkan HP Ini ke Notifikasi
           </button>
-          <p id="notif-status-text" class="text-[11px] text-slate-400 text-center">Klik tombol di atas agar notif uang, wishlist & chat masuk ke HP ini.</p>
+          <button onclick="sendTestNotif()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 active:scale-95 transition-transform text-slate-200 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
+            <i data-lucide="send" class="w-3.5 h-3.5 text-emerald-400"></i> Tes Kirim Notif ke Pasangan
+          </button>
+          <p id="notif-status-text" class="text-[11px] text-slate-400 text-center">Status: Memeriksa perangkat...</p>
         </div>
 
         <!-- BAGIAN 2: WALLPAPER RUANG CHAT -->
@@ -521,6 +531,25 @@
 
     const audioEl = document.getElementById('shared-audio');
 
+    window.savePushIdToBackend = async function(userId, pushId) {
+      if (!userId || !pushId) return;
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'savePushId',
+            senderId: userId,
+            pushId: pushId
+          })
+        });
+        const statusEl = document.getElementById('notif-status-text');
+        if (statusEl) {
+          statusEl.textContent = `Status: ID Perangkat Terdaftar (${pushId.slice(0, 8)}...)`;
+          statusEl.className = 'text-[11px] text-emerald-400 text-center font-semibold';
+        }
+      } catch (e) {}
+    };
+
     window.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       setupAudioListeners();
@@ -545,7 +574,11 @@
         const json = await res.json();
         if (json.status === 'success') {
           appData = json.data;
-          if (currentUser) renderAll();
+          if (currentUser) {
+            const updatedMe = appData.users.find(u => u.ID === currentUser.ID);
+            if (updatedMe) currentUser = updatedMe;
+            renderAll();
+          }
         }
       } catch (e) {
         if (showLoading) showToast('Gagal memuat data, cek koneksi');
@@ -566,7 +599,7 @@
           setLoader(false);
           return true;
         } else {
-          showToast('Error: ' + json.message);
+          showToast(json.message || 'Terjadi kesalahan');
         }
       } catch (e) {
         showToast('Koneksi terganggu, coba lagi');
@@ -635,46 +668,77 @@
       }, 5000);
     }
 
-    function enablePushNotif(silent = false) {
-      if (!silent) showToast('Menghubungkan notifikasi...');
+    async function enablePushNotif(silent = false) {
       const statusEl = document.getElementById('notif-status-text');
+      if (!silent) {
+        showToast('Mendaftarkan perangkat...');
+        if (statusEl) statusEl.textContent = 'Status: Meminta izin & ID perangkat...';
+      }
 
       if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
-        const msg = 'Izin notifikasi diblokir HP. Aktifkan di Setelan Situs Chrome dulu.';
-        if (statusEl) statusEl.textContent = msg;
+        const msg = 'Izin notif masih diblokir Chrome. Buka Setelan Situs -> Notifikasi -> Izinkan.';
+        if (statusEl) {
+          statusEl.textContent = msg;
+          statusEl.className = 'text-[11px] text-rose-400 text-center';
+        }
         if (!silent) showToast(msg);
         return;
       }
 
-      if (!window.OneSignalDeferred) {
-        if (!silent) showToast('Sistem notif belum siap, coba muat ulang');
-        return;
-      }
-
-      let responded = false;
-      if (!silent) {
-        setTimeout(() => {
-          if (!responded) showToast('Gagal terhubung ke OneSignal, cek sinyal');
-        }, 6000);
-      }
-
-      OneSignalDeferred.push(async function(OneSignal) {
-        responded = true;
+      const runOneSignal = async (OneSignal) => {
         try {
-          if (!silent || Notification.permission !== 'granted') {
+          if (typeof Notification !== 'undefined' && Notification.permission !== 'granted') {
             await OneSignal.Notifications.requestPermission();
           }
           await OneSignal.User.PushSubscription.optIn();
           if (currentUser && currentUser.ID) {
             await OneSignal.User.addTag("role", currentUser.ID);
-            const okMsg = `Notifikasi aktif untuk ${currentUser.Nama}!`;
-            if (statusEl) statusEl.textContent = `Status: Terhubung sebagai ${currentUser.Nama}`;
-            if (!silent) showToast(okMsg);
+          }
+
+          let subId = OneSignal.User.PushSubscription.id;
+          if (!subId) {
+            await new Promise(r => setTimeout(r, 2000));
+            subId = OneSignal.User.PushSubscription.id;
+          }
+
+          if (subId && currentUser && currentUser.ID) {
+            await window.savePushIdToBackend(currentUser.ID, subId);
+            if (!silent) showToast('Berhasil! HP ' + currentUser.Nama + ' terdaftar notif.');
+          } else {
+            const fallbackMsg = 'Izin browser aktif, menunggu ID perangkat. Coba muat ulang halaman.';
+            if (statusEl) statusEl.textContent = fallbackMsg;
+            if (!silent) showToast(fallbackMsg);
           }
         } catch (err) {
-          if (!silent) showToast('Gagal aktifkan notif: ' + (err.message || err));
+          const errMsg = 'Gagal daftar notif: ' + (err.message || err);
+          if (statusEl) statusEl.textContent = errMsg;
+          if (!silent) showToast(errMsg);
         }
-      });
+      };
+
+      if (window.OneSignalInstance) {
+        await runOneSignal(window.OneSignalInstance);
+      } else if (window.OneSignalDeferred) {
+        let called = false;
+        setTimeout(() => {
+          if (!called && !silent) {
+            showToast('Script notif belum termuat, pastikan AdGuard DNS dimatikan sebentar lalu Reload.');
+          }
+        }, 5000);
+        window.OneSignalDeferred.push(async function(OneSignal) {
+          called = true;
+          window.OneSignalInstance = OneSignal;
+          await runOneSignal(OneSignal);
+        });
+      }
+    }
+
+    async function sendTestNotif() {
+      const ok = await postAction({
+        action: 'testPush',
+        senderId: currentUser.ID
+      }, 'Mengirim tes notifikasi...');
+      if (ok) showToast('Tes notifikasi terkirim ke HP pasangan!');
     }
 
     // RENDER ALL VIEWS
@@ -683,6 +747,12 @@
       document.getElementById('header-title').textContent = partner.Nama;
       document.getElementById('header-partner-avatar').src = partner.Avatar_URL;
       document.getElementById('header-my-avatar').src = currentUser.Avatar_URL;
+
+      const statusEl = document.getElementById('notif-status-text');
+      if (statusEl && currentUser.Push_ID) {
+        statusEl.textContent = `Status: ID Perangkat Terdaftar (${String(currentUser.Push_ID).slice(0, 8)}...)`;
+        statusEl.className = 'text-[11px] text-emerald-400 text-center font-semibold';
+      }
 
       renderLastSeen(partner.Last_Seen);
       applyChatWallpaper(appData.settings?.chat_wallpaper || '');
@@ -1404,7 +1474,7 @@
       const t = document.getElementById('toast');
       document.getElementById('toast-msg').textContent = msg;
       t.classList.remove('hidden');
-      setTimeout(() => t.classList.add('hidden'), 3200);
+      setTimeout(() => t.classList.add('hidden'), 3500);
     }
 
     function fileToBase64(file) {
