@@ -289,108 +289,6 @@
         <!-- NOW PLAYING CARD -->
         <div class="bg-gradient-to-br from-slate-800 to-rose-950/50 border border-slate-700 rounded-2xl p-4 space-y-3 shrink-0">
           <div class="flex items-center gap-3">
-te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
-            <i data-lucide="image" class="w-5 h-5"></i>
-            <input id="chat-file-input" type="file" accept="image/*" class="hidden" onchange="previewChatImage(event)" />
-          </label>
-          <input id="chat-input" type="text" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendChat()"
-            class="flex-1 bg-slate-800 border border-slate-700 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500" />
-          <button onclick="sendChat()" class="p-2.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 text-white shrink-0 shadow-md">
-            <i data-lucide="send" class="w-5 h-5"></i>
-          </button>
-        </div>
-      </section>
-
-      <!-- TAB 2: CELENGAN MULTI-KANTONG -->
-      <section id="tab-celengan" class="hidden flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar pb-24">
-        <div class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs text-rose-100 font-medium">Total Tabungan Berdua</p>
-              <h3 id="total-celengan-all" class="text-2xl font-extrabold mt-1">Rp 0</h3>
-            </div>
-            <button onclick="openModal('modal-new-pos')" class="bg-white/20 hover:bg-white/30 backdrop-blur px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1">
-              <i data-lucide="plus" class="w-4 h-4"></i> Pos Baru
-            </button>
-          </div>
-          <p class="text-[11px] text-rose-100 mt-3 opacity-90">Pisahkan target liburan, nikah, atau wishlist barang di tiap pos.</p>
-        </div>
-        <div id="celengan-pos-list" class="space-y-4"></div>
-      </section>
-
-      <!-- TAB 3: MEMORY VAULT -->
-      <section id="tab-vault" class="hidden flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar pb-24">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-base font-bold">Memory Vault</h3>
-            <p class="text-xs text-slate-400">Galeri foto & cerita kita (Cloud 15 GB)</p>
-          </div>
-          <button onclick="openModal('modal-new-vault')" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow">
-            <i data-lucide="camera" class="w-4 h-4"></i> Upload Foto
-          </button>
-        </div>
-        <div id="vault-list" class="space-y-4"></div>
-      </section>
-
-      <!-- TAB 4: BUCKET LIST & WISHLIST -->
-      <section id="tab-wishlist" class="hidden flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar pb-24">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-base font-bold">Bucket List & Wishlist</h3>
-            <p class="text-xs text-slate-400">Tempat makan, liburan & impian bareng</p>
-          </div>
-          <button onclick="openModal('modal-new-wish')" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow">
-            <i data-lucide="sparkles" class="w-4 h-4"></i> Tambah
-          </button>
-        </div>
-        <div class="flex gap-2">
-          <button onclick="filterWish('ALL')" id="wish-filter-ALL" class="px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 text-white">Semua</button>
-          <button onclick="filterWish('Impian')" id="wish-filter-Impian" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Impian</button>
-          <button onclick="filterWish('Tercapai')" id="wish-filter-Tercapai" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Tercapai</button>
-        </div>
-        <div id="wishlist-list" class="grid grid-cols-1 gap-3"></div>
-      </section>
-
-      <!-- BOTTOM NAVIGATION BAR -->
-      <nav class="bg-slate-900 border-t border-slate-800 grid grid-cols-4 py-2 px-1 shrink-0 safe-bottom z-20">
-        <button onclick="switchTab('chat')" id="nav-chat" class="flex flex-col items-center gap-1 py-1 text-rose-500">
-          <i data-lucide="message-circle-heart" class="w-5 h-5"></i>
-          <span class="text-[10px] font-semibold">Chat</span>
-        </button>
-        <button onclick="switchTab('celengan')" id="nav-celengan" class="flex flex-col items-center gap-1 py-1 text-slate-400">
-          <i data-lucide="piggy-bank" class="w-5 h-5"></i>
-          <span class="text-[10px] font-semibold">Celengan</span>
-        </button>
-        <button onclick="switchTab('vault')" id="nav-vault" class="flex flex-col items-center gap-1 py-1 text-slate-400">
-          <i data-lucide="images" class="w-5 h-5"></i>
-          <span class="text-[10px] font-semibold">Vault</span>
-        </button>
-        <button onclick="switchTab('wishlist')" id="nav-wishlist" class="flex flex-col items-center gap-1 py-1 text-slate-400">
-          <i data-lucide="gift" class="w-5 h-5"></i>
-          <span class="text-[10px] font-semibold">Wishlist</span>
-        </button>
-      </nav>
-    </div>
-
-    <!-- HIDDEN HTML5 AUDIO ELEMENT -->
-    <audio id="shared-audio" preload="auto"></audio>
-
-    <!-- ========================================== -->
-    <!-- MODAL: DENGERIN MUSIK BARENG               -->
-    <!-- ========================================== -->
-    <div id="modal-music" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[88vh] flex flex-col space-y-4">
-        <div class="flex justify-between items-center">
-          <div class="flex items-center gap-2">
-            <i data-lucide="headphones" class="w-5 h-5 text-rose-500"></i>
-            <h3 class="font-bold text-base">Dengerin Musik Bareng</h3>
-          </div>
-          <button onclick="closeModal('modal-music')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-
-        <!-- NOW PLAYING CARD -->
-        <div class="bg-gradient-to-br from-slate-800 to-rose-950/50 border border-slate-700 rounded-2xl p-4 space-y-3">
-          <div class="flex items-center gap-3">
             <div id="modal-disc" class="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
               <i data-lucide="music" class="w-6 h-6"></i>
             </div>
@@ -400,7 +298,6 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
             </div>
           </div>
 
-          <!-- SEEK BAR -->
           <div class="space-y-1">
             <input id="music-seek-bar" type="range" min="0" max="100" value="0" onchange="seekMusic(this.value)"
               class="w-full accent-rose-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer" />
@@ -410,7 +307,6 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
             </div>
           </div>
 
-          <!-- CONTROLS -->
           <div class="flex items-center justify-center gap-3 pt-1">
             <button onclick="syncNowManually()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 flex items-center gap-1">
               <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Samakan Detik
@@ -422,15 +318,15 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
         </div>
 
         <!-- UPLOAD LAGU OFFLINE -->
-        <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-3.5 space-y-2.5">
+        <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-3.5 space-y-2.5 shrink-0">
           <p class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
             <i data-lucide="upload-cloud" class="w-4 h-4 text-rose-400"></i> Upload Lagu Offline (MP3 / M4A)
           </p>
           <input id="music-file-input" type="file" accept="audio/*" onchange="autoFillMusicTitle(this)"
             class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-rose-500 file:text-white" />
           <div class="flex gap-2">
-            <input id="music-title-input" type="text" placeholder="Judul lagu..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs" />
-            <button onclick="uploadOfflineMusic()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-4 py-2 rounded-xl text-xs shrink-0">
+            <input id="music-title-input" type="text" placeholder="Judul lagu..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs min-w-0" />
+            <button onclick="uploadOfflineMusic()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-3.5 py-2 rounded-xl text-xs shrink-0">
               Upload & Putar
             </button>
           </div>
@@ -438,7 +334,7 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
         </div>
 
         <!-- PLAYLIST -->
-        <div class="flex-1 overflow-y-auto space-y-2 no-scrollbar">
+        <div class="flex-1 overflow-y-auto space-y-2 no-scrollbar min-h-0">
           <p class="text-xs font-semibold text-slate-400">Playlist Lagu Kita</p>
           <div id="music-playlist" class="space-y-2"></div>
         </div>
@@ -448,18 +344,27 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
     <!-- ========================================== -->
     <!-- MODAL: PENGATURAN LENGKAP                  -->
     <!-- ========================================== -->
-    <div id="modal-settings" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[88vh] overflow-y-auto no-scrollbar space-y-5">
+    <div id="modal-settings" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[85dvh] overflow-y-auto no-scrollbar space-y-5">
         <div class="flex justify-between items-center border-b border-slate-800 pb-3">
           <h3 class="font-bold text-base flex items-center gap-2">
             <i data-lucide="settings" class="w-5 h-5 text-rose-500"></i> Pengaturan Aplikasi
           </h3>
-          <button onclick="closeModal('modal-settings')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+          <button onclick="closeModal('modal-settings')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
 
-        <!-- BAGIAN 1: WALLPAPER RUANG CHAT -->
-        <div class="space-y-2.5">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">1. Wallpaper Ruang Chat</h4>
+        <!-- BAGIAN 1: NOTIFIKASI -->
+        <div class="space-y-2">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">1. Notifikasi Mengambang</h4>
+          <button onclick="enablePushNotif()" class="w-full bg-amber-500/20 border border-amber-500/40 active:bg-amber-500/30 text-amber-300 font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2">
+            <i data-lucide="bell-ring" class="w-4 h-4"></i> Sinkronkan Notifikasi ke HP Ini
+          </button>
+          <p id="notif-status-text" class="text-[11px] text-slate-400 text-center">Klik tombol di atas agar notif uang, wishlist & chat masuk ke HP ini.</p>
+        </div>
+
+        <!-- BAGIAN 2: WALLPAPER RUANG CHAT -->
+        <div class="space-y-2.5 border-t border-slate-800 pt-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">2. Wallpaper Ruang Chat</h4>
           <div class="grid grid-cols-4 gap-2">
             <button onclick="applyPresetWallpaper('')" class="h-12 rounded-xl bg-slate-800 border border-slate-700 text-[10px] font-semibold text-slate-300">Default</button>
             <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-700" style="background-image:url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=200')"></button>
@@ -467,14 +372,14 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
             <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-700" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200')"></button>
           </div>
           <div class="flex gap-2 items-center pt-1">
-            <input id="wp-file-input" type="file" accept="image/*" class="flex-1 text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200" />
+            <input id="wp-file-input" type="file" accept="image/*" class="flex-1 text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200 min-w-0" />
             <button onclick="uploadCustomWallpaper()" class="bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Pasang Foto</button>
           </div>
         </div>
 
-        <!-- BAGIAN 2: PROFIL & PIN LOGIN -->
+        <!-- BAGIAN 3: PROFIL & PIN LOGIN -->
         <div class="space-y-2.5 border-t border-slate-800 pt-4">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">2. Profil & PIN Login</h4>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">3. Profil & PIN Login</h4>
           <div>
             <label class="text-[11px] text-slate-400 block mb-1">Nama Panggilan</label>
             <input id="prof-nama" type="text" placeholder="Nama Panggilan" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
@@ -490,12 +395,8 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
           <button onclick="submitProfile()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2.5 rounded-xl text-sm">Simpan Profil & PIN</button>
         </div>
 
-        <!-- BAGIAN 3: NOTIFIKASI & AKUN -->
-        <div class="space-y-2.5 border-t border-slate-800 pt-4">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">3. Notifikasi & Akun</h4>
-          <button onclick="enablePushNotif()" class="w-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
-            <i data-lucide="bell-ring" class="w-4 h-4"></i> Sinkronkan Notifikasi Push
-          </button>
+        <!-- BAGIAN 4: AKUN -->
+        <div class="border-t border-slate-800 pt-4">
           <button onclick="logout()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 font-semibold py-2.5 rounded-xl text-xs">
             Ganti Akun / Keluar
           </button>
@@ -504,11 +405,11 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
     </div>
 
     <!-- MODAL: POS CELENGAN BARU -->
-    <div id="modal-new-pos" class="hidden fixed inset-0 z-40 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-3">
+    <div id="modal-new-pos" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[85dvh] overflow-y-auto no-scrollbar space-y-3">
         <div class="flex justify-between items-center">
           <h3 class="font-bold text-base">Buat Pos Celengan Baru</h3>
-          <button onclick="closeModal('modal-new-pos')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+          <button onclick="closeModal('modal-new-pos')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
         <input id="pos-nama" type="text" placeholder="Nama Pos (misal: Liburan Bali)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
         <input id="pos-target" type="number" placeholder="Target Nominal (Rp)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
@@ -525,11 +426,11 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
     </div>
 
     <!-- MODAL: TRANSAKSI CELENGAN -->
-    <div id="modal-tx-pos" class="hidden fixed inset-0 z-40 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-3">
+    <div id="modal-tx-pos" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[85dvh] overflow-y-auto no-scrollbar space-y-3">
         <div class="flex justify-between items-center">
           <h3 id="tx-modal-title" class="font-bold text-base">Catat Tabungan</h3>
-          <button onclick="closeModal('modal-tx-pos')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+          <button onclick="closeModal('modal-tx-pos')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
         <input type="hidden" id="tx-pos-id" />
         <select id="tx-jenis" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm">
@@ -547,24 +448,24 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
     </div>
 
     <!-- MODAL: DETAIL POS -->
-    <div id="modal-detail-pos" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[85vh] flex flex-col">
-        <div class="flex justify-between items-center mb-3">
+    <div id="modal-detail-pos" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[85dvh] flex flex-col">
+        <div class="flex justify-between items-center mb-3 shrink-0">
           <h3 id="detail-pos-title" class="font-bold text-base">Detail Pos</h3>
-          <button onclick="closeModal('modal-detail-pos')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+          <button onclick="closeModal('modal-detail-pos')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
-        <div id="detail-pos-stats" class="bg-slate-800/80 rounded-xl p-3 mb-3 text-xs space-y-1"></div>
-        <p class="text-xs font-semibold text-slate-400 mb-2">Riwayat Mutasi</p>
-        <div id="detail-pos-mutasi" class="flex-1 overflow-y-auto space-y-2 no-scrollbar"></div>
+        <div id="detail-pos-stats" class="bg-slate-800/80 rounded-xl p-3 mb-3 text-xs space-y-1 shrink-0"></div>
+        <p class="text-xs font-semibold text-slate-400 mb-2 shrink-0">Riwayat Mutasi</p>
+        <div id="detail-pos-mutasi" class="flex-1 overflow-y-auto space-y-2 no-scrollbar min-h-0"></div>
       </div>
     </div>
 
     <!-- MODAL: UPLOAD MEMORY VAULT -->
-    <div id="modal-new-vault" class="hidden fixed inset-0 z-40 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-3">
+    <div id="modal-new-vault" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[85dvh] overflow-y-auto no-scrollbar space-y-3">
         <div class="flex justify-between items-center">
           <h3 class="font-bold text-base">Simpan Momen Baru</h3>
-          <button onclick="closeModal('modal-new-vault')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+          <button onclick="closeModal('modal-new-vault')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Pilih Foto Kenangan *</label>
@@ -577,11 +478,11 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
     </div>
 
     <!-- MODAL: TAMBAH WISHLIST -->
-    <div id="modal-new-wish" class="hidden fixed inset-0 z-40 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-3">
+    <div id="modal-new-wish" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[85dvh] overflow-y-auto no-scrollbar space-y-3">
         <div class="flex justify-between items-center">
           <h3 class="font-bold text-base">Tambah Bucket List / Wishlist</h3>
-          <button onclick="closeModal('modal-new-wish')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+          <button onclick="closeModal('modal-new-wish')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
         <input id="wish-nama" type="text" placeholder="Nama Tempat / Barang Impian" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
         <select id="wish-kategori" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm">
@@ -601,7 +502,7 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
 
     <!-- LIGHTBOX PREVIEW GAMBAR -->
     <div id="lightbox" onclick="this.classList.add('hidden')" class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
-      <img id="lightbox-img" src="" class="max-w-full max-h-[85vh] rounded-xl object-contain" />
+      <img id="lightbox-img" src="" class="max-w-full max-h-[85dvh] rounded-xl object-contain" />
     </div>
 
   </div>
@@ -620,7 +521,6 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
 
     const audioEl = document.getElementById('shared-audio');
 
-    // INIT
     window.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       setupAudioListeners();
@@ -708,7 +608,7 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
       if (String(pin) === String(selectedLoginUser.PIN)) {
         currentUser = selectedLoginUser;
         localStorage.setItem('ourspace_user', JSON.stringify(currentUser));
-        enablePushNotif();
+        enablePushNotif(true);
         showMainApp();
       } else {
         showToast('PIN salah bro!');
@@ -728,23 +628,51 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('main-screen').classList.remove('hidden');
       renderAll();
+      enablePushNotif(true);
       if (pollTimer) clearInterval(pollTimer);
       pollTimer = setInterval(() => {
         if (!document.hidden) fetchAllData(false);
       }, 5000);
     }
 
-    function enablePushNotif() {
-      if (!window.OneSignalDeferred) return;
+    function enablePushNotif(silent = false) {
+      if (!silent) showToast('Menghubungkan notifikasi...');
+      const statusEl = document.getElementById('notif-status-text');
+
+      if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
+        const msg = 'Izin notifikasi diblokir HP. Aktifkan di Setelan Situs Chrome dulu.';
+        if (statusEl) statusEl.textContent = msg;
+        if (!silent) showToast(msg);
+        return;
+      }
+
+      if (!window.OneSignalDeferred) {
+        if (!silent) showToast('Sistem notif belum siap, coba muat ulang');
+        return;
+      }
+
+      let responded = false;
+      if (!silent) {
+        setTimeout(() => {
+          if (!responded) showToast('Gagal terhubung ke OneSignal, cek sinyal');
+        }, 6000);
+      }
+
       OneSignalDeferred.push(async function(OneSignal) {
+        responded = true;
         try {
-          await OneSignal.Notifications.requestPermission();
+          if (!silent || Notification.permission !== 'granted') {
+            await OneSignal.Notifications.requestPermission();
+          }
+          await OneSignal.User.PushSubscription.optIn();
           if (currentUser && currentUser.ID) {
             await OneSignal.User.addTag("role", currentUser.ID);
-            showToast('Notifikasi push tersinkron!');
+            const okMsg = `Notifikasi aktif untuk ${currentUser.Nama}!`;
+            if (statusEl) statusEl.textContent = `Status: Terhubung sebagai ${currentUser.Nama}`;
+            if (!silent) showToast(okMsg);
           }
         } catch (err) {
-          console.log(err);
+          if (!silent) showToast('Gagal aktifkan notif: ' + (err.message || err));
         }
       });
     }
@@ -1476,7 +1404,7 @@ te-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
       const t = document.getElementById('toast');
       document.getElementById('toast-msg').textContent = msg;
       t.classList.remove('hidden');
-      setTimeout(() => t.classList.add('hidden'), 3000);
+      setTimeout(() => t.classList.add('hidden'), 3200);
     }
 
     function fileToBase64(file) {
