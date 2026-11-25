@@ -35,16 +35,22 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .safe-top { padding-top: max(12px, env(safe-area-inset-top)); }
     .safe-bottom { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+    .chat-swipe-row { touch-action: pan-y; user-select: none; }
     @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .animate-spin-slow { animation: spinSlow 6s linear infinite; }
+    @keyframes msgHighlight {
+      0%, 100% { background-color: transparent; }
+      50% { background-color: rgba(244, 63, 94, 0.25); }
+    }
+    .highlight-msg { animation: msgHighlight 1.2s ease-in-out; border-radius: 16px; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 w-full h-[100dvh] overflow-hidden">
 
-  <!-- FULL SCREEN CONTAINER (PORTRAIT & LANDSCAPE HP / TABLET) -->
+  <!-- FULL SCREEN CONTAINER -->
   <div id="app" style="width: 100%; height: 100dvh;" class="w-full bg-slate-900 flex flex-col relative overflow-hidden">
 
-    <!-- SUBTLE UPLOAD PROGRESS BAR -->
+    <!-- UPLOAD PROGRESS BAR -->
     <div id="upload-bar" class="hidden fixed top-0 left-0 right-0 z-50 bg-rose-500 text-white text-[11px] font-semibold text-center py-1 shadow">
       <span id="upload-bar-text">Mengunggah media...</span>
     </div>
@@ -81,48 +87,66 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SCREEN 2: MAIN APP (FULL WIDTH & HEIGHT)   -->
+    <!-- SCREEN 2: MAIN APP                         -->
     <!-- ========================================== -->
     <div id="main-screen" style="width: 100%; height: 100dvh;" class="hidden flex-1 w-full flex flex-col overflow-hidden">
 
-      <!-- TOP HEADER -->
+      <!-- DYNAMIC TOP HEADER -->
       <header class="w-full px-4 md:px-6 pb-3 safe-top bg-slate-900/95 backdrop-blur border-b border-slate-800 flex items-center justify-between shrink-0 z-20">
-        <div class="flex items-center gap-2.5 min-w-0">
+        <!-- Mode 1: Partner Contact Header (KHUSUS TAB CHAT) -->
+        <div id="header-chat-info" onclick="openPartnerProfileModal()" class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer group">
           <div class="relative shrink-0">
-            <img id="header-partner-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-rose-500/50 bg-slate-800" />
+            <img id="header-partner-avatar" src="" class="w-10 h-10 rounded-full object-cover border border-rose-500/50 bg-slate-800 group-hover:scale-105 transition-transform" />
             <span id="online-dot" class="hidden absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900"></span>
           </div>
-          <div class="min-w-0">
-            <h2 id="header-title" class="text-sm font-bold leading-tight truncate">OurSpace</h2>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+              <h2 id="header-title" class="text-sm font-bold leading-tight truncate group-hover:text-rose-400 transition-colors">OurSpace</h2>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
+            </div>
             <p id="header-subtitle" class="text-[11px] text-slate-400 truncate">Menghubungkan...</p>
           </div>
         </div>
-        <div class="flex items-center gap-2 shrink-0">
-          <button onclick="openModal('modal-music')" title="Dengerin Musik Bareng" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 relative">
-            <i data-lucide="headphones" class="w-4 h-4"></i>
-            <span id="music-badge" class="hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          </button>
-          <button onclick="openSettingsModal()" title="Pengaturan" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1.5">
-            <img id="header-my-avatar" src="" class="w-6 h-6 rounded-full object-cover bg-slate-700" />
+
+        <!-- Mode 2: Section Header (UNTUK TAB CELENGAN, MUSIK, VAULT, LIST) -->
+        <div id="header-section-info" class="hidden flex items-center gap-3 min-w-0 flex-1">
+          <div id="header-section-icon" class="w-9 h-9 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center shrink-0">
+            <i data-lucide="piggy-bank" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <h2 id="header-section-title" class="text-sm font-bold leading-tight truncate text-white">Celengan Berdua</h2>
+            <p id="header-section-sub" class="text-[11px] text-slate-400 truncate">Tabungan & target impian</p>
+          </div>
+        </div>
+
+        <!-- Right Settings Profile Trigger -->
+        <div class="flex items-center gap-2 shrink-0 ml-2">
+          <button onclick="openSettingsModal()" title="Pengaturan" class="p-1.5 pr-2.5 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 flex items-center gap-2 transition-colors">
+            <img id="header-my-avatar" src="" class="w-7 h-7 rounded-full object-cover bg-slate-700 ring-1 ring-rose-500/40" />
             <i data-lucide="settings" class="w-4 h-4 text-slate-400"></i>
           </button>
         </div>
       </header>
 
-      <!-- LIVE SYNC MINI MUSIC BAR -->
+      <!-- LIVE SYNC MINI MUSIC BAR (DENGAN PLAY/PAUSE + STOP) -->
       <div id="mini-music-bar" class="hidden w-full px-4 md:px-6 py-2 bg-gradient-to-r from-slate-800 via-slate-800 to-rose-950/60 border-b border-slate-700/80 flex items-center justify-between gap-2 shrink-0 z-10">
-        <div onclick="openModal('modal-music')" class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer">
+        <div onclick="switchTab('music')" class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer">
           <div id="mini-disc" class="w-7 h-7 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
             <i data-lucide="disc-3" class="w-4 h-4"></i>
           </div>
           <div class="min-w-0">
             <p id="mini-music-title" class="text-xs font-bold text-white truncate">Tidak ada lagu</p>
-            <p id="mini-music-sub" class="text-[10px] text-rose-300 truncate">Ketuk untuk dengerin bareng</p>
+            <p id="mini-music-sub" class="text-[10px] text-rose-300 truncate">Ketuk untuk buka pemutar musik</p>
           </div>
         </div>
-        <button onclick="togglePlayPauseMusic()" id="mini-play-btn" class="p-2 rounded-full bg-rose-500 text-white shrink-0 shadow">
-          <i data-lucide="play" class="w-3.5 h-3.5"></i>
-        </button>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button onclick="togglePlayPauseMusic()" id="mini-play-btn" title="Play / Pause" class="p-2 rounded-full bg-rose-500 hover:bg-rose-600 text-white shadow">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="stopMusic()" title="Stop Lagu" class="p-2 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-200 shadow">
+            <i data-lucide="square" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
       </div>
 
       <!-- AUTOPLAY UNBLOCK BANNER -->
@@ -131,30 +155,47 @@
         <span class="bg-white/20 px-2.5 py-0.5 rounded text-[10px] shrink-0">Dengar</span>
       </div>
 
-      <!-- TAB 1: ROOM CHAT WITH CUSTOM WALLPAPER -->
+      <!-- ========================================== -->
+      <!-- TAB 1: ROOM CHAT (FULL EDGE-TO-EDGE)       -->
+      <!-- ========================================== -->
       <section id="tab-chat" class="flex-1 w-full flex flex-col overflow-hidden relative bg-slate-900 bg-cover bg-center">
         <div id="chat-wallpaper-overlay" class="hidden absolute inset-0 bg-slate-950/60 pointer-events-none"></div>
 
-        <div id="chat-messages" class="flex-1 w-full overflow-y-auto p-4 md:px-8 no-scrollbar relative z-10">
-          <div id="chat-messages-inner" class="max-w-4xl mx-auto w-full space-y-3"></div>
+        <!-- Chat Messages List (Full width in both portrait & landscape) -->
+        <div id="chat-messages" class="flex-1 w-full overflow-y-auto px-3 sm:px-5 md:px-8 py-4 no-scrollbar relative z-10">
+          <div id="chat-messages-inner" class="w-full space-y-3"></div>
         </div>
 
-        <!-- Quick Emoji Bar -->
-        <div class="w-full px-3 md:px-6 py-1.5 bg-slate-900/95 backdrop-blur border-t border-slate-800/60 shrink-0 relative z-10">
-          <div class="max-w-4xl mx-auto flex gap-2 overflow-x-auto no-scrollbar">
-            <button onclick="sendQuickEmoji('❤️')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">❤️</button>
-            <button onclick="sendQuickEmoji('🥰')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">🥰</button>
-            <button onclick="sendQuickEmoji('😘')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">😘</button>
-            <button onclick="sendQuickEmoji('🥺')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">🥺</button>
-            <button onclick="sendQuickEmoji('🤗')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">🤗</button>
-            <button onclick="sendQuickEmoji('😭')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">😭</button>
-            <button onclick="sendQuickEmoji('🍔')" class="px-2.5 py-1 bg-slate-800 rounded-full text-sm shrink-0">🍔</button>
+        <!-- Reply Preview Banner -->
+        <div id="chat-reply-preview-box" class="hidden w-full px-3 sm:px-5 md:px-8 py-2 bg-slate-800/95 backdrop-blur border-t border-slate-700 relative z-10">
+          <div class="w-full flex items-center justify-between gap-3 bg-slate-900/90 border-l-4 border-rose-500 rounded-r-xl px-3 py-1.5">
+            <div class="min-w-0 flex-1">
+              <p id="reply-preview-sender" class="text-[11px] font-bold text-rose-400 truncate">Membalas...</p>
+              <p id="reply-preview-text" class="text-xs text-slate-300 truncate">Pesan</p>
+            </div>
+            <button onclick="cancelReply()" class="p-1 text-slate-400 hover:text-white shrink-0">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Emoji Bar (KLIK MASUK KE TEXT BOX, TIDAK AUTO-SEND) -->
+        <div class="w-full px-3 sm:px-5 md:px-8 py-1.5 bg-slate-900/95 backdrop-blur border-t border-slate-800/60 shrink-0 relative z-10">
+          <div class="w-full flex items-center gap-2 overflow-x-auto no-scrollbar">
+            <button type="button" onclick="insertEmojiToInput('❤️')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">❤️</button>
+            <button type="button" onclick="insertEmojiToInput('🥰')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🥰</button>
+            <button type="button" onclick="insertEmojiToInput('😘')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">😘</button>
+            <button type="button" onclick="insertEmojiToInput('🥺')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🥺</button>
+            <button type="button" onclick="insertEmojiToInput('🤗')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🤗</button>
+            <button type="button" onclick="insertEmojiToInput('😭')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">😭</button>
+            <button type="button" onclick="insertEmojiToInput('😂')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">😂</button>
+            <button type="button" onclick="insertEmojiToInput('🍔')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🍔</button>
           </div>
         </div>
 
         <!-- Image Preview before sending -->
-        <div id="chat-img-preview-box" class="hidden w-full px-4 md:px-6 py-2 bg-slate-800 border-t border-slate-700 relative z-10">
-          <div class="max-w-4xl mx-auto flex items-center justify-between">
+        <div id="chat-img-preview-box" class="hidden w-full px-3 sm:px-5 md:px-8 py-2 bg-slate-800 border-t border-slate-700 relative z-10">
+          <div class="w-full flex items-center justify-between">
             <div class="flex items-center gap-2">
               <img id="chat-img-preview" src="" class="w-10 h-10 rounded-lg object-cover" />
               <span class="text-xs text-slate-300">Foto siap dikirim</span>
@@ -163,23 +204,52 @@
           </div>
         </div>
 
-        <!-- Chat Input Bar -->
-        <div class="w-full p-2.5 md:px-6 bg-slate-900/95 backdrop-blur border-t border-slate-800 shrink-0 relative z-10">
-          <div class="max-w-4xl mx-auto flex items-center gap-2">
-            <label class="p-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
+        <!-- Chat Input Bar (Full Width) -->
+        <div class="w-full px-3 sm:px-5 md:px-8 py-2.5 bg-slate-900/95 backdrop-blur border-t border-slate-800 shrink-0 relative z-10">
+          <div class="w-full flex items-center gap-2">
+            <button type="button" onclick="toggleStickerDrawer()" id="btn-sticker-toggle" title="Emot & Stiker Bergerak" class="p-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-400 shrink-0">
+              <i data-lucide="smile-plus" class="w-5 h-5"></i>
+            </button>
+            <label title="Kirim Foto" class="p-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
               <i data-lucide="image" class="w-5 h-5"></i>
               <input id="chat-file-input" type="file" accept="image/*" class="hidden" onchange="previewChatImage(event)" />
             </label>
-            <input id="chat-input" type="text" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendChat()"
+            <input id="chat-input" type="text" placeholder="Ketik pesan..." onfocus="closeStickerDrawer()" onkeypress="if(event.key==='Enter') sendChat()"
               class="flex-1 bg-slate-800 border border-slate-700 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500 min-w-0" />
             <button onclick="sendChat()" class="p-2.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 text-white shrink-0 shadow-md">
               <i data-lucide="send" class="w-5 h-5"></i>
             </button>
           </div>
         </div>
+
+        <!-- EMOJI & ANIMATED STICKER DRAWER -->
+        <div id="sticker-drawer" class="hidden w-full bg-slate-900 border-t border-slate-800 px-3 sm:px-5 md:px-8 py-3 shrink-0 relative z-20 max-h-64 flex flex-col">
+          <div class="flex items-center justify-between gap-2 mb-2.5 shrink-0">
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="switchStickerTab('animated')" id="stab-animated" class="px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 text-white">Stiker Bergerak</button>
+              <button type="button" onclick="switchStickerTab('emoji')" id="stab-emoji" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Emotikon</button>
+              <button type="button" onclick="switchStickerTab('custom')" id="stab-custom" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Stiker Kita</button>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <label class="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold cursor-pointer flex items-center gap-1">
+                <i data-lucide="plus" class="w-3 h-3"></i> Tambah GIF/Stiker
+                <input type="file" accept="image/gif,image/webp,image/png,image/jpeg" class="hidden" onchange="uploadCustomSticker(event)" />
+              </label>
+              <button type="button" onclick="closeStickerDrawer()" class="p-1 text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="sticker-panel-animated" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2.5 overflow-y-auto no-scrollbar py-1"></div>
+          <div id="sticker-panel-emoji" class="hidden grid grid-cols-8 sm:grid-cols-10 md:grid-cols-12 gap-1.5 overflow-y-auto no-scrollbar py-1"></div>
+          <div id="sticker-panel-custom" class="hidden grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2.5 overflow-y-auto no-scrollbar py-1"></div>
+        </div>
       </section>
 
-      <!-- TAB 2: CELENGAN MULTI-KANTONG -->
+      <!-- ========================================== -->
+      <!-- TAB 2: CELENGAN MULTI-KANTONG              -->
+      <!-- ========================================== -->
       <section id="tab-celengan" class="hidden flex-1 w-full overflow-y-auto p-4 md:p-6 no-scrollbar">
         <div class="max-w-6xl mx-auto space-y-4">
           <div class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg">
@@ -192,13 +262,79 @@
                 <i data-lucide="plus" class="w-4 h-4"></i> Pos Baru
               </button>
             </div>
-            <p class="text-[11px] text-rose-100 mt-3 opacity-90">Pisahkan target liburan, nikah, atau wishlist barang di tiap pos.</p>
+            <p class="text-[11px] text-rose-100 mt-3 opacity-90">Pisahkan target liburan, nikah, atau beli barang elektronik di tiap pos.</p>
           </div>
           <div id="celengan-pos-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4"></div>
         </div>
       </section>
 
-      <!-- TAB 3: MEMORY VAULT (INSTAGRAM 10-SLIDE CAROUSEL) -->
+      <!-- ========================================== -->
+      <!-- TAB 3: DENGERIN MUSIK BARENG (MENU BAWAH)  -->
+      <!-- ========================================== -->
+      <section id="tab-music" class="hidden flex-1 w-full overflow-y-auto p-4 md:p-6 no-scrollbar">
+        <div class="max-w-4xl mx-auto space-y-4 pb-6">
+          <!-- Now Playing Card -->
+          <div class="bg-gradient-to-br from-slate-800 via-slate-800 to-rose-950/60 border border-slate-700 rounded-2xl p-5 space-y-4 shadow-lg">
+            <div class="flex items-center gap-4">
+              <div id="modal-disc" class="w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
+                <i data-lucide="disc-3" class="w-8 h-8"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <span class="text-[10px] uppercase tracking-wider font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full">Live Sync Berdua</span>
+                <p id="modal-music-title" class="text-base font-bold text-white truncate mt-1">Belum ada lagu diputar</p>
+                <p id="modal-music-dj" class="text-xs text-slate-300 truncate">Pilih dari playlist atau upload lagu di bawah</p>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <input id="music-seek-bar" type="range" min="0" max="100" value="0" onchange="seekMusic(this.value)"
+                class="w-full accent-rose-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer" />
+              <div class="flex justify-between text-[11px] text-slate-400">
+                <span id="music-cur-time">00:00</span>
+                <span id="music-dur-time">00:00</span>
+              </div>
+            </div>
+
+            <!-- Controls: Sync, Play/Pause, STOP -->
+            <div class="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+              <button onclick="syncNowManually()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Samakan Detik
+              </button>
+              <button onclick="togglePlayPauseMusic()" id="modal-play-btn" class="px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg">
+                <i data-lucide="play" class="w-4 h-4"></i> Play / Pause
+              </button>
+              <button onclick="stopMusic()" class="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold flex items-center gap-1.5 shadow">
+                <i data-lucide="square" class="w-3.5 h-3.5"></i> Stop
+              </button>
+            </div>
+          </div>
+
+          <!-- Upload Lagu Offline -->
+          <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-4 space-y-3">
+            <p class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="upload-cloud" class="w-4 h-4 text-rose-400"></i> Upload Lagu Offline (MP3 / M4A)
+            </p>
+            <input id="music-file-input" type="file" accept="audio/*" onchange="autoFillMusicTitle(this)"
+              class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:bg-rose-500 file:text-white file:font-semibold" />
+            <div class="flex gap-2">
+              <input id="music-title-input" type="text" placeholder="Judul lagu..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs min-w-0" />
+              <button onclick="uploadOfflineMusic()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-4 py-2.5 rounded-xl text-xs shrink-0">
+                Upload & Putar
+              </button>
+            </div>
+          </div>
+
+          <!-- Playlist Bersama -->
+          <div class="space-y-2.5">
+            <p class="text-xs font-bold text-slate-300">Playlist Lagu Kita</p>
+            <div id="music-playlist" class="grid grid-cols-1 md:grid-cols-2 gap-2.5"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: MEMORY VAULT (10 SLIDE INSTAGRAM)   -->
+      <!-- ========================================== -->
       <section id="tab-vault" class="hidden flex-1 w-full overflow-y-auto p-4 md:p-6 no-scrollbar">
         <div class="max-w-6xl mx-auto space-y-4">
           <div class="flex items-center justify-between gap-2">
@@ -214,29 +350,50 @@
         </div>
       </section>
 
-      <!-- TAB 4: BUCKET LIST & WISHLIST -->
+      <!-- ========================================== -->
+      <!-- TAB 5: LIST PERSIAPAN NIKAH & WISHLIST     -->
+      <!-- ========================================== -->
       <section id="tab-wishlist" class="hidden flex-1 w-full overflow-y-auto p-4 md:p-6 no-scrollbar">
         <div class="max-w-6xl mx-auto space-y-4">
-          <div class="flex items-center justify-between gap-2">
+          <!-- Summary Budget Card -->
+          <div class="bg-gradient-to-r from-slate-800 via-slate-800 to-rose-950/50 border border-slate-700/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 class="text-base font-bold">Bucket List & Wishlist</h3>
-              <p class="text-xs text-slate-400">Tempat makan, liburan & impian bareng</p>
+              <p class="text-xs text-slate-400">Total Estimasi List Barang & Persiapan</p>
+              <div class="flex items-baseline gap-3 mt-1">
+                <h3 id="wish-total-budget" class="text-xl font-extrabold text-white">Rp 0</h3>
+                <span id="wish-bought-summary" class="text-xs text-emerald-400 font-semibold">Terbeli: Rp 0 (0/0 item)</span>
+              </div>
             </div>
-            <button onclick="openModal('modal-new-wish')" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow shrink-0">
-              <i data-lucide="sparkles" class="w-4 h-4"></i> Tambah
+            <button onclick="openNewWishModal()" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow shrink-0">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Barang / List
             </button>
           </div>
-          <div class="flex gap-2">
-            <button onclick="filterWish('ALL')" id="wish-filter-ALL" class="px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 text-white">Semua</button>
-            <button onclick="filterWish('Impian')" id="wish-filter-Impian" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Impian</button>
-            <button onclick="filterWish('Tercapai')" id="wish-filter-Tercapai" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Tercapai</button>
+
+          <!-- Filter Kategori -->
+          <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            <button onclick="filterWishCat('ALL')" id="wcat-ALL" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500 text-white shrink-0">Semua</button>
+            <button onclick="filterWishCat('Persiapan Nikah')" id="wcat-Persiapan Nikah" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 shrink-0">💍 Persiapan Nikah</button>
+            <button onclick="filterWishCat('Elektronik & Rumah')" id="wcat-Elektronik & Rumah" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 shrink-0">📺 Elektronik & Rumah</button>
+            <button onclick="filterWishCat('Kuliner')" id="wcat-Kuliner" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 shrink-0">🍔 Kuliner</button>
+            <button onclick="filterWishCat('Liburan')" id="wcat-Liburan" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 shrink-0">✈️ Liburan</button>
+            <button onclick="filterWishCat('Barang')" id="wcat-Barang" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 shrink-0">🎁 Barang Impian</button>
           </div>
-          <div id="wishlist-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-4"></div>
+
+          <!-- Filter Status -->
+          <div class="flex gap-2">
+            <button onclick="filterWishStatus('ALL')" id="wish-filter-ALL" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-700 text-white">Semua Status</button>
+            <button onclick="filterWishStatus('Impian')" id="wish-filter-Impian" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-800/70 text-slate-400">Belum Dibeli</button>
+            <button onclick="filterWishStatus('Tercapai')" id="wish-filter-Tercapai" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-800/70 text-slate-400">Sudah Terbeli ✓</button>
+          </div>
+
+          <div id="wishlist-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6 items-start"></div>
         </div>
       </section>
 
-      <!-- BOTTOM NAVIGATION BAR -->
-      <nav class="w-full bg-slate-900 border-t border-slate-800 grid grid-cols-4 pt-2 px-2 shrink-0 safe-bottom z-20">
+      <!-- ========================================== -->
+      <!-- BOTTOM NAVIGATION BAR (5 MENU)             -->
+      <!-- ========================================== -->
+      <nav class="w-full bg-slate-900 border-t border-slate-800 grid grid-cols-5 pt-2 px-1 shrink-0 safe-bottom z-20">
         <button onclick="switchTab('chat')" id="nav-chat" class="flex flex-col items-center gap-1 py-1 text-rose-500">
           <i data-lucide="message-circle-heart" class="w-5 h-5"></i>
           <span class="text-[10px] font-semibold">Chat</span>
@@ -245,13 +402,20 @@
           <i data-lucide="piggy-bank" class="w-5 h-5"></i>
           <span class="text-[10px] font-semibold">Celengan</span>
         </button>
+        <button onclick="switchTab('music')" id="nav-music" class="flex flex-col items-center gap-1 py-1 text-slate-400 relative">
+          <div class="relative">
+            <i data-lucide="headphones" class="w-5 h-5"></i>
+            <span id="music-badge" class="hidden absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          </div>
+          <span class="text-[10px] font-semibold">Musik</span>
+        </button>
         <button onclick="switchTab('vault')" id="nav-vault" class="flex flex-col items-center gap-1 py-1 text-slate-400">
           <i data-lucide="images" class="w-5 h-5"></i>
           <span class="text-[10px] font-semibold">Vault</span>
         </button>
         <button onclick="switchTab('wishlist')" id="nav-wishlist" class="flex flex-col items-center gap-1 py-1 text-slate-400">
-          <i data-lucide="gift" class="w-5 h-5"></i>
-          <span class="text-[10px] font-semibold">Wishlist</span>
+          <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">List</span>
         </button>
       </nav>
     </div>
@@ -260,130 +424,134 @@
     <audio id="shared-audio" preload="auto"></audio>
 
     <!-- ========================================== -->
-    <!-- MODAL: DENGERIN MUSIK BARENG               -->
+    <!-- MODAL: PROFIL KONTAK PASANGAN (WA/TELE)    -->
     <!-- ========================================== -->
-    <div id="modal-music" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-5 max-h-[85dvh] flex flex-col space-y-4">
-        <div class="flex justify-between items-center shrink-0">
-          <div class="flex items-center gap-2">
-            <i data-lucide="headphones" class="w-5 h-5 text-rose-500"></i>
-            <h3 class="font-bold text-base">Dengerin Musik Bareng</h3>
-          </div>
-          <button onclick="closeModal('modal-music')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div id="modal-partner-profile" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl overflow-hidden max-h-[88dvh] flex flex-col">
+        <div class="flex justify-between items-center px-5 py-3.5 border-b border-slate-800 shrink-0">
+          <h3 class="font-bold text-sm text-slate-200">Info Kontak</h3>
+          <button onclick="closeModal('modal-partner-profile')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
-
-        <div class="bg-gradient-to-br from-slate-800 to-rose-950/50 border border-slate-700 rounded-2xl p-4 space-y-3 shrink-0">
-          <div class="flex items-center gap-3">
-            <div id="modal-disc" class="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
-              <i data-lucide="music" class="w-6 h-6"></i>
+        <div class="overflow-y-auto p-5 space-y-5 no-scrollbar">
+          <!-- Avatar & Nama -->
+          <div class="flex flex-col items-center text-center">
+            <div class="relative">
+              <img id="pprof-avatar" src="" onclick="openLightbox(this.src)" class="w-28 h-28 rounded-full object-cover border-4 border-rose-500/30 bg-slate-800 cursor-pointer shadow-xl" />
+              <span id="pprof-dot" class="hidden absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full bg-emerald-400 ring-4 ring-slate-900"></span>
             </div>
-            <div class="min-w-0 flex-1">
-              <p id="modal-music-title" class="text-sm font-bold text-white truncate">Belum ada lagu diputar</p>
-              <p id="modal-music-dj" class="text-[11px] text-rose-300 truncate">Pilih dari playlist atau upload lagu offline</p>
-            </div>
+            <h4 id="pprof-nama" class="text-xl font-bold text-white mt-3">Pasangan</h4>
+            <p id="pprof-status" class="text-xs text-slate-400 mt-0.5">Offline</p>
           </div>
 
-          <div class="space-y-1">
-            <input id="music-seek-bar" type="range" min="0" max="100" value="0" onchange="seekMusic(this.value)"
-              class="w-full accent-rose-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer" />
-            <div class="flex justify-between text-[10px] text-slate-400">
-              <span id="music-cur-time">00:00</span>
-              <span id="music-dur-time">00:00</span>
-            </div>
+          <!-- Bio / Info -->
+          <div class="bg-slate-800/70 border border-slate-700/70 rounded-2xl p-3.5">
+            <p class="text-[10px] uppercase tracking-wider font-bold text-rose-400 mb-1">Bio / Status</p>
+            <p id="pprof-bio" class="text-xs text-slate-200 leading-relaxed">Selalu ada buat kamu ❤️</p>
           </div>
 
-          <div class="flex items-center justify-center gap-3 pt-1">
-            <button onclick="syncNowManually()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 flex items-center gap-1">
-              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Samakan Detik
+          <!-- Shortcut Actions -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <button onclick="closeModal('modal-partner-profile'); switchTab('music');" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1.5 text-xs font-semibold text-rose-400">
+              <i data-lucide="headphones" class="w-5 h-5"></i>
+              <span>Dengerin Musik</span>
             </button>
-            <button onclick="togglePlayPauseMusic()" id="modal-play-btn" class="px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg">
-              <i data-lucide="play" class="w-4 h-4"></i> Play / Pause
+            <button onclick="closeModal('modal-partner-profile'); switchTab('vault');" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1.5 text-xs font-semibold text-sky-400">
+              <i data-lucide="images" class="w-5 h-5"></i>
+              <span>Galeri Memori</span>
             </button>
           </div>
-        </div>
 
-        <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-3.5 space-y-2.5 shrink-0">
-          <p class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-            <i data-lucide="upload-cloud" class="w-4 h-4 text-rose-400"></i> Upload Lagu Offline (MP3 / M4A)
-          </p>
-          <input id="music-file-input" type="file" accept="audio/*" onchange="autoFillMusicTitle(this)"
-            class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-rose-500 file:text-white" />
-          <div class="flex gap-2">
-            <input id="music-title-input" type="text" placeholder="Judul lagu..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs min-w-0" />
-            <button onclick="uploadOfflineMusic()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-3.5 py-2 rounded-xl text-xs shrink-0">
-              Upload & Putar
-            </button>
+          <!-- Media Bersama di Chat -->
+          <div>
+            <p class="text-xs font-bold text-slate-300 mb-2">Media & Foto di Chat</p>
+            <div id="pprof-shared-media" class="grid grid-cols-3 gap-2"></div>
           </div>
-        </div>
-
-        <div class="flex-1 overflow-y-auto space-y-2 no-scrollbar min-h-0">
-          <p class="text-xs font-semibold text-slate-400">Playlist Lagu Kita</p>
-          <div id="music-playlist" class="space-y-2"></div>
         </div>
       </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- MODAL: PENGATURAN LENGKAP                  -->
+    <!-- MODAL: PENGATURAN GAYA WHATSAPP            -->
     <!-- ========================================== -->
     <div id="modal-settings" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-5 max-h-[85dvh] overflow-y-auto no-scrollbar space-y-5">
-        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl overflow-hidden max-h-[88dvh] flex flex-col">
+        <div class="flex justify-between items-center px-5 py-3.5 border-b border-slate-800 shrink-0">
           <h3 class="font-bold text-base flex items-center gap-2">
-            <i data-lucide="settings" class="w-5 h-5 text-rose-500"></i> Pengaturan Aplikasi
+            <i data-lucide="settings" class="w-5 h-5 text-rose-500"></i> Pengaturan
           </h3>
           <button onclick="closeModal('modal-settings')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
 
-        <!-- BAGIAN 1: NOTIFIKASI -->
-        <div class="space-y-2.5">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">1. Notifikasi Android (FCM)</h4>
-          <button onclick="enablePushNotif(false)" class="w-full bg-amber-500/20 border border-amber-500/40 active:scale-95 transition-transform text-amber-300 font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2">
-            <i data-lucide="bell-ring" class="w-4 h-4"></i> Aktifkan Notifikasi di HP Ini
-          </button>
-          <button onclick="sendTestNotif()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 active:scale-95 transition-transform text-slate-200 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
-            <i data-lucide="send" class="w-3.5 h-3.5 text-emerald-400"></i> Tes Kirim Notif ke Pasangan
-          </button>
-          <p id="notif-status-text" class="text-[11px] text-slate-400 text-center">Status: Memeriksa perangkat...</p>
-        </div>
+        <div class="overflow-y-auto p-5 space-y-5 no-scrollbar">
+          <!-- CIRCULAR AVATAR HERO CARD (WHATSAPP STYLE) -->
+          <div class="bg-gradient-to-b from-slate-800/90 to-slate-800/40 border border-slate-700/80 rounded-2xl p-5 flex flex-col items-center text-center">
+            <div class="relative">
+              <img id="settings-avatar-preview" src="" onclick="openLightbox(this.src)" class="w-24 h-24 rounded-full object-cover border-4 border-rose-500/40 bg-slate-800 cursor-pointer shadow-lg" />
+              <label title="Ganti Foto Profil" class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center cursor-pointer shadow-md ring-2 ring-slate-900">
+                <i data-lucide="camera" class="w-4 h-4"></i>
+                <input id="prof-foto" type="file" accept="image/*" class="hidden" onchange="previewSettingsAvatar(event)" />
+              </label>
+            </div>
+            <h4 id="settings-display-name" class="text-lg font-bold text-white mt-3">Nama Kamu</h4>
+            <p id="settings-display-bio" class="text-xs text-slate-400 mt-0.5">Ketuk foto untuk memperbesar atau ikon kamera untuk ganti PP</p>
+          </div>
 
-        <!-- BAGIAN 2: WALLPAPER RUANG CHAT -->
-        <div class="space-y-2.5 border-t border-slate-800 pt-4">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">2. Wallpaper Ruang Chat</h4>
-          <div class="grid grid-cols-4 gap-2">
-            <button onclick="applyPresetWallpaper('')" class="h-12 rounded-xl bg-slate-800 border border-slate-700 text-[10px] font-semibold text-slate-300">Default</button>
-            <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-700" style="background-image:url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=200')"></button>
-            <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-700" style="background-image:url('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=200')"></button>
-            <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-700" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200')"></button>
+          <!-- CARD 1: PROFIL, BIO & PIN -->
+          <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+              <i data-lucide="user-pen" class="w-3.5 h-3.5"></i> Profil, Bio & Keamanan PIN
+            </h4>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">Nama Panggilan</label>
+              <input id="prof-nama" type="text" placeholder="Nama Panggilan" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">Bio / Status Profil</label>
+              <input id="prof-bio" type="text" placeholder="Tulis status singkat..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">PIN Login Baru (Mendukung awalan 0, misal: 0511)</label>
+              <input id="prof-pin" type="password" inputmode="numeric" maxlength="6" placeholder="Kosongkan jika tidak diubah" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+            </div>
+            <button onclick="submitProfile()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2.5 rounded-xl text-sm shadow">
+              Simpan Perubahan Profil
+            </button>
           </div>
-          <div class="flex gap-2 items-center pt-1">
-            <input id="wp-file-input" type="file" accept="image/*" class="flex-1 text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200 min-w-0" />
-            <button onclick="uploadCustomWallpaper()" class="bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Pasang Foto</button>
-          </div>
-        </div>
 
-        <!-- BAGIAN 3: PROFIL & PIN LOGIN -->
-        <div class="space-y-2.5 border-t border-slate-800 pt-4">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400">3. Profil & PIN Login</h4>
-          <div>
-            <label class="text-[11px] text-slate-400 block mb-1">Nama Panggilan</label>
-            <input id="prof-nama" type="text" placeholder="Nama Panggilan" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+          <!-- CARD 2: NOTIFIKASI -->
+          <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 space-y-2.5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+              <i data-lucide="bell" class="w-3.5 h-3.5"></i> Notifikasi Android (FCM)
+            </h4>
+            <button onclick="enablePushNotif(false)" class="w-full bg-amber-500/20 border border-amber-500/40 active:scale-95 transition-transform text-amber-300 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
+              <i data-lucide="bell-ring" class="w-4 h-4"></i> Aktifkan Notifikasi di Perangkat Ini
+            </button>
+            <button onclick="sendTestNotif()" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 active:scale-95 transition-transform text-slate-200 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
+              <i data-lucide="send" class="w-3.5 h-3.5 text-emerald-400"></i> Tes Kirim Notif ke Pasangan
+            </button>
+            <p id="notif-status-text" class="text-[11px] text-slate-400 text-center">Status: Memeriksa perangkat...</p>
           </div>
-          <div>
-            <label class="text-[11px] text-slate-400 block mb-1">PIN Baru (Mendukung awalan 0, misal: 0511)</label>
-            <input id="prof-pin" type="password" inputmode="numeric" maxlength="6" placeholder="Kosongkan jika tidak diubah" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
-          </div>
-          <div>
-            <label class="text-[11px] text-slate-400 block mb-1">Ganti Foto Profil (PP)</label>
-            <input id="prof-foto" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200" />
-          </div>
-          <button onclick="submitProfile()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2.5 rounded-xl text-sm">Simpan Profil & PIN</button>
-        </div>
 
-        <!-- BAGIAN 4: AKUN -->
-        <div class="border-t border-slate-800 pt-4">
-          <button onclick="logout()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 font-semibold py-2.5 rounded-xl text-xs">
-            Ganti Akun / Keluar
+          <!-- CARD 3: WALLPAPER RUANG CHAT -->
+          <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 space-y-2.5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+              <i data-lucide="wallpaper" class="w-3.5 h-3.5"></i> Wallpaper Ruang Chat
+            </h4>
+            <div class="grid grid-cols-4 gap-2">
+              <button onclick="applyPresetWallpaper('')" class="h-12 rounded-xl bg-slate-900 border border-slate-700 text-[10px] font-semibold text-slate-300">Default</button>
+              <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-700" style="background-image:url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=200')"></button>
+              <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-700" style="background-image:url('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=200')"></button>
+              <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-700" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200')"></button>
+            </div>
+            <div class="flex gap-2 items-center pt-1">
+              <input id="wp-file-input" type="file" accept="image/*" class="flex-1 text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-900 file:text-slate-200 min-w-0" />
+              <button onclick="uploadCustomWallpaper()" class="bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Pasang Foto</button>
+            </div>
+          </div>
+
+          <!-- LOGOUT -->
+          <button onclick="logout()" class="w-full bg-slate-800 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/40 text-rose-400 font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Ganti Akun / Keluar
           </button>
         </div>
       </div>
@@ -396,7 +564,7 @@
           <h3 class="font-bold text-base">Buat Pos Celengan Baru</h3>
           <button onclick="closeModal('modal-new-pos')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
-        <input id="pos-nama" type="text" placeholder="Nama Pos (misal: Liburan Bali)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <input id="pos-nama" type="text" placeholder="Nama Pos (misal: Tabungan Nikah / TV)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
         <input id="pos-target" type="number" placeholder="Target Nominal (Rp)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Target Tanggal (Opsional)</label>
@@ -445,7 +613,7 @@
       </div>
     </div>
 
-    <!-- MODAL: UPLOAD MEMORY VAULT (HINGGA 10 SLIDE FOTO) -->
+    <!-- MODAL: UPLOAD MEMORY VAULT (10 SLIDE) -->
     <div id="modal-new-vault" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-5 max-h-[88dvh] overflow-y-auto no-scrollbar space-y-3.5">
         <div class="flex justify-between items-center">
@@ -472,30 +640,49 @@
       </div>
     </div>
 
-    <!-- MODAL: TAMBAH WISHLIST -->
+    <!-- MODAL: TAMBAH / EDIT LIST BARANG PERSIAPAN NIKAH & WISHLIST -->
     <div id="modal-new-wish" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[85dvh] overflow-y-auto no-scrollbar space-y-3">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[88dvh] overflow-y-auto no-scrollbar space-y-3">
         <div class="flex justify-between items-center">
-          <h3 class="font-bold text-base">Tambah Bucket List / Wishlist</h3>
+          <h3 id="wish-modal-heading" class="font-bold text-base">Tambah List Barang / Persiapan</h3>
           <button onclick="closeModal('modal-new-wish')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
-        <input id="wish-nama" type="text" placeholder="Nama Tempat / Barang Impian" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
-        <select id="wish-kategori" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm">
-          <option value="Kuliner">Kuliner & Kafe</option>
-          <option value="Liburan">Liburan & Date</option>
-          <option value="Barang">Barang Impian</option>
-        </select>
-        <input id="wish-harga" type="number" placeholder="Estimasi Biaya (Rp)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
-        <input id="wish-link" type="url" placeholder="Link Google Maps / Shopee (Opsional)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <input type="hidden" id="wish-edit-id" />
         <div>
-          <label class="text-[11px] text-slate-400 block mb-1">Foto Referensi (Opsional)</label>
+          <label class="text-[11px] text-slate-400 block mb-1">Nama Barang / Kebutuhan *</label>
+          <input id="wish-nama" type="text" placeholder="Contoh: Smart TV 43 Inch / Mahar / Kasur" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Kategori</label>
+          <select id="wish-kategori" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm">
+            <option value="Persiapan Nikah">💍 Persiapan Nikah</option>
+            <option value="Elektronik & Rumah">📺 Elektronik & Isi Rumah</option>
+            <option value="Kuliner">🍔 Kuliner & Kafe</option>
+            <option value="Liburan">✈️ Liburan & Date</option>
+            <option value="Barang">🎁 Barang Impian</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Estimasi Harga (Rp)</label>
+          <input id="wish-harga" type="number" placeholder="Contoh: 3500000" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Deskripsi / Catatan Spesifikasi</label>
+          <textarea id="wish-deskripsi" rows="2" placeholder="Contoh: Merk Samsung / LG 4K UHD, ukuran 43 inch untuk ruang tamu" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm"></textarea>
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Link Produk / Referensi (Shopee, Tokopedia, Maps)</label>
+          <input id="wish-link" type="url" placeholder="https://..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Foto Barang / Referensi</label>
           <input id="wish-foto" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200" />
         </div>
-        <button onclick="submitNewWish()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-xl text-sm">Simpan Wishlist</button>
+        <button onclick="submitNewWish()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-xl text-sm">Simpan ke List</button>
       </div>
     </div>
 
-    <!-- MODAL: KONFIRMASI HAPUS (CUSTOM & STABIL DI APK) -->
+    <!-- MODAL: KONFIRMASI HAPUS -->
     <div id="modal-confirm-delete" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-2xl">
         <div class="flex items-center gap-3">
@@ -539,7 +726,7 @@
 
   <script>
     // ========================================================
-    // KONFIGURASI FIREBASE & CLOUDINARY (SUDAH TERISI LENGKAP)
+    // KONFIGURASI FIREBASE & CLOUDINARY
     // ========================================================
     const APP_CONFIG = {
       firebaseConfig: {
@@ -557,6 +744,30 @@
       pushRelayUrl: "https://script.google.com/macros/s/AKfycbx1zo665zHesf9k-JZIj1Q_8pPhXu9vTwVQ_ozQjGYSc_hRbmZig-yzm5Entg1_HnyD/exec"
     };
 
+    // KOLEKSI STIKER BERGERAK & EMOTIKON
+    const ANIMATED_STICKERS = [
+      { label: 'Love Berdetak', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/2764_fe0f/512.gif', fallback: '❤️' },
+      { label: 'Cium Sayang', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif', fallback: '😘' },
+      { label: 'Jatuh Cinta', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f970/512.gif', fallback: '🥰' },
+      { label: 'Peluk Hangat', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f917/512.gif', fallback: '🤗' },
+      { label: 'Memohon Gemas', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f97a/512.gif', fallback: '🥺' },
+      { label: 'Nangis Kenceng', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif', fallback: '😭' },
+      { label: 'Ngakak', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f602/512.gif', fallback: '😂' },
+      { label: 'Hati Berkilau', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f496/512.gif', fallback: '💖' },
+      { label: 'Mata Bintang', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f929/512.gif', fallback: '🤩' },
+      { label: 'Pesta', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif', fallback: '🎉' },
+      { label: 'Semangat Api', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.gif', fallback: '🔥' },
+      { label: 'Ngantuk', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f634/512.gif', fallback: '😴' }
+    ];
+
+    const EMOJI_LIST = [
+      '❤️','🧡','💛','💚','💙','💜','💖','💘','💝','💕','💞','💓',
+      '🥰','😘','😍','🤩','🤗','🥺','🥹','😊','😁','😂','🤣','😅',
+      '😭','😢','😤','😡','😴','🤤','🤔','🤭','🤫','🫡','🫶','🙌',
+      '👏','🤝','👍','👌','✌️','🤞','🙏','💪','🌹','💐','💍','🏠',
+      '📺','🍔','🍕','🍣','🧋','☕','🍰','🎁','✈️','🏖️','🎬','🎧'
+    ];
+
     // INIT FIREBASE
     firebase.initializeApp(APP_CONFIG.firebaseConfig);
     const db = firebase.database();
@@ -567,11 +778,11 @@
       }
     } catch (e) {}
 
-    // STATE APLIKASI (INSTANT CACHE DARI LOCALSTORAGE)
+    // STATE APLIKASI
     let state = JSON.parse(localStorage.getItem('ourspace_cache') || 'null') || {
       users: {
-        user1: { ID: 'user1', Nama: 'Mas', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mas' },
-        user2: { ID: 'user2', Nama: 'Bul', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bul' }
+        user1: { ID: 'user1', Nama: 'Mas', PIN: '1234', Bio: 'Selalu ada buat kamu ❤️', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mas' },
+        user2: { ID: 'user2', Nama: 'Bul', PIN: '1234', Bio: 'My favorite person ❤️', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bul' }
       },
       chat: {},
       celenganPos: {},
@@ -579,18 +790,25 @@
       vault: {},
       wishlist: {},
       music: {},
+      stickers: {},
       settings: {}
     };
 
     let currentUser = JSON.parse(localStorage.getItem('ourspace_user') || 'null');
     let selectedLoginUserId = null;
-    let wishFilter = 'ALL';
+    let currentTab = 'chat';
+    let wishCatFilter = 'ALL';
+    let wishStatusFilter = 'ALL';
     let chatImageFile = null;
+    let replyingToMessage = null;
     let selectedVaultFiles = [];
-    let activeChatDeleteId = null;
+    let activeChatOptionId = null;
     let lastMusicSyncStamp = '';
     let lightboxPhotos = [];
     let lightboxIndex = 0;
+
+    // Swipe-to-Reply state
+    let swipeState = { id: null, startX: 0, startY: 0, currentX: 0, dragging: false, moved: false };
 
     const audioEl = document.getElementById('shared-audio');
 
@@ -604,6 +822,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       setupAudioListeners();
+      initStickerPanels();
       await ensureInitialUsers();
       startRealtimeListeners();
 
@@ -619,8 +838,8 @@
       const snap = await db.ref('users').once('value');
       if (!snap.exists()) {
         await db.ref('users').set({
-          user1: { ID: 'user1', Nama: 'Mas', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mas', online: false, lastSeen: Date.now() },
-          user2: { ID: 'user2', Nama: 'Bul', PIN: '1234', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bul', online: false, lastSeen: Date.now() }
+          user1: { ID: 'user1', Nama: 'Mas', PIN: '1234', Bio: 'Selalu ada buat kamu ❤️', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mas', online: false, lastSeen: Date.now() },
+          user2: { ID: 'user2', Nama: 'Bul', PIN: '1234', Bio: 'My favorite person ❤️', Avatar_URL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bul', online: false, lastSeen: Date.now() }
         });
       }
     }
@@ -635,13 +854,15 @@
             currentUser = state.users[currentUser.ID];
             localStorage.setItem('ourspace_user', JSON.stringify(currentUser));
             renderHeaderAndStatus();
+            renderChat();
+            lucide.createIcons();
           } else {
             renderLoginCards();
           }
         }
       });
 
-      db.ref('chat').limitToLast(80).on('value', snap => {
+      db.ref('chat').limitToLast(100).on('value', snap => {
         state.chat = snap.val() || {};
         saveCache();
         if (currentUser) {
@@ -693,6 +914,12 @@
           renderMusicPlaylist();
           lucide.createIcons();
         }
+      });
+
+      db.ref('stickers').on('value', snap => {
+        state.stickers = snap.val() || {};
+        saveCache();
+        renderCustomStickers();
       });
 
       db.ref('settings').on('value', snap => {
@@ -815,11 +1042,15 @@
       }
     }
 
-    // MEDIA UPLOAD (CLOUDINARY)
+    // MEDIA UPLOAD (CLOUDINARY — MENDUKUNG ANIMATED GIF/WEBP & AUDIO)
     async function uploadMedia(file, isAudio = false, labelText = '') {
-      setUploadBar(true, labelText || (isAudio ? 'Mengunggah lagu ke cloud...' : 'Mengunggah foto...'));
+      setUploadBar(true, labelText || (isAudio ? 'Mengunggah lagu ke cloud...' : 'Mengunggah media...'));
       try {
-        const fileToUpload = isAudio ? file : await dataUrlToBlob(await compressImage(file, 1080, 0.82));
+        const isAnimated = file && (file.type === 'image/gif' || file.type === 'image/webp');
+        const fileToUpload = (isAudio || isAnimated)
+          ? file
+          : await dataUrlToBlob(await compressImage(file, 1080, 0.82));
+
         const formData = new FormData();
         formData.append('file', fileToUpload);
         formData.append('upload_preset', APP_CONFIG.cloudinaryUploadPreset);
@@ -840,7 +1071,7 @@
       }
     }
 
-    // CUSTOM DELETE CONFIRMATION HELPER
+    // CUSTOM DELETE CONFIRMATION
     function askConfirmDelete(title, desc, onConfirm) {
       document.getElementById('confirm-del-title').textContent = title;
       document.getElementById('confirm-del-desc').textContent = desc;
@@ -912,6 +1143,7 @@
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('main-screen').classList.remove('hidden');
       setupPresence(currentUser.ID);
+      switchTab('chat');
       renderHeaderAndStatus();
       applyChatWallpaper(state.settings.chat_wallpaper || '');
       syncSharedMusicState();
@@ -922,6 +1154,35 @@
       renderWishlist();
       lucide.createIcons();
       enablePushNotif(true);
+    }
+
+    // DYNAMIC HEADER (KONTAK HANYA MUNCUL DI CHAT, TAB LAIN JUDUL MENU)
+    function updateHeaderMode() {
+      const chatInfo = document.getElementById('header-chat-info');
+      const secInfo = document.getElementById('header-section-info');
+      const secTitle = document.getElementById('header-section-title');
+      const secSub = document.getElementById('header-section-sub');
+      const secIcon = document.getElementById('header-section-icon');
+
+      if (currentTab === 'chat') {
+        chatInfo.classList.remove('hidden');
+        secInfo.classList.add('hidden');
+        return;
+      }
+
+      chatInfo.classList.add('hidden');
+      secInfo.classList.remove('hidden');
+
+      const map = {
+        celengan: { title: 'Celengan Berdua', sub: 'Tabungan & target impian kita', icon: 'piggy-bank' },
+        music: { title: 'Dengerin Musik Bareng', sub: 'Putar lagu sinkron berdua', icon: 'headphones' },
+        vault: { title: 'Memory Vault', sub: 'Galeri foto slide & cerita kenangan', icon: 'images' },
+        wishlist: { title: 'List Persiapan & Wishlist', sub: 'Daftar barang nikah, rumah & impian', icon: 'clipboard-list' }
+      };
+      const info = map[currentTab] || map.celengan;
+      secTitle.textContent = info.title;
+      secSub.textContent = info.sub;
+      secIcon.innerHTML = `<i data-lucide="${info.icon}" class="w-5 h-5"></i>`;
     }
 
     function renderHeaderAndStatus() {
@@ -962,6 +1223,44 @@
       return `Terakhir dilihat ${dateStr} ${timeStr}`;
     }
 
+    // PROFIL KONTAK PASANGAN MODAL (WA/TELEGRAM STYLE)
+    function openPartnerProfileModal() {
+      const partnerId = currentUser.ID === 'user1' ? 'user2' : 'user1';
+      const partner = state.users[partnerId] || { Nama: 'Pasangan', Avatar_URL: '', Bio: '' };
+
+      document.getElementById('pprof-avatar').src = partner.Avatar_URL;
+      document.getElementById('pprof-nama').textContent = partner.Nama;
+      document.getElementById('pprof-bio').textContent = partner.Bio || 'Selalu ada buat kamu ❤️';
+
+      const pStatus = document.getElementById('pprof-status');
+      const pDot = document.getElementById('pprof-dot');
+      if (partner.online) {
+        pStatus.textContent = 'Online';
+        pStatus.className = 'text-xs text-emerald-400 font-semibold mt-0.5';
+        pDot.classList.remove('hidden');
+      } else {
+        pDot.classList.add('hidden');
+        pStatus.textContent = partner.lastSeen ? formatLastSeenTime(partner.lastSeen) : 'Offline';
+        pStatus.className = 'text-xs text-slate-400 mt-0.5';
+      }
+
+      // Shared Media in Chat
+      const mediaGrid = document.getElementById('pprof-shared-media');
+      const photos = Object.values(state.chat)
+        .filter(m => m.Media_URL && m.Type !== 'sticker')
+        .map(m => m.Media_URL)
+        .reverse();
+
+      mediaGrid.innerHTML = photos.length
+        ? photos.slice(0, 12).map(url => `
+            <img src="${url}" onclick="openLightbox('${url}')" class="w-full h-24 rounded-xl object-cover bg-slate-800 cursor-pointer border border-slate-700/60" />
+          `).join('')
+        : `<p class="col-span-3 text-[11px] text-slate-500 text-center py-4 bg-slate-800/40 rounded-xl">Belum ada foto yang dikirim di chat</p>`;
+
+      openModal('modal-partner-profile');
+      lucide.createIcons();
+    }
+
     // WALLPAPER CHAT
     function applyChatWallpaper(url) {
       const tabChat = document.getElementById('tab-chat');
@@ -992,7 +1291,9 @@
       showToast('Wallpaper baru terpasang!');
     }
 
-    // DENGERIN MUSIK BARENG
+    // ========================================================
+    // DENGERIN MUSIK BARENG (PLAY, PAUSE, STOP)
+    // ========================================================
     function setupAudioListeners() {
       audioEl.addEventListener('timeupdate', () => {
         if (!audioEl.duration) return;
@@ -1047,41 +1348,58 @@
       if (!m || !m.url) {
         miniBar.classList.add('hidden');
         badge.classList.add('hidden');
+        document.getElementById('modal-music-title').textContent = 'Belum ada lagu diputar';
+        document.getElementById('modal-music-dj').textContent = 'Pilih dari playlist atau upload lagu di bawah';
+        document.getElementById('music-seek-bar').value = 0;
+        document.getElementById('music-cur-time').textContent = '00:00';
+        document.getElementById('music-dur-time').textContent = '00:00';
         return;
       }
 
-      miniBar.classList.remove('hidden');
       const isPlaying = Boolean(m.playing);
+      const isStopped = Boolean(m.stopped);
+
+      miniBar.classList.toggle('hidden', isStopped);
       document.getElementById('mini-music-title').textContent = m.title || 'Lagu Kita';
       document.getElementById('mini-music-sub').textContent = isPlaying ? `Diputar bareng • DJ: ${m.dj || 'Kita'}` : `Dijeda oleh ${m.dj || 'Kita'}`;
       document.getElementById('modal-music-title').textContent = m.title || 'Lagu Kita';
-      document.getElementById('modal-music-dj').textContent = isPlaying ? `Sedang diputar oleh ${m.dj || 'Kita'}` : 'Dijeda';
+      document.getElementById('modal-music-dj').textContent = isStopped
+        ? `Dihentikan oleh ${m.dj || 'Kita'}`
+        : (isPlaying ? `Sedang diputar oleh ${m.dj || 'Kita'}` : `Dijeda oleh ${m.dj || 'Kita'}`);
 
       if (audioEl.src !== m.url) {
         audioEl.src = m.url;
       }
 
-      const stamp = `${m.url}_${m.playing}_${m.updatedAt}`;
+      const stamp = `${m.url}_${m.playing}_${m.stopped}_${m.updatedAt}`;
       if (stamp !== lastMusicSyncStamp) {
         lastMusicSyncStamp = stamp;
-        const baseSeek = Number(m.seek || 0);
-        const elapsed = isPlaying && m.updatedAt ? Math.max(0, (Date.now() - Number(m.updatedAt)) / 1000) : 0;
-        const targetTime = baseSeek + elapsed;
-
-        if (Math.abs(audioEl.currentTime - targetTime) > 2) {
-          audioEl.currentTime = targetTime;
-        }
-
-        if (isPlaying) {
-          audioEl.play().then(() => {
-            document.getElementById('autoplay-banner').classList.add('hidden');
-          }).catch(() => {
-            document.getElementById('autoplay-text').textContent = `🎧 ${m.dj || 'Pasangan'} memutar "${m.title}" — Ketuk untuk dengar`;
-            document.getElementById('autoplay-banner').classList.remove('hidden');
-          });
-        } else {
+        if (isStopped) {
           audioEl.pause();
+          audioEl.currentTime = 0;
+          document.getElementById('music-seek-bar').value = 0;
+          document.getElementById('music-cur-time').textContent = '00:00';
           document.getElementById('autoplay-banner').classList.add('hidden');
+        } else {
+          const baseSeek = Number(m.seek || 0);
+          const elapsed = isPlaying && m.updatedAt ? Math.max(0, (Date.now() - Number(m.updatedAt)) / 1000) : 0;
+          const targetTime = baseSeek + elapsed;
+
+          if (Math.abs(audioEl.currentTime - targetTime) > 2) {
+            audioEl.currentTime = targetTime;
+          }
+
+          if (isPlaying) {
+            audioEl.play().then(() => {
+              document.getElementById('autoplay-banner').classList.add('hidden');
+            }).catch(() => {
+              document.getElementById('autoplay-text').textContent = `🎧 ${m.dj || 'Pasangan'} memutar "${m.title}" — Ketuk untuk dengar`;
+              document.getElementById('autoplay-banner').classList.remove('hidden');
+            });
+          } else {
+            audioEl.pause();
+            document.getElementById('autoplay-banner').classList.add('hidden');
+          }
         }
       }
 
@@ -1102,12 +1420,13 @@
 
     async function togglePlayPauseMusic() {
       const m = state.settings?.music;
-      if (!m || !m.url) return showToast('Pilih atau upload lagu dulu di menu musik');
+      if (!m || !m.url) return showToast('Pilih atau upload lagu dulu di playlist');
       const nextPlaying = audioEl.paused;
       if (nextPlaying) audioEl.play(); else audioEl.pause();
 
       await db.ref('settings/music').update({
         playing: nextPlaying,
+        stopped: false,
         seek: Math.floor(audioEl.currentTime || 0),
         updatedAt: Date.now(),
         dj: currentUser.Nama
@@ -1117,12 +1436,33 @@
       }
     }
 
+    async function stopMusic() {
+      const m = state.settings?.music;
+      audioEl.pause();
+      audioEl.currentTime = 0;
+      document.getElementById('music-seek-bar').value = 0;
+      document.getElementById('music-cur-time').textContent = '00:00';
+      document.getElementById('autoplay-banner').classList.add('hidden');
+
+      if (m && m.url) {
+        await db.ref('settings/music').update({
+          playing: false,
+          stopped: true,
+          seek: 0,
+          updatedAt: Date.now(),
+          dj: currentUser.Nama
+        });
+      }
+      showToast('Lagu dihentikan');
+    }
+
     async function seekMusic(pct) {
       if (!audioEl.duration) return;
       const newTime = Math.floor((pct / 100) * audioEl.duration);
       audioEl.currentTime = newTime;
       await db.ref('settings/music').update({
         seek: newTime,
+        stopped: false,
         updatedAt: Date.now(),
         dj: currentUser.Nama
       });
@@ -1142,6 +1482,7 @@
         url: url,
         title: title,
         playing: true,
+        stopped: false,
         seek: 0,
         updatedAt: Date.now(),
         dj: currentUser.Nama
@@ -1160,12 +1501,12 @@
       const list = document.getElementById('music-playlist');
       const tracks = Object.values(state.music).reverse();
       if (!tracks.length) {
-        list.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Belum ada lagu di playlist. Upload lagu MP3 dari HP kamu di atas!</p>`;
+        list.innerHTML = `<p class="col-span-full text-xs text-slate-500 text-center py-6 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Belum ada lagu di playlist. Upload lagu MP3 dari perangkat kamu di atas!</p>`;
         return;
       }
       const curUrl = state.settings?.music?.url || '';
       list.innerHTML = tracks.map(m => {
-        const active = m.Audio_URL === curUrl;
+        const active = m.Audio_URL === curUrl && !state.settings?.music?.stopped;
         return `
           <div class="bg-slate-800/90 border ${active ? 'border-rose-500' : 'border-slate-700/70'} rounded-xl p-3 flex items-center justify-between gap-2">
             <div onclick="playTrackFromPlaylist('${m.Audio_URL}', '${escapeHtml(m.Judul)}')" class="min-w-0 flex-1 cursor-pointer">
@@ -1184,20 +1525,244 @@
       }).join('');
     }
 
-    // 1. RENDER, SEND & DELETE CHAT
-    function toggleChatDeleteOption(msgId, event) {
-      if (event && event.target && event.target.tagName === 'IMG') return;
-      activeChatDeleteId = activeChatDeleteId === msgId ? null : msgId;
+    // ========================================================
+    // EMOJI & STICKER DRAWER (ANIMATED GIF + CUSTOM STICKER)
+    // ========================================================
+    function initStickerPanels() {
+      const animPanel = document.getElementById('sticker-panel-animated');
+      animPanel.innerHTML = ANIMATED_STICKERS.map(st => `
+        <button type="button" onclick="sendSticker('${st.url}', '${escapeHtml(st.label)}')"
+          class="bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60 rounded-xl p-2 flex flex-col items-center justify-center gap-1 active:scale-90 transition-transform">
+          <img src="${st.url}" alt="${escapeHtml(st.label)}" class="w-12 h-12 object-contain"
+            onerror="this.outerHTML='<span class=\\'text-3xl animate-bounce\\'>${st.fallback}</span>'" />
+          <span class="text-[9px] text-slate-400 truncate w-full text-center">${escapeHtml(st.label)}</span>
+        </button>
+      `).join('');
+
+      const emojiPanel = document.getElementById('sticker-panel-emoji');
+      emojiPanel.innerHTML = EMOJI_LIST.map(em => `
+        <button type="button" onclick="insertEmojiToInput('${em}')"
+          class="p-1.5 rounded-lg hover:bg-slate-800 text-xl flex items-center justify-center active:scale-90 transition-transform">
+          ${em}
+        </button>
+      `).join('');
+
+      renderCustomStickers();
+    }
+
+    function renderCustomStickers() {
+      const customPanel = document.getElementById('sticker-panel-custom');
+      if (!customPanel) return;
+      const items = Object.values(state.stickers || {}).reverse();
+      if (!items.length) {
+        customPanel.innerHTML = `<p class="col-span-full text-xs text-slate-500 text-center py-4">Belum ada stiker custom. Klik "+ Tambah GIF/Stiker" di kanan atas!</p>`;
+        return;
+      }
+      customPanel.innerHTML = items.map(st => `
+        <div class="relative group bg-slate-800/80 border border-slate-700/60 rounded-xl p-2 flex items-center justify-center">
+          <img src="${st.URL}" onclick="sendSticker('${st.URL}', 'Stiker')" class="w-14 h-14 object-contain cursor-pointer active:scale-90 transition-transform" />
+          <button type="button" onclick="deleteCustomSticker('${st.ID}')" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center shadow">×</button>
+        </div>
+      `).join('');
+    }
+
+    function toggleStickerDrawer() {
+      const drawer = document.getElementById('sticker-drawer');
+      drawer.classList.toggle('hidden');
+      lucide.createIcons();
+    }
+
+    function closeStickerDrawer() {
+      document.getElementById('sticker-drawer').classList.add('hidden');
+    }
+
+    function switchStickerTab(tabName) {
+      ['animated', 'emoji', 'custom'].forEach(t => {
+        document.getElementById('sticker-panel-' + t).classList.toggle('hidden', t !== tabName);
+        const btn = document.getElementById('stab-' + t);
+        btn.className = t === tabName
+          ? 'px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 text-white'
+          : 'px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300';
+      });
+    }
+
+    // KLIK EMOT MASUK KE TEXT BOX (BUKAN LANGSUNG KEKIRIM)
+    function insertEmojiToInput(emoji) {
+      const input = document.getElementById('chat-input');
+      const start = input.selectionStart ?? input.value.length;
+      const end = input.selectionEnd ?? input.value.length;
+      const text = input.value;
+      input.value = text.slice(0, start) + emoji + text.slice(end);
+      const nextPos = start + emoji.length;
+      input.setSelectionRange(nextPos, nextPos);
+      input.focus();
+    }
+
+    async function uploadCustomSticker(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const url = await uploadMedia(file, false, 'Menambahkan stiker bergerak...');
+      event.target.value = '';
+      if (!url) return;
+
+      const newRef = db.ref('stickers').push();
+      await newRef.set({
+        ID: newRef.key,
+        URL: url,
+        Added_By: currentUser.Nama,
+        Waktu: Date.now()
+      });
+      switchStickerTab('custom');
+      showToast('Stiker baru ditambahkan!');
+    }
+
+    function deleteCustomSticker(id) {
+      askConfirmDelete('Hapus Stiker?', 'Stiker ini akan dihapus dari koleksi stiker kalian.', async () => {
+        await db.ref(`stickers/${id}`).remove();
+        showToast('Stiker dihapus');
+      });
+    }
+
+    async function sendSticker(stickerUrl, label = 'Stiker') {
+      closeStickerDrawer();
+      const replyPayload = replyingToMessage ? { ...replyingToMessage } : null;
+      cancelReply();
+
+      const newRef = db.ref('chat').push();
+      await newRef.set({
+        ID: newRef.key,
+        Waktu: Date.now(),
+        Sender_ID: currentUser.ID,
+        Type: 'sticker',
+        Pesan: '',
+        Media_URL: stickerUrl,
+        Reply_To: replyPayload
+      });
+
+      const box = document.getElementById('chat-messages');
+      box.scrollTop = box.scrollHeight;
+      triggerPartnerPush(currentUser.Nama, `🎭 Mengirim ${label}`);
+    }
+
+    // ========================================================
+    // 1. ROOM CHAT (SWIPE-TO-REPLY, AVATAR KIRI/KANAN, DELETE)
+    // ========================================================
+    function setReplyMessage(msgId) {
+      const m = state.chat[msgId];
+      if (!m) return;
+      const senderName = state.users[m.Sender_ID]?.Nama || 'Kita';
+      let previewText = m.Pesan || '';
+      if (!previewText) {
+        previewText = m.Type === 'sticker' ? '🎭 Stiker' : (m.Media_URL ? '📷 Foto' : 'Pesan');
+      }
+
+      replyingToMessage = {
+        ID: m.ID,
+        Sender_Name: senderName,
+        Text: previewText,
+        Media_URL: m.Media_URL || ''
+      };
+
+      document.getElementById('reply-preview-sender').textContent = `Membalas ${senderName}`;
+      document.getElementById('reply-preview-text').textContent = previewText;
+      document.getElementById('chat-reply-preview-box').classList.remove('hidden');
+      activeChatOptionId = null;
+      renderChat();
+      lucide.createIcons();
+      document.getElementById('chat-input').focus();
+    }
+
+    function cancelReply() {
+      replyingToMessage = null;
+      document.getElementById('chat-reply-preview-box').classList.add('hidden');
+    }
+
+    function scrollToChatMessage(msgId) {
+      const el = document.getElementById(`chat-row-${msgId}`);
+      if (!el) return showToast('Pesan asli sudah tidak ada');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.remove('highlight-msg');
+      void el.offsetWidth;
+      el.classList.add('highlight-msg');
+    }
+
+    function toggleChatOptionBar(msgId, event) {
+      if (swipeState.moved) return;
+      if (event && event.target && (event.target.tagName === 'IMG' || event.target.closest('[data-reply-quote]'))) return;
+      activeChatOptionId = activeChatOptionId === msgId ? null : msgId;
       renderChat();
       lucide.createIcons();
     }
 
     function deleteChatMessage(msgId) {
       askConfirmDelete('Hapus Pesan?', 'Pesan ini akan dihapus untuk kamu dan pasangan.', async () => {
-        activeChatDeleteId = null;
+        activeChatOptionId = null;
         await db.ref(`chat/${msgId}`).remove();
         showToast('Pesan dihapus');
       });
+    }
+
+    // Touch & Pointer Swipe-to-Reply Handlers
+    function handleChatPointerDown(e, msgId) {
+      if (e.button !== undefined && e.button !== 0) return;
+      swipeState = {
+        id: msgId,
+        startX: e.clientX,
+        startY: e.clientY,
+        currentX: 0,
+        dragging: true,
+        moved: false
+      };
+    }
+
+    function handleChatPointerMove(e, msgId) {
+      if (!swipeState.dragging || swipeState.id !== msgId) return;
+      const dx = e.clientX - swipeState.startX;
+      const dy = e.clientY - swipeState.startY;
+
+      if (!swipeState.moved && Math.abs(dy) > Math.abs(dx)) {
+        swipeState.dragging = false;
+        return;
+      }
+
+      if (Math.abs(dx) > 8) {
+        swipeState.moved = true;
+        const clamped = Math.max(-72, Math.min(72, dx));
+        swipeState.currentX = clamped;
+        const bubbleWrap = document.getElementById(`chat-bubble-wrap-${msgId}`);
+        const replyIcon = document.getElementById(`chat-swipe-icon-${msgId}`);
+        if (bubbleWrap) {
+          bubbleWrap.style.transition = 'none';
+          bubbleWrap.style.transform = `translateX(${clamped}px)`;
+        }
+        if (replyIcon) {
+          replyIcon.style.opacity = Math.min(1, Math.abs(clamped) / 48);
+        }
+      }
+    }
+
+    function handleChatPointerUp(e, msgId) {
+      if (!swipeState.dragging || swipeState.id !== msgId) return;
+      const dx = swipeState.currentX;
+      const wasMoved = swipeState.moved;
+      swipeState.dragging = false;
+
+      const bubbleWrap = document.getElementById(`chat-bubble-wrap-${msgId}`);
+      const replyIcon = document.getElementById(`chat-swipe-icon-${msgId}`);
+      if (bubbleWrap) {
+        bubbleWrap.style.transition = 'transform 0.2s ease-out';
+        bubbleWrap.style.transform = 'translateX(0px)';
+      }
+      if (replyIcon) {
+        replyIcon.style.opacity = 0;
+      }
+
+      if (Math.abs(dx) >= 48) {
+        if (navigator.vibrate) navigator.vibrate(20);
+        setReplyMessage(msgId);
+      }
+
+      setTimeout(() => { swipeState.moved = false; }, 60);
     }
 
     function renderChat() {
@@ -1216,36 +1781,83 @@
       inner.innerHTML = msgs.map(m => {
         const isMe = m.Sender_ID === currentUser.ID;
         const time = formatTime(m.Waktu);
-        const showDel = activeChatDeleteId === m.ID;
-        const imgHtml = m.Media_URL ? `<img src="${m.Media_URL}" onclick="openLightbox('${m.Media_URL}')" class="rounded-xl max-h-60 w-auto mb-1.5 cursor-pointer object-cover" />` : '';
-        const textHtml = m.Pesan ? `<p class="text-sm leading-relaxed break-words whitespace-pre-wrap">${escapeHtml(m.Pesan)}</p>` : '';
-        const delBtnHtml = showDel ? `
-          <button onclick="event.stopPropagation(); deleteChatMessage('${m.ID}')" class="mt-1 px-2.5 py-1 rounded-lg bg-slate-800 border border-rose-500/40 text-rose-400 text-[10px] font-semibold flex items-center gap-1">
-            <i data-lucide="trash-2" class="w-3 h-3"></i> Hapus Pesan
-          </button>` : '';
+        const showOpts = activeChatOptionId === m.ID;
+        const isSticker = m.Type === 'sticker';
+
+        const replyQuoteHtml = m.Reply_To ? `
+          <div data-reply-quote="1" onclick="event.stopPropagation(); scrollToChatMessage('${m.Reply_To.ID}')"
+            class="mb-1.5 px-2.5 py-1.5 rounded-xl text-left cursor-pointer border-l-4 ${isMe ? 'bg-black/20 border-white/80' : 'bg-slate-900/80 border-rose-500'}">
+            <p class="text-[10px] font-bold ${isMe ? 'text-rose-100' : 'text-rose-400'} truncate">${escapeHtml(m.Reply_To.Sender_Name || 'Pesan')}</p>
+            <p class="text-[11px] ${isMe ? 'text-white/90' : 'text-slate-300'} truncate">${escapeHtml(m.Reply_To.Text || '')}</p>
+          </div>` : '';
+
+        let contentHtml = '';
+        if (isSticker && m.Media_URL) {
+          contentHtml = `
+            <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+              ${replyQuoteHtml}
+              <img src="${m.Media_URL}" class="w-28 h-28 sm:w-32 sm:h-32 object-contain drop-shadow-lg" />
+              <span class="text-[10px] text-slate-300 bg-slate-950/60 px-2 py-0.5 rounded-full mt-1">${time}</span>
+            </div>`;
+        } else {
+          const imgHtml = m.Media_URL ? `<img src="${m.Media_URL}" onclick="openLightbox('${m.Media_URL}')" class="rounded-xl max-h-64 w-auto mb-1.5 cursor-pointer object-cover" />` : '';
+          const textHtml = m.Pesan ? `<p class="text-sm leading-relaxed break-words whitespace-pre-wrap">${escapeHtml(m.Pesan)}</p>` : '';
+          contentHtml = isMe ? `
+            <div class="bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-2xl rounded-br-sm px-3.5 py-2.5 shadow-md">
+              ${replyQuoteHtml}
+              ${imgHtml}
+              ${textHtml}
+              <p class="text-[10px] text-rose-100/80 text-right mt-1">${time}</p>
+            </div>` : `
+            <div class="bg-slate-800/95 backdrop-blur border border-slate-700/70 text-slate-100 rounded-2xl rounded-bl-sm px-3.5 py-2.5 shadow-md">
+              ${replyQuoteHtml}
+              ${imgHtml}
+              ${textHtml}
+              <p class="text-[10px] text-slate-400 mt-1">${time}</p>
+            </div>`;
+        }
+
+        const actionBarHtml = showOpts ? `
+          <div class="mt-1 flex items-center gap-1.5 ${isMe ? 'justify-end mr-9' : 'justify-start ml-9'}">
+            <button onclick="event.stopPropagation(); setReplyMessage('${m.ID}')" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-sky-400 text-[10px] font-semibold flex items-center gap-1">
+              <i data-lucide="reply" class="w-3 h-3"></i> Balas
+            </button>
+            <button onclick="event.stopPropagation(); deleteChatMessage('${m.ID}')" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-rose-500/40 text-rose-400 text-[10px] font-semibold flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-3 h-3"></i> Hapus
+            </button>
+          </div>` : '';
 
         if (isMe) {
           return `
-            <div class="flex flex-col items-end">
-              <div onclick="toggleChatDeleteOption('${m.ID}', event)" class="max-w-[80%] md:max-w-[60%] bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-2xl rounded-br-sm px-3.5 py-2.5 shadow-md cursor-pointer">
-                ${imgHtml}
-                ${textHtml}
-                <p class="text-[10px] text-rose-100/80 text-right mt-1">${time}</p>
+            <div id="chat-row-${m.ID}" class="chat-swipe-row relative w-full flex flex-col items-end"
+              onpointerdown="handleChatPointerDown(event, '${m.ID}')"
+              onpointermove="handleChatPointerMove(event, '${m.ID}')"
+              onpointerup="handleChatPointerUp(event, '${m.ID}')"
+              onpointercancel="handleChatPointerUp(event, '${m.ID}')">
+              <div id="chat-swipe-icon-${m.ID}" style="opacity:0" class="absolute right-12 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-800/90 text-rose-400 flex items-center justify-center pointer-events-none">
+                <i data-lucide="reply" class="w-4 h-4"></i>
               </div>
-              ${delBtnHtml}
+              <div id="chat-bubble-wrap-${m.ID}" onclick="toggleChatOptionBar('${m.ID}', event)" class="flex items-end justify-end gap-2 max-w-[85%] sm:max-w-[72%] md:max-w-[60%] cursor-pointer">
+                <div class="min-w-0">${contentHtml}</div>
+                <img src="${currentUser.Avatar_URL}" class="w-7 h-7 rounded-full object-cover bg-slate-800 border border-rose-500/40 shrink-0" />
+              </div>
+              ${actionBarHtml}
             </div>`;
         } else {
           return `
-            <div class="flex flex-col items-start">
-              <div class="flex items-end gap-2 max-w-[82%] md:max-w-[62%]">
-                <img src="${partner.Avatar_URL}" class="w-7 h-7 rounded-full object-cover bg-slate-800 shrink-0" />
-                <div onclick="toggleChatDeleteOption('${m.ID}', event)" class="bg-slate-800/95 backdrop-blur border border-slate-700/70 text-slate-100 rounded-2xl rounded-bl-sm px-3.5 py-2.5 shadow-md cursor-pointer">
-                  ${imgHtml}
-                  ${textHtml}
-                  <p class="text-[10px] text-slate-400 mt-1">${time}</p>
-                </div>
+            <div id="chat-row-${m.ID}" class="chat-swipe-row relative w-full flex flex-col items-start"
+              onpointerdown="handleChatPointerDown(event, '${m.ID}')"
+              onpointermove="handleChatPointerMove(event, '${m.ID}')"
+              onpointerup="handleChatPointerUp(event, '${m.ID}')"
+              onpointercancel="handleChatPointerUp(event, '${m.ID}')">
+              <div id="chat-swipe-icon-${m.ID}" style="opacity:0" class="absolute left-12 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-800/90 text-rose-400 flex items-center justify-center pointer-events-none">
+                <i data-lucide="reply" class="w-4 h-4"></i>
               </div>
-              ${showDel ? `<div class="ml-9">${delBtnHtml}</div>` : ''}
+              <div id="chat-bubble-wrap-${m.ID}" onclick="toggleChatOptionBar('${m.ID}', event)" class="flex items-end justify-start gap-2 max-w-[85%] sm:max-w-[72%] md:max-w-[60%] cursor-pointer">
+                <img src="${partner.Avatar_URL}" onclick="event.stopPropagation(); openPartnerProfileModal()" class="w-7 h-7 rounded-full object-cover bg-slate-800 border border-slate-700 shrink-0 cursor-pointer" />
+                <div class="min-w-0">${contentHtml}</div>
+              </div>
+              ${actionBarHtml}
             </div>`;
         }
       }).join('');
@@ -1274,8 +1886,11 @@
       const fileToSend = chatImageFile;
       if (!pesan && !fileToSend) return;
 
+      const replyPayload = replyingToMessage ? { ...replyingToMessage } : null;
       input.value = '';
       clearChatImage();
+      cancelReply();
+      closeStickerDrawer();
 
       let mediaUrl = '';
       if (fileToSend) {
@@ -1287,8 +1902,10 @@
         ID: newRef.key,
         Waktu: Date.now(),
         Sender_ID: currentUser.ID,
+        Type: mediaUrl ? 'image' : 'text',
         Pesan: pesan,
-        Media_URL: mediaUrl
+        Media_URL: mediaUrl,
+        Reply_To: replyPayload
       });
 
       const box = document.getElementById('chat-messages');
@@ -1296,12 +1913,9 @@
       triggerPartnerPush(currentUser.Nama, mediaUrl ? '📷 Mengirim foto' : pesan);
     }
 
-    function sendQuickEmoji(emoji) {
-      document.getElementById('chat-input').value = emoji;
-      sendChat();
-    }
-
+    // ========================================================
     // 2. CELENGAN MULTI-KANTONG (+ DELETE)
+    // ========================================================
     function deleteCelenganPos(idPos, namaPos) {
       askConfirmDelete(`Hapus Pos "${namaPos}"?`, 'Semua riwayat mutasi di dalam pos ini juga akan dihapus.', async () => {
         await db.ref(`celenganPos/${idPos}`).remove();
@@ -1483,7 +2097,9 @@
       lucide.createIcons();
     }
 
-    // 3. MEMORY VAULT (INSTAGRAM 10-SLIDE CAROUSEL + DELETE)
+    // ========================================================
+    // 3. MEMORY VAULT (10 SLIDE INSTAGRAM + DELETE)
+    // ========================================================
     function openNewVaultModal() {
       selectedVaultFiles = [];
       document.getElementById('vault-foto').value = '';
@@ -1695,72 +2311,155 @@
       showToast(`${uploadedUrls.length} foto tersimpan di Vault!`);
     }
 
-    // 4. WISHLIST (+ DELETE)
-    function filterWish(status) {
-      wishFilter = status;
-      ['ALL', 'Impian', 'Tercapai'].forEach(s => {
-        const btn = document.getElementById('wish-filter-' + s);
-        btn.className = s === status
-          ? 'px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 text-white'
-          : 'px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300';
+    // ========================================================
+    // 4. LIST BARANG PERSIAPAN NIKAH, ELEKTRONIK & WISHLIST
+    // ========================================================
+    function filterWishCat(cat) {
+      wishCatFilter = cat;
+      ['ALL', 'Persiapan Nikah', 'Elektronik & Rumah', 'Kuliner', 'Liburan', 'Barang'].forEach(c => {
+        const btn = document.getElementById('wcat-' + c);
+        if (!btn) return;
+        btn.className = c === cat
+          ? 'px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500 text-white shrink-0'
+          : 'px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 shrink-0';
       });
       renderWishlist();
       lucide.createIcons();
     }
 
+    function filterWishStatus(status) {
+      wishStatusFilter = status;
+      ['ALL', 'Impian', 'Tercapai'].forEach(s => {
+        const btn = document.getElementById('wish-filter-' + s);
+        if (!btn) return;
+        btn.className = s === status
+          ? 'px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-700 text-white'
+          : 'px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-800/70 text-slate-400';
+      });
+      renderWishlist();
+      lucide.createIcons();
+    }
+
+    function openNewWishModal() {
+      document.getElementById('wish-modal-heading').textContent = 'Tambah List Barang / Persiapan';
+      document.getElementById('wish-edit-id').value = '';
+      document.getElementById('wish-nama').value = '';
+      document.getElementById('wish-kategori').value = 'Persiapan Nikah';
+      document.getElementById('wish-harga').value = '';
+      document.getElementById('wish-deskripsi').value = '';
+      document.getElementById('wish-link').value = '';
+      document.getElementById('wish-foto').value = '';
+      openModal('modal-new-wish');
+    }
+
+    function openEditWishModal(id) {
+      const w = state.wishlist[id];
+      if (!w) return;
+      document.getElementById('wish-modal-heading').textContent = 'Edit Item List';
+      document.getElementById('wish-edit-id').value = w.ID;
+      document.getElementById('wish-nama').value = w.Nama_Item || '';
+      document.getElementById('wish-kategori').value = w.Kategori || 'Persiapan Nikah';
+      document.getElementById('wish-harga').value = w.Harga || '';
+      document.getElementById('wish-deskripsi').value = w.Deskripsi || '';
+      document.getElementById('wish-link').value = w.Link_URL || '';
+      document.getElementById('wish-foto').value = '';
+      openModal('modal-new-wish');
+    }
+
     function deleteWishItem(id, namaItem) {
-      askConfirmDelete(`Hapus "${namaItem}"?`, 'Item ini akan dihapus dari daftar wishlist.', async () => {
+      askConfirmDelete(`Hapus "${namaItem}"?`, 'Item ini akan dihapus dari daftar.', async () => {
         await db.ref(`wishlist/${id}`).remove();
-        showToast('Wishlist dihapus');
+        showToast('Item list dihapus');
       });
     }
 
     function renderWishlist() {
       const list = document.getElementById('wishlist-list');
       const all = Object.values(state.wishlist).reverse();
-      const items = wishFilter === 'ALL' ? all : all.filter(w => w.Status === wishFilter);
+
+      const catFiltered = wishCatFilter === 'ALL' ? all : all.filter(w => w.Kategori === wishCatFilter);
+      const items = wishStatusFilter === 'ALL' ? catFiltered : catFiltered.filter(w => w.Status === wishStatusFilter);
+
+      // Update Summary Budget based on current category view
+      const totalEst = catFiltered.reduce((acc, w) => acc + Number(w.Harga || 0), 0);
+      const boughtList = catFiltered.filter(w => w.Status === 'Tercapai');
+      const totalBought = boughtList.reduce((acc, w) => acc + Number(w.Harga || 0), 0);
+      document.getElementById('wish-total-budget').textContent = formatRupiah(totalEst);
+      document.getElementById('wish-bought-summary').textContent = `Terbeli: ${formatRupiah(totalBought)} (${boughtList.length}/${catFiltered.length} item)`;
 
       if (!items.length) {
-        list.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-10 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Daftar wishlist masih kosong.</div>`;
+        list.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-10 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Belum ada item di kategori ini. Klik "+ Tambah Barang / List" di atas!</div>`;
         return;
       }
 
       list.innerHTML = items.map(w => {
         const done = w.Status === 'Tercapai';
         return `
-          <div class="bg-slate-800/90 border ${done ? 'border-emerald-500/40' : 'border-slate-700/80'} rounded-2xl p-3 flex gap-3 items-center">
-            <img src="${w.Foto_URL}" onclick="openLightbox('${w.Foto_URL}')" class="w-20 h-20 rounded-xl object-cover shrink-0 bg-slate-700 cursor-pointer" />
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between gap-1.5">
-                <div class="flex items-center gap-1.5">
-                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-700 text-slate-300">${escapeHtml(w.Kategori)}</span>
-                  ${done ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">Tercapai ✓</span>` : ''}
+          <div class="bg-slate-800/90 border ${done ? 'border-emerald-500/40' : 'border-slate-700/80'} rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between">
+            <div>
+              <div class="relative h-40 w-full bg-slate-900">
+                <img src="${w.Foto_URL}" onclick="openLightbox('${w.Foto_URL}')" class="w-full h-full object-cover cursor-pointer" />
+                <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                  <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-black/70 backdrop-blur text-slate-200">${escapeHtml(w.Kategori)}</span>
+                  ${done ? `<span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500 text-white font-bold">Terbeli ✓</span>` : ''}
                 </div>
-                <button onclick="deleteWishItem('${w.ID}', '${escapeHtml(w.Nama_Item)}')" title="Hapus Wishlist" class="p-1 rounded-lg text-slate-400 hover:text-rose-400">
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                </button>
+                <div class="absolute top-2.5 right-2.5 flex items-center gap-1">
+                  <button onclick="openEditWishModal('${w.ID}')" title="Edit" class="p-1.5 rounded-lg bg-black/65 hover:bg-slate-700 text-slate-200">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button onclick="deleteWishItem('${w.ID}', '${escapeHtml(w.Nama_Item)}')" title="Hapus" class="p-1.5 rounded-lg bg-black/65 hover:bg-rose-600 text-slate-200">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
               </div>
-              <h4 class="font-bold text-sm truncate mt-1 ${done ? 'line-through text-slate-400' : 'text-white'}">${escapeHtml(w.Nama_Item)}</h4>
-              <p class="text-xs text-rose-400 font-semibold mt-0.5">${Number(w.Harga) > 0 ? formatRupiah(w.Harga) : 'Gratis / Fleksibel'}</p>
-              <div class="flex items-center gap-2 mt-2">
-                <button onclick="toggleWish('${w.ID}')" class="text-[11px] px-2.5 py-1 rounded-lg font-semibold ${done ? 'bg-slate-700 text-slate-300' : 'bg-emerald-500 text-white'}">
-                  ${done ? 'Batal Centang' : 'Tandai Tercapai'}
-                </button>
-                ${w.Link_URL ? `<a href="${w.Link_URL}" target="_blank" class="text-[11px] px-2.5 py-1 rounded-lg bg-slate-700 text-sky-400">Buka Link</a>` : ''}
+              <div class="p-3.5">
+                <h4 class="font-bold text-sm ${done ? 'line-through text-slate-400' : 'text-white'}">${escapeHtml(w.Nama_Item)}</h4>
+                <p class="text-xs text-rose-400 font-extrabold mt-0.5">${Number(w.Harga) > 0 ? formatRupiah(w.Harga) : 'Estimasi harga belum diisi'}</p>
+                ${w.Deskripsi ? `<p class="text-xs text-slate-300 mt-2 leading-relaxed whitespace-pre-wrap">${escapeHtml(w.Deskripsi)}</p>` : ''}
               </div>
+            </div>
+
+            <div class="px-3.5 pb-3.5 pt-1 flex items-center gap-2">
+              <button onclick="toggleWish('${w.ID}')" class="flex-1 text-xs py-2 px-3 rounded-xl font-semibold ${done ? 'bg-slate-700 text-slate-300' : 'bg-emerald-500 hover:bg-emerald-600 text-white'}">
+                ${done ? 'Batal Terbeli' : '✓ Tandai Terbeli'}
+              </button>
+              ${w.Link_URL ? `
+                <a href="${w.Link_URL}" target="_blank" class="text-xs py-2 px-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-sky-400 font-semibold flex items-center gap-1 shrink-0">
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Link
+                </a>` : ''}
             </div>
           </div>`;
       }).join('');
     }
 
     async function submitNewWish() {
+      const editId = document.getElementById('wish-edit-id').value;
       const namaItem = document.getElementById('wish-nama').value.trim();
       const kategori = document.getElementById('wish-kategori').value;
       const harga = document.getElementById('wish-harga').value;
+      const deskripsi = document.getElementById('wish-deskripsi').value.trim();
       const linkUrl = document.getElementById('wish-link').value.trim();
       const file = document.getElementById('wish-foto').files[0];
 
-      if (!namaItem) return showToast('Nama item wajib diisi');
+      if (!namaItem) return showToast('Nama barang / kebutuhan wajib diisi');
+
+      if (editId && state.wishlist[editId]) {
+        let fotoUrl = state.wishlist[editId].Foto_URL;
+        if (file) fotoUrl = (await uploadMedia(file, false)) || fotoUrl;
+
+        await db.ref(`wishlist/${editId}`).update({
+          Nama_Item: namaItem,
+          Kategori: kategori,
+          Harga: Number(harga || 0),
+          Deskripsi: deskripsi,
+          Foto_URL: fotoUrl,
+          Link_URL: linkUrl
+        });
+        closeModal('modal-new-wish');
+        showToast('Item list diperbarui!');
+        return;
+      }
+
       let fotoUrl = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600';
       if (file) fotoUrl = (await uploadMedia(file, false)) || fotoUrl;
 
@@ -1770,17 +2469,15 @@
         Nama_Item: namaItem,
         Kategori: kategori,
         Harga: Number(harga || 0),
+        Deskripsi: deskripsi,
         Foto_URL: fotoUrl,
         Link_URL: linkUrl,
         Status: 'Impian'
       });
 
       closeModal('modal-new-wish');
-      document.getElementById('wish-nama').value = '';
-      document.getElementById('wish-harga').value = '';
-      document.getElementById('wish-link').value = '';
-      triggerPartnerPush('✨ Wishlist Baru!', `${currentUser.Nama} nambahin: ${namaItem}`);
-      showToast('Wishlist ditambahkan!');
+      triggerPartnerPush('📋 List Baru Ditambahkan!', `${currentUser.Nama} nambahin (${kategori}): ${namaItem}`);
+      showToast('Berhasil ditambahkan ke list!');
     }
 
     async function toggleWish(id) {
@@ -1789,38 +2486,57 @@
       const nextStatus = item.Status === 'Impian' ? 'Tercapai' : 'Impian';
       await db.ref(`wishlist/${id}/Status`).set(nextStatus);
       if (nextStatus === 'Tercapai') {
-        triggerPartnerPush('🎉 Wishlist Tercapai!', `${currentUser.Nama} nyentang: ${item.Nama_Item}`);
+        triggerPartnerPush('🎉 List Terbeli / Tercapai!', `${currentUser.Nama} nyentang: ${item.Nama_Item}`);
       }
     }
 
-    // 5. PENGATURAN & PROFIL
+    // ========================================================
+    // 5. PENGATURAN GAYA WHATSAPP & PROFIL
+    // ========================================================
     function openSettingsModal() {
+      document.getElementById('settings-avatar-preview').src = currentUser.Avatar_URL;
+      document.getElementById('settings-display-name').textContent = currentUser.Nama;
+      document.getElementById('settings-display-bio').textContent = currentUser.Bio || 'Selalu ada buat kamu ❤️';
       document.getElementById('prof-nama').value = currentUser.Nama;
+      document.getElementById('prof-bio').value = currentUser.Bio || '';
       document.getElementById('prof-pin').value = '';
       openModal('modal-settings');
+      lucide.createIcons();
+    }
+
+    async function previewSettingsAvatar(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const preview = await compressImage(file, 400, 0.8);
+      document.getElementById('settings-avatar-preview').src = preview;
+      showToast('Foto dipilih. Klik "Simpan Perubahan Profil" di bawah untuk menerapkan.');
     }
 
     async function submitProfile() {
       const nama = document.getElementById('prof-nama').value.trim();
+      const bio = document.getElementById('prof-bio').value.trim();
       const pin = document.getElementById('prof-pin').value.trim();
       const file = document.getElementById('prof-foto').files[0];
 
-      const updates = {};
+      const updates = { Bio: bio };
       if (nama) updates.Nama = nama;
       if (pin) updates.PIN = String(pin);
       if (file) {
-        const avatarUrl = await uploadMedia(file, false);
+        const avatarUrl = await uploadMedia(file, false, 'Mengunggah foto profil...');
         if (avatarUrl) updates.Avatar_URL = avatarUrl;
       }
 
       await db.ref(`users/${currentUser.ID}`).update(updates);
       document.getElementById('prof-foto').value = '';
       closeModal('modal-settings');
-      showToast('Profil & PIN diperbarui!');
+      showToast('Profil & Pengaturan disimpan!');
     }
 
+    // ========================================================
     // LIGHTBOX & GALLERY VIEWER
+    // ========================================================
     function openLightbox(url) {
+      if (!url) return;
       lightboxPhotos = [url];
       lightboxIndex = 0;
       renderLightboxView();
@@ -1860,14 +2576,20 @@
       document.getElementById('lightbox').classList.add('hidden');
     }
 
+    // ========================================================
     // UI HELPERS
+    // ========================================================
     function switchTab(tab) {
-      ['chat', 'celengan', 'vault', 'wishlist'].forEach(t => {
+      currentTab = tab;
+      ['chat', 'celengan', 'music', 'vault', 'wishlist'].forEach(t => {
         document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
         const nav = document.getElementById('nav-' + t);
-        nav.classList.toggle('text-rose-500', t === tab);
-        nav.classList.toggle('text-slate-400', t !== tab);
+        if (nav) {
+          nav.classList.toggle('text-rose-500', t === tab);
+          nav.classList.toggle('text-slate-400', t !== tab);
+        }
       });
+      updateHeaderMode();
       if (tab === 'chat') {
         const box = document.getElementById('chat-messages');
         box.scrollTop = box.scrollHeight;
