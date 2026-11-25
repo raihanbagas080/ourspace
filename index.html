@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -21,20 +21,188 @@
 
   <style>
     * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+
+    /* ====================================================== */
+    /* THEME VARIABLES (DARK, LIGHT, MOCHI, KUCING, DLL)      */
+    /* ====================================================== */
+    :root, [data-theme="dark"] {
+      --bg-outer: #020617;
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-input: #0f172a;
+      --border-col: #334155;
+      --border-soft: rgba(51, 65, 85, 0.75);
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --accent: #f43f5e;
+      --accent-hover: #e11d48;
+      --accent-soft: rgba(244, 63, 94, 0.16);
+      --bubble-me: linear-gradient(135deg, #f43f5e, #db2777);
+      --bubble-me-text: #ffffff;
+      --bubble-them: #1e293b;
+      --bubble-them-text: #f8fafc;
+      --chat-default-bg: #0b141a;
+      --pattern-img: none;
+    }
+
+    [data-theme="light"] {
+      --bg-outer: #e2e8f0;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-input: #f1f5f9;
+      --border-col: #cbd5e1;
+      --border-soft: #e2e8f0;
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --accent: #f43f5e;
+      --accent-hover: #e11d48;
+      --accent-soft: rgba(244, 63, 94, 0.12);
+      --bubble-me: linear-gradient(135deg, #fb7185, #f43f5e);
+      --bubble-me-text: #ffffff;
+      --bubble-them: #ffffff;
+      --bubble-them-text: #0f172a;
+      --chat-default-bg: #efeae2;
+      --pattern-img: radial-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+    }
+
+    [data-theme="mochi"] {
+      --bg-outer: #fce7f3;
+      --bg-main: #fff5f7;
+      --bg-card: #ffffff;
+      --bg-input: #ffe4ec;
+      --border-col: #f9a8d4;
+      --border-soft: #fbcfe8;
+      --text-main: #4a1d2f;
+      --text-sub: #9d5c74;
+      --accent: #ec4899;
+      --accent-hover: #db2777;
+      --accent-soft: rgba(236, 72, 153, 0.14);
+      --bubble-me: linear-gradient(135deg, #f472b6, #ec4899);
+      --bubble-me-text: #ffffff;
+      --bubble-them: #ffffff;
+      --bubble-them-text: #4a1d2f;
+      --chat-default-bg: #ffeef3;
+      --pattern-img: radial-gradient(#f9a8d4 1.2px, transparent 1.2px);
+    }
+
+    [data-theme="kucing"] {
+      --bg-outer: #ede0d4;
+      --bg-main: #fdf8f2;
+      --bg-card: #ffffff;
+      --bg-input: #f5ebe0;
+      --border-col: #ddb892;
+      --border-soft: #e6ccb2;
+      --text-main: #3d2c2e;
+      --text-sub: #8a6d63;
+      --accent: #e07a5f;
+      --accent-hover: #d06549;
+      --accent-soft: rgba(224, 122, 95, 0.15);
+      --bubble-me: linear-gradient(135deg, #e07a5f, #d96b4e);
+      --bubble-me-text: #ffffff;
+      --bubble-them: #ffffff;
+      --bubble-them-text: #3d2c2e;
+      --chat-default-bg: #f7ede2;
+      --pattern-img: url("data:image/svg+xml,%3Csvg width='52' height='52' viewBox='0 0 52 52' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4a373' fill-opacity='0.14'%3E%3Ccircle cx='26' cy='30' r='5'/%3E%3Ccircle cx='19' cy='22' r='2.3'/%3E%3Ccircle cx='24' cy='19' r='2.3'/%3E%3Ccircle cx='29' cy='19' r='2.3'/%3E%3Ccircle cx='33' cy='22' r='2.3'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    [data-theme="matcha"] {
+      --bg-outer: #d8e6d9;
+      --bg-main: #f3f8f3;
+      --bg-card: #ffffff;
+      --bg-input: #e4efe5;
+      --border-col: #a3c4a8;
+      --border-soft: #c7dec9;
+      --text-main: #1b3422;
+      --text-sub: #587860;
+      --accent: #2f855a;
+      --accent-hover: #276749;
+      --accent-soft: rgba(47, 133, 90, 0.14);
+      --bubble-me: linear-gradient(135deg, #38a169, #2f855a);
+      --bubble-me-text: #ffffff;
+      --bubble-them: #ffffff;
+      --bubble-them-text: #1b3422;
+      --chat-default-bg: #e7f1e8;
+      --pattern-img: radial-gradient(#a3c4a8 1.2px, transparent 1.2px);
+    }
+
+    [data-theme="lavender"] {
+      --bg-outer: #e4ddff;
+      --bg-main: #f6f3ff;
+      --bg-card: #ffffff;
+      --bg-input: #ebe5ff;
+      --border-col: #c4b5fd;
+      --border-soft: #ddd6fe;
+      --text-main: #2e1065;
+      --text-sub: #6d5999;
+      --accent: #8b5cf6;
+      --accent-hover: #7c3aed;
+      --accent-soft: rgba(139, 92, 246, 0.14);
+      --bubble-me: linear-gradient(135deg, #a78bfa, #8b5cf6);
+      --bubble-me-text: #ffffff;
+      --bubble-them: #ffffff;
+      --bubble-them-text: #2e1065;
+      --chat-default-bg: #ede9fe;
+      --pattern-img: radial-gradient(#c4b5fd 1.2px, transparent 1.2px);
+    }
+
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100dvh;
       overflow: hidden;
-      background-color: #020617;
-      color: #f8fafc;
+      background-color: var(--bg-outer);
+      color: var(--text-main);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
+
+    /* Semantic Theme Mapping */
+    #app { background-color: var(--bg-main) !important; color: var(--text-main) !important; }
+    header, nav, #sticker-drawer { background-color: var(--bg-card) !important; border-color: var(--border-soft) !important; }
+    .bg-slate-950 { background-color: var(--bg-outer) !important; }
+    .bg-slate-900, .bg-slate-900\/95, .bg-slate-900\/90 { background-color: var(--bg-main) !important; }
+    .bg-slate-800, .bg-slate-800\/90, .bg-slate-800\/95, .bg-slate-800\/80, .bg-slate-800\/70, .bg-slate-800\/60, .bg-slate-800\/50, .bg-slate-800\/40 {
+      background-color: var(--bg-card) !important;
+    }
+    .bg-slate-700, .bg-slate-700\/70, .bg-slate-700\/60 {
+      background-color: var(--bg-input) !important;
+    }
+    .border-slate-800, .border-slate-800\/60, .border-slate-700, .border-slate-700\/80, .border-slate-700\/70, .border-slate-700\/60, .border-slate-600 {
+      border-color: var(--border-soft) !important;
+    }
+    .text-slate-100, .text-slate-200 { color: var(--text-main) !important; }
+    .text-white { color: var(--text-main) !important; }
+    .keep-white, .keep-white * { color: #ffffff !important; }
+    .text-slate-300, .text-slate-400, .text-slate-500 { color: var(--text-sub) !important; }
+    input, textarea, select {
+      background-color: var(--bg-input) !important;
+      color: var(--text-main) !important;
+      border-color: var(--border-col) !important;
+    }
+
+    /* Chat Area & WhatsApp Bubbles */
+    #tab-chat {
+      background-color: var(--chat-default-bg) !important;
+      background-image: var(--pattern-img);
+      background-size: 20px 20px;
+    }
+    [data-theme="kucing"] #tab-chat { background-size: 52px 52px; }
+
+    .wa-bubble-me {
+      background: var(--bubble-me) !important;
+      color: var(--bubble-me-text) !important;
+    }
+    .wa-bubble-me * { color: var(--bubble-me-text) !important; }
+    .wa-bubble-them {
+      background-color: var(--bubble-them) !important;
+      color: var(--bubble-them-text) !important;
+      border: 1px solid var(--border-soft);
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .safe-top { padding-top: max(12px, env(safe-area-inset-top)); }
-    .safe-bottom { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+    .safe-top { padding-top: max(10px, env(safe-area-inset-top)); }
+    .safe-bottom { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
     .chat-swipe-row { touch-action: pan-y; user-select: none; }
     @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .animate-spin-slow { animation: spinSlow 6s linear infinite; }
@@ -42,21 +210,21 @@
       0%, 100% { background-color: transparent; }
       50% { background-color: rgba(244, 63, 94, 0.25); }
     }
-    .highlight-msg { animation: msgHighlight 1.2s ease-in-out; border-radius: 16px; }
+    .highlight-msg { animation: msgHighlight 1.2s ease-in-out; border-radius: 14px; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 w-full h-[100dvh] overflow-hidden">
+<body data-theme="dark" class="w-full h-[100dvh] overflow-hidden">
 
   <!-- FULL SCREEN CONTAINER -->
-  <div id="app" style="width: 100%; height: 100dvh;" class="w-full bg-slate-900 flex flex-col relative overflow-hidden">
+  <div id="app" style="width: 100%; height: 100dvh;" class="w-full flex flex-col relative overflow-hidden">
 
     <!-- UPLOAD PROGRESS BAR -->
-    <div id="upload-bar" class="hidden fixed top-0 left-0 right-0 z-50 bg-rose-500 text-white text-[11px] font-semibold text-center py-1 shadow">
+    <div id="upload-bar" class="hidden fixed top-0 left-0 right-0 z-50 bg-rose-500 keep-white text-[11px] font-semibold text-center py-1 shadow">
       <span id="upload-bar-text">Mengunggah media...</span>
     </div>
 
     <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-800 border border-rose-500/40 text-white px-4 py-2.5 rounded-full shadow-2xl text-xs font-semibold flex items-center gap-2 max-w-[90vw] text-center">
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-800 border border-rose-500/40 px-4 py-2 rounded-full shadow-2xl text-xs font-semibold flex items-center gap-2 max-w-[90vw] text-center">
       <span id="toast-msg">Berhasil!</span>
     </div>
 
@@ -65,8 +233,8 @@
     <!-- ========================================== -->
     <div id="login-screen" class="hidden flex-1 w-full flex flex-col items-center justify-center p-6 text-center overflow-y-auto">
       <div class="w-full max-w-md flex flex-col items-center">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-500/20 mb-4 shrink-0">
-          <i data-lucide="heart" class="w-8 h-8 text-white fill-white"></i>
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 keep-white flex items-center justify-center shadow-lg shadow-rose-500/20 mb-4 shrink-0">
+          <i data-lucide="heart" class="w-8 h-8 fill-white"></i>
         </div>
         <h1 class="text-2xl font-bold tracking-tight">OurSpace</h1>
         <p class="text-xs text-slate-400 mt-1 mb-8">Pilih profil kamu untuk masuk</p>
@@ -77,8 +245,8 @@
           <p class="text-sm font-medium mb-3">Masukkan PIN <span id="selected-user-name" class="text-rose-400 font-bold"></span></p>
           <input id="pin-input" type="password" inputmode="numeric" maxlength="6" placeholder="••••"
             onkeypress="if(event.key==='Enter') submitLogin()"
-            class="w-full text-center text-2xl tracking-[0.5em] bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 focus:outline-none focus:border-rose-500 mb-4" />
-          <button onclick="submitLogin()" class="w-full bg-gradient-to-r from-rose-500 to-pink-600 hover:opacity-95 text-white font-semibold py-3 rounded-xl shadow-lg shadow-rose-500/20">
+            class="w-full text-center text-2xl tracking-[0.5em] rounded-xl py-3 px-4 border focus:outline-none focus:border-rose-500 mb-4" />
+          <button onclick="submitLogin()" class="w-full bg-gradient-to-r from-rose-500 to-pink-600 keep-white font-semibold py-3 rounded-xl shadow-lg">
             Masuk Sekarang
           </button>
           <p class="text-[11px] text-slate-500 mt-3">PIN default awal: 1234</p>
@@ -92,17 +260,18 @@
     <div id="main-screen" style="width: 100%; height: 100dvh;" class="hidden flex-1 w-full flex flex-col overflow-hidden">
 
       <!-- DYNAMIC TOP HEADER -->
-      <header class="w-full px-4 md:px-6 pb-3 safe-top bg-slate-900/95 backdrop-blur border-b border-slate-800 flex items-center justify-between shrink-0 z-20">
+      <header class="w-full px-4 md:px-6 pb-2.5 safe-top border-b flex items-center justify-between shrink-0 z-20 shadow-sm">
         <!-- Mode 1: Partner Contact Header (KHUSUS TAB CHAT) -->
-        <div id="header-chat-info" onclick="openPartnerProfileModal()" class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer group">
+        <div id="header-chat-info" onclick="openPartnerProfileModal()" class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer group">
           <div class="relative shrink-0">
             <img id="header-partner-avatar" src="" class="w-10 h-10 rounded-full object-cover border border-rose-500/50 bg-slate-800 group-hover:scale-105 transition-transform" />
             <span id="online-dot" class="hidden absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900"></span>
           </div>
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">
-              <h2 id="header-title" class="text-sm font-bold leading-tight truncate group-hover:text-rose-400 transition-colors">OurSpace</h2>
-              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
+              <h2 id="header-title" class="text-sm font-bold leading-tight truncate group-hover:text-rose-500 transition-colors">OurSpace</h2>
+              <span id="theme-cute-badge" class="hidden text-xs"></span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
             </div>
             <p id="header-subtitle" class="text-[11px] text-slate-400 truncate">Menghubungkan...</p>
           </div>
@@ -110,86 +279,87 @@
 
         <!-- Mode 2: Section Header (UNTUK TAB CELENGAN, MUSIK, VAULT, LIST) -->
         <div id="header-section-info" class="hidden flex items-center gap-3 min-w-0 flex-1">
-          <div id="header-section-icon" class="w-9 h-9 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center shrink-0">
+          <div id="header-section-icon" class="w-9 h-9 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-500 flex items-center justify-center shrink-0">
             <i data-lucide="piggy-bank" class="w-5 h-5"></i>
           </div>
           <div class="min-w-0">
-            <h2 id="header-section-title" class="text-sm font-bold leading-tight truncate text-white">Celengan Berdua</h2>
+            <h2 id="header-section-title" class="text-sm font-bold leading-tight truncate">Celengan Berdua</h2>
             <p id="header-section-sub" class="text-[11px] text-slate-400 truncate">Tabungan & target impian</p>
           </div>
         </div>
 
         <!-- Right Settings Profile Trigger -->
         <div class="flex items-center gap-2 shrink-0 ml-2">
-          <button onclick="openSettingsModal()" title="Pengaturan" class="p-1.5 pr-2.5 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-200 flex items-center gap-2 transition-colors">
-            <img id="header-my-avatar" src="" class="w-7 h-7 rounded-full object-cover bg-slate-700 ring-1 ring-rose-500/40" />
+          <button onclick="openSettingsModal()" title="Pengaturan & Tema" class="p-1.5 pr-2.5 rounded-full bg-slate-800 border border-slate-700 flex items-center gap-2 transition-colors">
+            <img id="header-my-avatar" src="" class="w-7 h-7 rounded-full object-cover ring-1 ring-rose-500/40" />
             <i data-lucide="settings" class="w-4 h-4 text-slate-400"></i>
           </button>
         </div>
       </header>
 
-      <!-- LIVE SYNC MINI MUSIC BAR (DENGAN PLAY/PAUSE + STOP) -->
-      <div id="mini-music-bar" class="hidden w-full px-4 md:px-6 py-2 bg-gradient-to-r from-slate-800 via-slate-800 to-rose-950/60 border-b border-slate-700/80 flex items-center justify-between gap-2 shrink-0 z-10">
+      <!-- LIVE SYNC MINI MUSIC BAR -->
+      <div id="mini-music-bar" class="hidden w-full px-4 md:px-6 py-1.5 bg-slate-800 border-b border-slate-700 flex items-center justify-between gap-2 shrink-0 z-10">
         <div onclick="switchTab('music')" class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer">
-          <div id="mini-disc" class="w-7 h-7 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
+          <div id="mini-disc" class="w-7 h-7 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500 shrink-0">
             <i data-lucide="disc-3" class="w-4 h-4"></i>
           </div>
           <div class="min-w-0">
-            <p id="mini-music-title" class="text-xs font-bold text-white truncate">Tidak ada lagu</p>
-            <p id="mini-music-sub" class="text-[10px] text-rose-300 truncate">Ketuk untuk buka pemutar musik</p>
+            <p id="mini-music-title" class="text-xs font-bold truncate">Tidak ada lagu</p>
+            <p id="mini-music-sub" class="text-[10px] text-rose-400 truncate">Ketuk untuk buka pemutar musik</p>
           </div>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
-          <button onclick="togglePlayPauseMusic()" id="mini-play-btn" title="Play / Pause" class="p-2 rounded-full bg-rose-500 hover:bg-rose-600 text-white shadow">
+          <button onclick="togglePlayPauseMusic()" id="mini-play-btn" title="Play / Pause" class="p-1.5 rounded-full bg-rose-500 keep-white shadow">
             <i data-lucide="play" class="w-3.5 h-3.5"></i>
           </button>
-          <button onclick="stopMusic()" title="Stop Lagu" class="p-2 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-200 shadow">
+          <button onclick="stopMusic()" title="Stop Lagu" class="p-1.5 rounded-full bg-slate-700 text-slate-300 shadow">
             <i data-lucide="square" class="w-3.5 h-3.5"></i>
           </button>
         </div>
       </div>
 
       <!-- AUTOPLAY UNBLOCK BANNER -->
-      <div id="autoplay-banner" onclick="forceJoinMusic()" class="hidden w-full px-4 md:px-6 py-2 bg-emerald-600 text-white text-xs font-semibold flex items-center justify-between cursor-pointer shrink-0">
+      <div id="autoplay-banner" onclick="forceJoinMusic()" class="hidden w-full px-4 md:px-6 py-2 bg-emerald-600 keep-white text-xs font-semibold flex items-center justify-between cursor-pointer shrink-0">
         <span id="autoplay-text" class="truncate mr-2">🎧 Pasangan sedang memutar lagu — Ketuk untuk gabung</span>
         <span class="bg-white/20 px-2.5 py-0.5 rounded text-[10px] shrink-0">Dengar</span>
       </div>
 
       <!-- ========================================== -->
-      <!-- TAB 1: ROOM CHAT (FULL EDGE-TO-EDGE)       -->
+      <!-- TAB 1: ROOM CHAT (GAYA WHATSAPP RAPAT)     -->
       <!-- ========================================== -->
-      <section id="tab-chat" class="flex-1 w-full flex flex-col overflow-hidden relative bg-slate-900 bg-cover bg-center">
-        <div id="chat-wallpaper-overlay" class="hidden absolute inset-0 bg-slate-950/60 pointer-events-none"></div>
+      <section id="tab-chat" class="flex-1 w-full flex flex-col overflow-hidden relative bg-cover bg-center">
+        <div id="chat-wallpaper-overlay" class="hidden absolute inset-0 bg-slate-950/45 pointer-events-none"></div>
 
-        <!-- Chat Messages List (Full width in both portrait & landscape) -->
-        <div id="chat-messages" class="flex-1 w-full overflow-y-auto px-3 sm:px-5 md:px-8 py-4 no-scrollbar relative z-10">
-          <div id="chat-messages-inner" class="w-full space-y-3"></div>
+        <!-- Chat Messages List -->
+        <div id="chat-messages" class="flex-1 w-full overflow-y-auto px-2.5 sm:px-5 md:px-8 py-2.5 no-scrollbar relative z-10">
+          <div id="chat-messages-inner" class="w-full flex flex-col"></div>
         </div>
 
         <!-- Reply Preview Banner -->
-        <div id="chat-reply-preview-box" class="hidden w-full px-3 sm:px-5 md:px-8 py-2 bg-slate-800/95 backdrop-blur border-t border-slate-700 relative z-10">
-          <div class="w-full flex items-center justify-between gap-3 bg-slate-900/90 border-l-4 border-rose-500 rounded-r-xl px-3 py-1.5">
+        <div id="chat-reply-preview-box" class="hidden w-full px-3 sm:px-5 md:px-8 py-1.5 bg-slate-800 border-t border-slate-700 relative z-10">
+          <div class="w-full flex items-center justify-between gap-3 bg-slate-900 border-l-4 border-rose-500 rounded-r-xl px-3 py-1.5">
             <div class="min-w-0 flex-1">
-              <p id="reply-preview-sender" class="text-[11px] font-bold text-rose-400 truncate">Membalas...</p>
+              <p id="reply-preview-sender" class="text-[11px] font-bold text-rose-500 truncate">Membalas...</p>
               <p id="reply-preview-text" class="text-xs text-slate-300 truncate">Pesan</p>
             </div>
-            <button onclick="cancelReply()" class="p-1 text-slate-400 hover:text-white shrink-0">
+            <button onclick="cancelReply()" class="p-1 text-slate-400 shrink-0">
               <i data-lucide="x" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
-        <!-- Quick Emoji Bar (KLIK MASUK KE TEXT BOX, TIDAK AUTO-SEND) -->
-        <div class="w-full px-3 sm:px-5 md:px-8 py-1.5 bg-slate-900/95 backdrop-blur border-t border-slate-800/60 shrink-0 relative z-10">
-          <div class="w-full flex items-center gap-2 overflow-x-auto no-scrollbar">
-            <button type="button" onclick="insertEmojiToInput('❤️')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">❤️</button>
-            <button type="button" onclick="insertEmojiToInput('🥰')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🥰</button>
-            <button type="button" onclick="insertEmojiToInput('😘')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">😘</button>
-            <button type="button" onclick="insertEmojiToInput('🥺')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🥺</button>
-            <button type="button" onclick="insertEmojiToInput('🤗')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🤗</button>
-            <button type="button" onclick="insertEmojiToInput('😭')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">😭</button>
-            <button type="button" onclick="insertEmojiToInput('😂')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">😂</button>
-            <button type="button" onclick="insertEmojiToInput('🍔')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🍔</button>
+        <!-- Quick Emoji Bar (KLIK MASUK KE TEXT BOX) -->
+        <div class="w-full px-3 sm:px-5 md:px-8 py-1 bg-slate-800 border-t border-slate-700 shrink-0 relative z-10">
+          <div class="w-full flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            <button type="button" onclick="insertEmojiToInput('❤️')" class="px-2 py-0.5 bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">❤️</button>
+            <button type="button" onclick="insertEmojiToInput('🥰')" class="px-2 py-0.5 bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🥰</button>
+            <button type="button" onclick="insertEmojiToInput('😘')" class="px-2 py-0.5 bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">😘</button>
+            <button type="button" onclick="insertEmojiToInput('🥺')" class="px-2 py-0.5 bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🥺</button>
+            <button type="button" onclick="insertEmojiToInput('🤗')" class="px-2 py-0.5 bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🤗</button>
+            <button type="button" onclick="insertEmojiToInput('😭')" class="px-2 py-0.5 bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">😭</button>
+            <button type="button" onclick="insertEmojiToInput('😂')" class="px-2 py-0.5 bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">😂</button>
+            <button type="button" onclick="insertEmojiToInput('🐱')" class="px-2 py-0.5 bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🐱</button>
+            <button type="button" onclick="insertEmojiToInput('🍡')" class="px-2 py-0.5 bg-slate-700 rounded-full text-sm shrink-0 active:scale-90 transition-transform">🍡</button>
           </div>
         </div>
 
@@ -200,42 +370,42 @@
               <img id="chat-img-preview" src="" class="w-10 h-10 rounded-lg object-cover" />
               <span class="text-xs text-slate-300">Foto siap dikirim</span>
             </div>
-            <button onclick="clearChatImage()" class="text-xs text-rose-400 font-semibold">Batal</button>
+            <button onclick="clearChatImage()" class="text-xs text-rose-500 font-semibold">Batal</button>
           </div>
         </div>
 
-        <!-- Chat Input Bar (Full Width) -->
-        <div class="w-full px-3 sm:px-5 md:px-8 py-2.5 bg-slate-900/95 backdrop-blur border-t border-slate-800 shrink-0 relative z-10">
-          <div class="w-full flex items-center gap-2">
-            <button type="button" onclick="toggleStickerDrawer()" id="btn-sticker-toggle" title="Emot & Stiker Bergerak" class="p-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-400 shrink-0">
+        <!-- Chat Input Bar -->
+        <div class="w-full px-2.5 sm:px-5 md:px-8 py-2 bg-slate-800 border-t border-slate-700 shrink-0 relative z-10">
+          <div class="w-full flex items-center gap-1.5 sm:gap-2">
+            <button type="button" onclick="toggleStickerDrawer()" id="btn-sticker-toggle" title="Emot & Stiker Bergerak" class="p-2.5 rounded-full bg-slate-700 text-amber-500 shrink-0">
               <i data-lucide="smile-plus" class="w-5 h-5"></i>
             </button>
-            <label title="Kirim Foto" class="p-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0">
+            <label title="Kirim Foto" class="p-2.5 rounded-full bg-slate-700 text-slate-300 cursor-pointer shrink-0">
               <i data-lucide="image" class="w-5 h-5"></i>
               <input id="chat-file-input" type="file" accept="image/*" class="hidden" onchange="previewChatImage(event)" />
             </label>
             <input id="chat-input" type="text" placeholder="Ketik pesan..." onfocus="closeStickerDrawer()" onkeypress="if(event.key==='Enter') sendChat()"
-              class="flex-1 bg-slate-800 border border-slate-700 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500 min-w-0" />
-            <button onclick="sendChat()" class="p-2.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 text-white shrink-0 shadow-md">
+              class="flex-1 border rounded-full px-4 py-2 text-[15px] focus:outline-none focus:border-rose-500 min-w-0" />
+            <button onclick="sendChat()" class="p-2.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 keep-white shrink-0 shadow">
               <i data-lucide="send" class="w-5 h-5"></i>
             </button>
           </div>
         </div>
 
         <!-- EMOJI & ANIMATED STICKER DRAWER -->
-        <div id="sticker-drawer" class="hidden w-full bg-slate-900 border-t border-slate-800 px-3 sm:px-5 md:px-8 py-3 shrink-0 relative z-20 max-h-64 flex flex-col">
+        <div id="sticker-drawer" class="hidden w-full border-t px-3 sm:px-5 md:px-8 py-3 shrink-0 relative z-20 max-h-64 flex flex-col">
           <div class="flex items-center justify-between gap-2 mb-2.5 shrink-0">
             <div class="flex items-center gap-1.5">
-              <button type="button" onclick="switchStickerTab('animated')" id="stab-animated" class="px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 text-white">Stiker Bergerak</button>
-              <button type="button" onclick="switchStickerTab('emoji')" id="stab-emoji" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Emotikon</button>
-              <button type="button" onclick="switchStickerTab('custom')" id="stab-custom" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">Stiker Kita</button>
+              <button type="button" onclick="switchStickerTab('animated')" id="stab-animated" class="px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 keep-white">Stiker Bergerak</button>
+              <button type="button" onclick="switchStickerTab('emoji')" id="stab-emoji" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-700 text-slate-300">Emotikon</button>
+              <button type="button" onclick="switchStickerTab('custom')" id="stab-custom" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-700 text-slate-300">Stiker Kita</button>
             </div>
             <div class="flex items-center gap-1.5">
-              <label class="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold cursor-pointer flex items-center gap-1">
+              <label class="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-500 text-[11px] font-semibold cursor-pointer flex items-center gap-1">
                 <i data-lucide="plus" class="w-3 h-3"></i> Tambah GIF/Stiker
                 <input type="file" accept="image/gif,image/webp,image/png,image/jpeg" class="hidden" onchange="uploadCustomSticker(event)" />
               </label>
-              <button type="button" onclick="closeStickerDrawer()" class="p-1 text-slate-400 hover:text-white">
+              <button type="button" onclick="closeStickerDrawer()" class="p-1 text-slate-400">
                 <i data-lucide="x" class="w-4 h-4"></i>
               </button>
             </div>
@@ -252,81 +422,120 @@
       <!-- ========================================== -->
       <section id="tab-celengan" class="hidden flex-1 w-full overflow-y-auto p-4 md:p-6 no-scrollbar">
         <div class="max-w-6xl mx-auto space-y-4">
-          <div class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg">
+          <div class="bg-gradient-to-br from-rose-500 to-pink-600 keep-white rounded-2xl p-5 shadow-lg">
             <div class="flex justify-between items-start gap-2">
               <div>
-                <p class="text-xs text-rose-100 font-medium">Total Tabungan Berdua</p>
+                <p class="text-xs font-medium opacity-90">Total Tabungan Berdua</p>
                 <h3 id="total-celengan-all" class="text-2xl font-extrabold mt-1">Rp 0</h3>
               </div>
               <button onclick="openModal('modal-new-pos')" class="bg-white/20 hover:bg-white/30 backdrop-blur px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 shrink-0">
                 <i data-lucide="plus" class="w-4 h-4"></i> Pos Baru
               </button>
             </div>
-            <p class="text-[11px] text-rose-100 mt-3 opacity-90">Pisahkan target liburan, nikah, atau beli barang elektronik di tiap pos.</p>
+            <p class="text-[11px] mt-3 opacity-90">Pisahkan target liburan, nikah, atau beli barang elektronik di tiap pos.</p>
           </div>
           <div id="celengan-pos-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4"></div>
         </div>
       </section>
 
       <!-- ========================================== -->
-      <!-- TAB 3: DENGERIN MUSIK BARENG (MENU BAWAH)  -->
+      <!-- TAB 3: MUSIC PLAYER (ALBUM, SHUFFLE, REPEAT) -->
       <!-- ========================================== -->
       <section id="tab-music" class="hidden flex-1 w-full overflow-y-auto p-4 md:p-6 no-scrollbar">
-        <div class="max-w-4xl mx-auto space-y-4 pb-6">
+        <div class="max-w-5xl mx-auto space-y-4 pb-6">
           <!-- Now Playing Card -->
-          <div class="bg-gradient-to-br from-slate-800 via-slate-800 to-rose-950/60 border border-slate-700 rounded-2xl p-5 space-y-4 shadow-lg">
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-4 shadow-md">
             <div class="flex items-center gap-4">
-              <div id="modal-disc" class="w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
+              <div id="modal-disc" class="w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500 shrink-0">
                 <i data-lucide="disc-3" class="w-8 h-8"></i>
               </div>
               <div class="min-w-0 flex-1">
-                <span class="text-[10px] uppercase tracking-wider font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full">Live Sync Berdua</span>
-                <p id="modal-music-title" class="text-base font-bold text-white truncate mt-1">Belum ada lagu diputar</p>
-                <p id="modal-music-dj" class="text-xs text-slate-300 truncate">Pilih dari playlist atau upload lagu di bawah</p>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] uppercase tracking-wider font-bold text-rose-500 bg-rose-500/15 px-2 py-0.5 rounded-full">Live Sync Berdua</span>
+                  <span id="modal-music-album-badge" class="text-[10px] font-semibold text-slate-400 bg-slate-700 px-2 py-0.5 rounded-full">Semua Lagu</span>
+                </div>
+                <p id="modal-music-title" class="text-base font-bold truncate mt-1">Belum ada lagu diputar</p>
+                <p id="modal-music-dj" class="text-xs text-slate-400 truncate">Pilih dari album atau upload lagu di bawah</p>
               </div>
             </div>
 
+            <!-- Seek Bar -->
             <div class="space-y-1">
               <input id="music-seek-bar" type="range" min="0" max="100" value="0" onchange="seekMusic(this.value)"
-                class="w-full accent-rose-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer" />
+                class="w-full accent-rose-500 h-1.5 rounded-lg cursor-pointer" />
               <div class="flex justify-between text-[11px] text-slate-400">
                 <span id="music-cur-time">00:00</span>
                 <span id="music-dur-time">00:00</span>
               </div>
             </div>
 
-            <!-- Controls: Sync, Play/Pause, STOP -->
-            <div class="flex flex-wrap items-center justify-center gap-2.5 pt-1">
-              <button onclick="syncNowManually()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Samakan Detik
+            <!-- Full Music Player Controls: Shuffle, Prev, Play/Pause, Next, Repeat, Stop, Sync -->
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-1">
+              <button onclick="toggleMusicShuffle()" id="btn-music-shuffle" title="Shuffle (Acak)"
+                class="p-2.5 rounded-xl bg-slate-700 border border-slate-600 text-slate-400 transition-colors">
+                <i data-lucide="shuffle" class="w-4 h-4"></i>
               </button>
-              <button onclick="togglePlayPauseMusic()" id="modal-play-btn" class="px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg">
+
+              <button onclick="playPrevTrack()" title="Lagu Sebelumnya"
+                class="p-2.5 rounded-xl bg-slate-700 border border-slate-600 text-slate-200">
+                <i data-lucide="skip-back" class="w-4 h-4"></i>
+              </button>
+
+              <button onclick="togglePlayPauseMusic()" id="modal-play-btn" title="Play / Pause"
+                class="px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 keep-white text-xs font-bold flex items-center gap-1.5 shadow-lg">
                 <i data-lucide="play" class="w-4 h-4"></i> Play / Pause
               </button>
-              <button onclick="stopMusic()" class="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold flex items-center gap-1.5 shadow">
+
+              <button onclick="playNextTrack(false)" title="Lagu Berikutnya"
+                class="p-2.5 rounded-xl bg-slate-700 border border-slate-600 text-slate-200">
+                <i data-lucide="skip-forward" class="w-4 h-4"></i>
+              </button>
+
+              <button onclick="cycleMusicRepeat()" id="btn-music-repeat" title="Repeat (Ulangi)"
+                class="p-2.5 rounded-xl bg-slate-700 border border-slate-600 text-slate-400 relative transition-colors">
+                <i data-lucide="repeat" class="w-4 h-4"></i>
+                <span id="repeat-one-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 keep-white text-[9px] font-extrabold flex items-center justify-center">1</span>
+              </button>
+
+              <button onclick="stopMusic()" title="Stop Lagu"
+                class="px-3 py-2.5 rounded-xl bg-slate-700 border border-slate-600 text-xs font-bold flex items-center gap-1">
                 <i data-lucide="square" class="w-3.5 h-3.5"></i> Stop
+              </button>
+
+              <button onclick="syncNowManually()" title="Samakan Detik"
+                class="px-3 py-2.5 rounded-xl bg-slate-700 border border-slate-600 text-xs font-semibold text-slate-400 flex items-center gap-1">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sync
               </button>
             </div>
           </div>
 
-          <!-- Upload Lagu Offline -->
-          <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl p-4 space-y-3">
-            <p class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-              <i data-lucide="upload-cloud" class="w-4 h-4 text-rose-400"></i> Upload Lagu Offline (MP3 / M4A)
+          <!-- Upload Lagu Offline + Pilih Album -->
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3">
+            <p class="text-xs font-bold flex items-center gap-1.5">
+              <i data-lucide="upload-cloud" class="w-4 h-4 text-rose-500"></i> Upload Lagu Offline (MP3 / M4A)
             </p>
-            <input id="music-file-input" type="file" accept="audio/*" onchange="autoFillMusicTitle(this)"
-              class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:bg-rose-500 file:text-white file:font-semibold" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input id="music-file-input" type="file" accept="audio/*" onchange="autoFillMusicTitle(this)"
+                class="w-full text-xs text-slate-400 file:mr-2.5 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-rose-500 file:text-white file:font-semibold" />
+              <select id="music-upload-album" class="w-full border rounded-xl px-3 py-2 text-xs font-semibold"></select>
+            </div>
             <div class="flex gap-2">
-              <input id="music-title-input" type="text" placeholder="Judul lagu..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs min-w-0" />
-              <button onclick="uploadOfflineMusic()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-4 py-2.5 rounded-xl text-xs shrink-0">
+              <input id="music-title-input" type="text" placeholder="Judul lagu..." class="flex-1 border rounded-xl px-3.5 py-2 text-xs min-w-0" />
+              <button onclick="uploadOfflineMusic()" class="bg-emerald-500 hover:bg-emerald-600 keep-white font-semibold px-4 py-2 rounded-xl text-xs shrink-0">
                 Upload & Putar
               </button>
             </div>
           </div>
 
-          <!-- Playlist Bersama -->
-          <div class="space-y-2.5">
-            <p class="text-xs font-bold text-slate-300">Playlist Lagu Kita</p>
+          <!-- Album Tabs & Create Album -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-xs font-bold">Album & Koleksi Lagu</p>
+              <button onclick="openModal('modal-new-album')" class="px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-500 text-[11px] font-bold flex items-center gap-1">
+                <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i> + Album Baru
+              </button>
+            </div>
+            <div id="music-album-tabs" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
             <div id="music-playlist" class="grid grid-cols-1 md:grid-cols-2 gap-2.5"></div>
           </div>
         </div>
@@ -342,7 +551,7 @@
               <h3 class="text-base font-bold">Memory Vault</h3>
               <p class="text-xs text-slate-400">Galeri foto slide (maks. 10 foto) & cerita kenangan kita</p>
             </div>
-            <button onclick="openNewVaultModal()" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow shrink-0">
+            <button onclick="openNewVaultModal()" class="bg-rose-500 hover:bg-rose-600 keep-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow shrink-0">
               <i data-lucide="camera" class="w-4 h-4"></i> Upload Foto
             </button>
           </div>
@@ -355,23 +564,21 @@
       <!-- ========================================== -->
       <section id="tab-wishlist" class="hidden flex-1 w-full overflow-y-auto p-4 md:p-6 no-scrollbar">
         <div class="max-w-6xl mx-auto space-y-4">
-          <!-- Summary Budget Card -->
-          <div class="bg-gradient-to-r from-slate-800 via-slate-800 to-rose-950/50 border border-slate-700/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <p class="text-xs text-slate-400">Total Estimasi List Barang & Persiapan</p>
               <div class="flex items-baseline gap-3 mt-1">
-                <h3 id="wish-total-budget" class="text-xl font-extrabold text-white">Rp 0</h3>
-                <span id="wish-bought-summary" class="text-xs text-emerald-400 font-semibold">Terbeli: Rp 0 (0/0 item)</span>
+                <h3 id="wish-total-budget" class="text-xl font-extrabold">Rp 0</h3>
+                <span id="wish-bought-summary" class="text-xs text-emerald-500 font-semibold">Terbeli: Rp 0 (0/0 item)</span>
               </div>
             </div>
-            <button onclick="openNewWishModal()" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow shrink-0">
+            <button onclick="openNewWishModal()" class="bg-rose-500 hover:bg-rose-600 keep-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow shrink-0">
               <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Barang / List
             </button>
           </div>
 
-          <!-- Filter Kategori -->
           <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-            <button onclick="filterWishCat('ALL')" id="wcat-ALL" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500 text-white shrink-0">Semua</button>
+            <button onclick="filterWishCat('ALL')" id="wcat-ALL" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500 keep-white shrink-0">Semua</button>
             <button onclick="filterWishCat('Persiapan Nikah')" id="wcat-Persiapan Nikah" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 shrink-0">💍 Persiapan Nikah</button>
             <button onclick="filterWishCat('Elektronik & Rumah')" id="wcat-Elektronik & Rumah" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 shrink-0">📺 Elektronik & Rumah</button>
             <button onclick="filterWishCat('Kuliner')" id="wcat-Kuliner" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 shrink-0">🍔 Kuliner</button>
@@ -379,11 +586,10 @@
             <button onclick="filterWishCat('Barang')" id="wcat-Barang" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 shrink-0">🎁 Barang Impian</button>
           </div>
 
-          <!-- Filter Status -->
           <div class="flex gap-2">
-            <button onclick="filterWishStatus('ALL')" id="wish-filter-ALL" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-700 text-white">Semua Status</button>
-            <button onclick="filterWishStatus('Impian')" id="wish-filter-Impian" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-800/70 text-slate-400">Belum Dibeli</button>
-            <button onclick="filterWishStatus('Tercapai')" id="wish-filter-Tercapai" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-800/70 text-slate-400">Sudah Terbeli ✓</button>
+            <button onclick="filterWishStatus('ALL')" id="wish-filter-ALL" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-700">Semua Status</button>
+            <button onclick="filterWishStatus('Impian')" id="wish-filter-Impian" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-400">Belum Dibeli</button>
+            <button onclick="filterWishStatus('Tercapai')" id="wish-filter-Tercapai" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-400">Sudah Terbeli ✓</button>
           </div>
 
           <div id="wishlist-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6 items-start"></div>
@@ -393,7 +599,7 @@
       <!-- ========================================== -->
       <!-- BOTTOM NAVIGATION BAR (5 MENU)             -->
       <!-- ========================================== -->
-      <nav class="w-full bg-slate-900 border-t border-slate-800 grid grid-cols-5 pt-2 px-1 shrink-0 safe-bottom z-20">
+      <nav class="w-full border-t grid grid-cols-5 pt-2 px-1 shrink-0 safe-bottom z-20">
         <button onclick="switchTab('chat')" id="nav-chat" class="flex flex-col items-center gap-1 py-1 text-rose-500">
           <i data-lucide="message-circle-heart" class="w-5 h-5"></i>
           <span class="text-[10px] font-semibold">Chat</span>
@@ -424,46 +630,77 @@
     <audio id="shared-audio" preload="auto"></audio>
 
     <!-- ========================================== -->
+    <!-- MODAL: BUAT ALBUM MUSIK BARU               -->
+    <!-- ========================================== -->
+    <div id="modal-new-album" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-base">Buat Album Musik Baru</h3>
+          <button onclick="closeModal('modal-new-album')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <input id="new-album-name" type="text" placeholder="Contoh: Lagu Nikahan / Galau / Favorit" onkeypress="if(event.key==='Enter') createNewAlbum()"
+          class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
+        <button onclick="createNewAlbum()" class="w-full bg-rose-500 hover:bg-rose-600 keep-white font-semibold py-2.5 rounded-xl text-sm">
+          Simpan Album
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL: PINDAH ALBUM LAGU                   -->
+    <!-- ========================================== -->
+    <div id="modal-move-album" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-base">Pindahkan Lagu ke Album</h3>
+          <button onclick="closeModal('modal-move-album')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <input type="hidden" id="move-track-id" />
+        <p id="move-track-title" class="text-xs text-slate-400 truncate"></p>
+        <select id="move-track-album-select" class="w-full border rounded-xl px-3.5 py-2.5 text-sm"></select>
+        <button onclick="submitMoveTrackAlbum()" class="w-full bg-rose-500 hover:bg-rose-600 keep-white font-semibold py-2.5 rounded-xl text-sm">
+          Simpan ke Album
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
     <!-- MODAL: PROFIL KONTAK PASANGAN (WA/TELE)    -->
     <!-- ========================================== -->
     <div id="modal-partner-profile" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl overflow-hidden max-h-[88dvh] flex flex-col">
         <div class="flex justify-between items-center px-5 py-3.5 border-b border-slate-800 shrink-0">
-          <h3 class="font-bold text-sm text-slate-200">Info Kontak</h3>
+          <h3 class="font-bold text-sm">Info Kontak</h3>
           <button onclick="closeModal('modal-partner-profile')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
         <div class="overflow-y-auto p-5 space-y-5 no-scrollbar">
-          <!-- Avatar & Nama -->
           <div class="flex flex-col items-center text-center">
             <div class="relative">
               <img id="pprof-avatar" src="" onclick="openLightbox(this.src)" class="w-28 h-28 rounded-full object-cover border-4 border-rose-500/30 bg-slate-800 cursor-pointer shadow-xl" />
               <span id="pprof-dot" class="hidden absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full bg-emerald-400 ring-4 ring-slate-900"></span>
             </div>
-            <h4 id="pprof-nama" class="text-xl font-bold text-white mt-3">Pasangan</h4>
+            <h4 id="pprof-nama" class="text-xl font-bold mt-3">Pasangan</h4>
             <p id="pprof-status" class="text-xs text-slate-400 mt-0.5">Offline</p>
           </div>
 
-          <!-- Bio / Info -->
-          <div class="bg-slate-800/70 border border-slate-700/70 rounded-2xl p-3.5">
-            <p class="text-[10px] uppercase tracking-wider font-bold text-rose-400 mb-1">Bio / Status</p>
-            <p id="pprof-bio" class="text-xs text-slate-200 leading-relaxed">Selalu ada buat kamu ❤️</p>
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3.5">
+            <p class="text-[10px] uppercase tracking-wider font-bold text-rose-500 mb-1">Bio / Status</p>
+            <p id="pprof-bio" class="text-xs leading-relaxed">Selalu ada buat kamu ❤️</p>
           </div>
 
-          <!-- Shortcut Actions -->
           <div class="grid grid-cols-2 gap-2.5">
-            <button onclick="closeModal('modal-partner-profile'); switchTab('music');" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1.5 text-xs font-semibold text-rose-400">
+            <button onclick="closeModal('modal-partner-profile'); switchTab('music');" class="bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1.5 text-xs font-semibold text-rose-500">
               <i data-lucide="headphones" class="w-5 h-5"></i>
               <span>Dengerin Musik</span>
             </button>
-            <button onclick="closeModal('modal-partner-profile'); switchTab('vault');" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1.5 text-xs font-semibold text-sky-400">
+            <button onclick="closeModal('modal-partner-profile'); switchTab('vault');" class="bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1.5 text-xs font-semibold text-sky-500">
               <i data-lucide="images" class="w-5 h-5"></i>
               <span>Galeri Memori</span>
             </button>
           </div>
 
-          <!-- Media Bersama di Chat -->
           <div>
-            <p class="text-xs font-bold text-slate-300 mb-2">Media & Foto di Chat</p>
+            <p class="text-xs font-bold mb-2">Media & Foto di Chat</p>
             <div id="pprof-shared-media" class="grid grid-cols-3 gap-2"></div>
           </div>
         </div>
@@ -471,86 +708,137 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- MODAL: PENGATURAN GAYA WHATSAPP            -->
+    <!-- MODAL: PENGATURAN WHATSAPP + PILIH TEMA    -->
     <!-- ========================================== -->
     <div id="modal-settings" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl overflow-hidden max-h-[88dvh] flex flex-col">
         <div class="flex justify-between items-center px-5 py-3.5 border-b border-slate-800 shrink-0">
           <h3 class="font-bold text-base flex items-center gap-2">
-            <i data-lucide="settings" class="w-5 h-5 text-rose-500"></i> Pengaturan
+            <i data-lucide="settings" class="w-5 h-5 text-rose-500"></i> Pengaturan & Tema
           </h3>
           <button onclick="closeModal('modal-settings')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
 
         <div class="overflow-y-auto p-5 space-y-5 no-scrollbar">
-          <!-- CIRCULAR AVATAR HERO CARD (WHATSAPP STYLE) -->
-          <div class="bg-gradient-to-b from-slate-800/90 to-slate-800/40 border border-slate-700/80 rounded-2xl p-5 flex flex-col items-center text-center">
+          <!-- CIRCULAR AVATAR HERO CARD -->
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 flex flex-col items-center text-center">
             <div class="relative">
-              <img id="settings-avatar-preview" src="" onclick="openLightbox(this.src)" class="w-24 h-24 rounded-full object-cover border-4 border-rose-500/40 bg-slate-800 cursor-pointer shadow-lg" />
-              <label title="Ganti Foto Profil" class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center cursor-pointer shadow-md ring-2 ring-slate-900">
+              <img id="settings-avatar-preview" src="" onclick="openLightbox(this.src)" class="w-24 h-24 rounded-full object-cover border-4 border-rose-500/40 cursor-pointer shadow-lg" />
+              <label title="Ganti Foto Profil" class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-rose-500 hover:bg-rose-600 keep-white flex items-center justify-center cursor-pointer shadow-md">
                 <i data-lucide="camera" class="w-4 h-4"></i>
                 <input id="prof-foto" type="file" accept="image/*" class="hidden" onchange="previewSettingsAvatar(event)" />
               </label>
             </div>
-            <h4 id="settings-display-name" class="text-lg font-bold text-white mt-3">Nama Kamu</h4>
+            <h4 id="settings-display-name" class="text-lg font-bold mt-3">Nama Kamu</h4>
             <p id="settings-display-bio" class="text-xs text-slate-400 mt-0.5">Ketuk foto untuk memperbesar atau ikon kamera untuk ganti PP</p>
           </div>
 
-          <!-- CARD 1: PROFIL, BIO & PIN -->
-          <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 space-y-3">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+          <!-- CARD: TEMA TAMPILAN (PUTIH, GELAP, MOCHI, KUCING, MATCHA, LAVENDER) -->
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-500 flex items-center gap-1.5">
+              <i data-lucide="palette" class="w-3.5 h-3.5"></i> Tema Tampilan Aplikasi
+            </h4>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="theme-picker-grid">
+              <button type="button" onclick="applyAppTheme('dark')" id="tbtn-dark" class="p-3 rounded-xl border-2 text-left flex items-center gap-2.5 bg-[#0f172a] text-[#f8fafc] border-slate-700">
+                <span class="text-lg">🌙</span>
+                <div>
+                  <p class="text-xs font-bold" style="color:#f8fafc">Gelap</p>
+                  <p class="text-[10px]" style="color:#94a3b8">Midnight Rose</p>
+                </div>
+              </button>
+              <button type="button" onclick="applyAppTheme('light')" id="tbtn-light" class="p-3 rounded-xl border-2 text-left flex items-center gap-2.5 bg-white text-slate-900 border-slate-300">
+                <span class="text-lg">☀️</span>
+                <div>
+                  <p class="text-xs font-bold" style="color:#0f172a">Putih</p>
+                  <p class="text-[10px]" style="color:#64748b">Clean Light</p>
+                </div>
+              </button>
+              <button type="button" onclick="applyAppTheme('mochi')" id="tbtn-mochi" class="p-3 rounded-xl border-2 text-left flex items-center gap-2.5 bg-[#ffe4ec] border-[#f9a8d4]">
+                <span class="text-lg">🍡</span>
+                <div>
+                  <p class="text-xs font-bold" style="color:#4a1d2f">Mochi</p>
+                  <p class="text-[10px]" style="color:#9d5c74">Strawberry Pink</p>
+                </div>
+              </button>
+              <button type="button" onclick="applyAppTheme('kucing')" id="tbtn-kucing" class="p-3 rounded-xl border-2 text-left flex items-center gap-2.5 bg-[#f5ebe0] border-[#ddb892]">
+                <span class="text-lg">🐱</span>
+                <div>
+                  <p class="text-xs font-bold" style="color:#3d2c2e">Kucing</p>
+                  <p class="text-[10px]" style="color:#8a6d63">Calico & Paw</p>
+                </div>
+              </button>
+              <button type="button" onclick="applyAppTheme('matcha')" id="tbtn-matcha" class="p-3 rounded-xl border-2 text-left flex items-center gap-2.5 bg-[#e4efe5] border-[#a3c4a8]">
+                <span class="text-lg">🍵</span>
+                <div>
+                  <p class="text-xs font-bold" style="color:#1b3422">Matcha</p>
+                  <p class="text-[10px]" style="color:#587860">Pastel Green</p>
+                </div>
+              </button>
+              <button type="button" onclick="applyAppTheme('lavender')" id="tbtn-lavender" class="p-3 rounded-xl border-2 text-left flex items-center gap-2.5 bg-[#ebe5ff] border-[#c4b5fd]">
+                <span class="text-lg">🪻</span>
+                <div>
+                  <p class="text-xs font-bold" style="color:#2e1065">Lavender</p>
+                  <p class="text-[10px]" style="color:#6d5999">Pastel Lilac</p>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- CARD: PROFIL, BIO & PIN -->
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-500 flex items-center gap-1.5">
               <i data-lucide="user-pen" class="w-3.5 h-3.5"></i> Profil, Bio & Keamanan PIN
             </h4>
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">Nama Panggilan</label>
-              <input id="prof-nama" type="text" placeholder="Nama Panggilan" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+              <input id="prof-nama" type="text" placeholder="Nama Panggilan" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
             </div>
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">Bio / Status Profil</label>
-              <input id="prof-bio" type="text" placeholder="Tulis status singkat..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+              <input id="prof-bio" type="text" placeholder="Tulis status singkat..." class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
             </div>
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">PIN Login Baru (Mendukung awalan 0, misal: 0511)</label>
-              <input id="prof-pin" type="password" inputmode="numeric" maxlength="6" placeholder="Kosongkan jika tidak diubah" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+              <input id="prof-pin" type="password" inputmode="numeric" maxlength="6" placeholder="Kosongkan jika tidak diubah" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
             </div>
-            <button onclick="submitProfile()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2.5 rounded-xl text-sm shadow">
+            <button onclick="submitProfile()" class="w-full bg-rose-500 hover:bg-rose-600 keep-white font-semibold py-2.5 rounded-xl text-sm shadow">
               Simpan Perubahan Profil
             </button>
           </div>
 
-          <!-- CARD 2: NOTIFIKASI -->
-          <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 space-y-2.5">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+          <!-- CARD: NOTIFIKASI -->
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-2.5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-500 flex items-center gap-1.5">
               <i data-lucide="bell" class="w-3.5 h-3.5"></i> Notifikasi Android (FCM)
             </h4>
-            <button onclick="enablePushNotif(false)" class="w-full bg-amber-500/20 border border-amber-500/40 active:scale-95 transition-transform text-amber-300 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
+            <button onclick="enablePushNotif(false)" class="w-full bg-amber-500/20 border border-amber-500/40 active:scale-95 transition-transform text-amber-500 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
               <i data-lucide="bell-ring" class="w-4 h-4"></i> Aktifkan Notifikasi di Perangkat Ini
             </button>
-            <button onclick="sendTestNotif()" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 active:scale-95 transition-transform text-slate-200 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
-              <i data-lucide="send" class="w-3.5 h-3.5 text-emerald-400"></i> Tes Kirim Notif ke Pasangan
+            <button onclick="sendTestNotif()" class="w-full bg-slate-700 border border-slate-600 active:scale-95 transition-transform font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
+              <i data-lucide="send" class="w-3.5 h-3.5 text-emerald-500"></i> Tes Kirim Notif ke Pasangan
             </button>
             <p id="notif-status-text" class="text-[11px] text-slate-400 text-center">Status: Memeriksa perangkat...</p>
           </div>
 
-          <!-- CARD 3: WALLPAPER RUANG CHAT -->
-          <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 space-y-2.5">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+          <!-- CARD: WALLPAPER RUANG CHAT -->
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-2.5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-500 flex items-center gap-1.5">
               <i data-lucide="wallpaper" class="w-3.5 h-3.5"></i> Wallpaper Ruang Chat
             </h4>
             <div class="grid grid-cols-4 gap-2">
-              <button onclick="applyPresetWallpaper('')" class="h-12 rounded-xl bg-slate-900 border border-slate-700 text-[10px] font-semibold text-slate-300">Default</button>
-              <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-700" style="background-image:url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=200')"></button>
-              <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-700" style="background-image:url('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=200')"></button>
-              <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-700" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200')"></button>
+              <button onclick="applyPresetWallpaper('')" class="h-12 rounded-xl bg-slate-700 border border-slate-600 text-[10px] font-semibold">Default Tema</button>
+              <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-600" style="background-image:url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=200')"></button>
+              <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-600" style="background-image:url('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=200')"></button>
+              <button onclick="applyPresetWallpaper('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800')" class="h-12 rounded-xl bg-cover bg-center border border-slate-600" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200')"></button>
             </div>
             <div class="flex gap-2 items-center pt-1">
-              <input id="wp-file-input" type="file" accept="image/*" class="flex-1 text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-900 file:text-slate-200 min-w-0" />
-              <button onclick="uploadCustomWallpaper()" class="bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Pasang Foto</button>
+              <input id="wp-file-input" type="file" accept="image/*" class="flex-1 text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-700 min-w-0" />
+              <button onclick="uploadCustomWallpaper()" class="bg-rose-500 hover:bg-rose-600 keep-white text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Pasang Foto</button>
             </div>
           </div>
 
           <!-- LOGOUT -->
-          <button onclick="logout()" class="w-full bg-slate-800 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/40 text-rose-400 font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2">
+          <button onclick="logout()" class="w-full bg-slate-800 border border-slate-700 text-rose-500 font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2">
             <i data-lucide="log-out" class="w-4 h-4"></i> Ganti Akun / Keluar
           </button>
         </div>
@@ -564,17 +852,17 @@
           <h3 class="font-bold text-base">Buat Pos Celengan Baru</h3>
           <button onclick="closeModal('modal-new-pos')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
-        <input id="pos-nama" type="text" placeholder="Nama Pos (misal: Tabungan Nikah / TV)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
-        <input id="pos-target" type="number" placeholder="Target Nominal (Rp)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <input id="pos-nama" type="text" placeholder="Nama Pos (misal: Tabungan Nikah / TV)" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
+        <input id="pos-target" type="number" placeholder="Target Nominal (Rp)" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Target Tanggal (Opsional)</label>
-          <input id="pos-tanggal" type="date" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200" />
+          <input id="pos-tanggal" type="date" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
         </div>
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Foto Sampul Impian (Opsional)</label>
-          <input id="pos-cover" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200" />
+          <input id="pos-cover" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800" />
         </div>
-        <button onclick="submitNewPos()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-xl text-sm">Simpan Pos</button>
+        <button onclick="submitNewPos()" class="w-full bg-rose-500 hover:bg-rose-600 keep-white font-semibold py-3 rounded-xl text-sm">Simpan Pos</button>
       </div>
     </div>
 
@@ -586,17 +874,17 @@
           <button onclick="closeModal('modal-tx-pos')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
         <input type="hidden" id="tx-pos-id" />
-        <select id="tx-jenis" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm">
+        <select id="tx-jenis" class="w-full border rounded-xl px-3.5 py-2.5 text-sm">
           <option value="Setor">Setor Tabungan (+)</option>
           <option value="Tarik">Tarik Dana (-)</option>
         </select>
-        <input id="tx-nominal" type="number" placeholder="Nominal (Rp)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
-        <input id="tx-catatan" type="text" placeholder="Catatan (misal: Nabung minggu ke-1)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+        <input id="tx-nominal" type="number" placeholder="Nominal (Rp)" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
+        <input id="tx-catatan" type="text" placeholder="Catatan (misal: Nabung minggu ke-1)" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Upload Bukti Transfer (Opsional)</label>
-          <input id="tx-bukti" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200" />
+          <input id="tx-bukti" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800" />
         </div>
-        <button onclick="submitNewTx()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 rounded-xl text-sm">Simpan Transaksi</button>
+        <button onclick="submitNewTx()" class="w-full bg-emerald-500 hover:bg-emerald-600 keep-white font-semibold py-3 rounded-xl text-sm">Simpan Transaksi</button>
       </div>
     </div>
 
@@ -607,7 +895,7 @@
           <h3 id="detail-pos-title" class="font-bold text-base">Detail Pos</h3>
           <button onclick="closeModal('modal-detail-pos')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
-        <div id="detail-pos-stats" class="bg-slate-800/80 rounded-xl p-3 mb-3 text-xs space-y-1 shrink-0"></div>
+        <div id="detail-pos-stats" class="bg-slate-800 rounded-xl p-3 mb-3 text-xs space-y-1 shrink-0"></div>
         <p class="text-xs font-semibold text-slate-400 mb-2 shrink-0">Riwayat Mutasi</p>
         <div id="detail-pos-mutasi" class="flex-1 overflow-y-auto space-y-2 no-scrollbar min-h-0"></div>
       </div>
@@ -624,19 +912,19 @@
         <div class="space-y-2">
           <div class="flex items-center justify-between">
             <label class="text-[11px] text-slate-400">Pilih Foto Kenangan *</label>
-            <span id="vault-file-count" class="text-[11px] font-bold text-rose-400">0 / 10 foto</span>
+            <span id="vault-file-count" class="text-[11px] font-bold text-rose-500">0 / 10 foto</span>
           </div>
-          <label class="w-full py-2.5 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-dashed border-slate-600 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 cursor-pointer">
-            <i data-lucide="images" class="w-4 h-4 text-rose-400"></i>
+          <label class="w-full py-2.5 px-3.5 rounded-xl bg-slate-800 border border-dashed border-slate-600 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer">
+            <i data-lucide="images" class="w-4 h-4 text-rose-500"></i>
             <span>+ Tambah Foto (Bisa pilih banyak sekaligus)</span>
             <input id="vault-foto" type="file" accept="image/*" multiple class="hidden" onchange="handleVaultFilesSelect(event)" />
           </label>
           <div id="vault-preview-strip" class="hidden flex gap-2 overflow-x-auto py-1 no-scrollbar"></div>
         </div>
 
-        <input id="vault-judul" type="text" placeholder="Judul Momen (misal: Gunung Mas, 2024)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
-        <textarea id="vault-cerita" rows="3" placeholder="Tulis cerita singkat di balik foto ini..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm"></textarea>
-        <button onclick="submitNewVault()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-xl text-sm">Upload ke Vault</button>
+        <input id="vault-judul" type="text" placeholder="Judul Momen (misal: Gunung Mas, 2024)" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
+        <textarea id="vault-cerita" rows="3" placeholder="Tulis cerita singkat di balik foto ini..." class="w-full border rounded-xl px-3.5 py-2.5 text-sm"></textarea>
+        <button onclick="submitNewVault()" class="w-full bg-rose-500 hover:bg-rose-600 keep-white font-semibold py-3 rounded-xl text-sm">Upload ke Vault</button>
       </div>
     </div>
 
@@ -650,11 +938,11 @@
         <input type="hidden" id="wish-edit-id" />
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Nama Barang / Kebutuhan *</label>
-          <input id="wish-nama" type="text" placeholder="Contoh: Smart TV 43 Inch / Mahar / Kasur" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+          <input id="wish-nama" type="text" placeholder="Contoh: Smart TV 43 Inch / Mahar / Kasur" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
         </div>
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Kategori</label>
-          <select id="wish-kategori" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm">
+          <select id="wish-kategori" class="w-full border rounded-xl px-3.5 py-2.5 text-sm">
             <option value="Persiapan Nikah">💍 Persiapan Nikah</option>
             <option value="Elektronik & Rumah">📺 Elektronik & Isi Rumah</option>
             <option value="Kuliner">🍔 Kuliner & Kafe</option>
@@ -664,21 +952,21 @@
         </div>
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Estimasi Harga (Rp)</label>
-          <input id="wish-harga" type="number" placeholder="Contoh: 3500000" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+          <input id="wish-harga" type="number" placeholder="Contoh: 3500000" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
         </div>
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Deskripsi / Catatan Spesifikasi</label>
-          <textarea id="wish-deskripsi" rows="2" placeholder="Contoh: Merk Samsung / LG 4K UHD, ukuran 43 inch untuk ruang tamu" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm"></textarea>
+          <textarea id="wish-deskripsi" rows="2" placeholder="Contoh: Merk Samsung / LG 4K UHD, ukuran 43 inch untuk ruang tamu" class="w-full border rounded-xl px-3.5 py-2 text-sm"></textarea>
         </div>
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Link Produk / Referensi (Shopee, Tokopedia, Maps)</label>
-          <input id="wish-link" type="url" placeholder="https://..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm" />
+          <input id="wish-link" type="url" placeholder="https://..." class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
         </div>
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">Foto Barang / Referensi</label>
-          <input id="wish-foto" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-slate-200" />
+          <input id="wish-foto" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800" />
         </div>
-        <button onclick="submitNewWish()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-xl text-sm">Simpan ke List</button>
+        <button onclick="submitNewWish()" class="w-full bg-rose-500 hover:bg-rose-600 keep-white font-semibold py-3 rounded-xl text-sm">Simpan ke List</button>
       </div>
     </div>
 
@@ -686,19 +974,19 @@
     <div id="modal-confirm-delete" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-2xl">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+          <div class="w-10 h-10 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center shrink-0">
             <i data-lucide="trash-2" class="w-5 h-5"></i>
           </div>
           <div>
-            <h4 id="confirm-del-title" class="font-bold text-sm text-white">Hapus Item?</h4>
+            <h4 id="confirm-del-title" class="font-bold text-sm">Hapus Item?</h4>
             <p id="confirm-del-desc" class="text-xs text-slate-400 mt-0.5">Tindakan ini tidak dapat dibatalkan.</p>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2.5">
-          <button onclick="closeModal('modal-confirm-delete')" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300">
+          <button onclick="closeModal('modal-confirm-delete')" class="py-2.5 rounded-xl bg-slate-800 text-xs font-semibold">
             Batal
           </button>
-          <button id="confirm-del-btn" class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white">
+          <button id="confirm-del-btn" class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 keep-white text-xs font-bold">
             Ya, Hapus
           </button>
         </div>
@@ -707,17 +995,17 @@
 
     <!-- LIGHTBOX PREVIEW GAMBAR & SLIDE -->
     <div id="lightbox" onclick="if(event.target===this) closeLightbox()" class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
-      <button onclick="closeLightbox()" class="absolute top-5 right-5 z-10 w-9 h-9 rounded-full bg-slate-800/90 text-white flex items-center justify-center">
+      <button onclick="closeLightbox()" class="absolute top-5 right-5 z-10 w-9 h-9 rounded-full bg-slate-800/90 keep-white flex items-center justify-center">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
-      <div id="lightbox-counter" class="hidden absolute top-6 left-1/2 -translate-x-1/2 z-10 bg-slate-800/90 text-white text-xs font-semibold px-3 py-1 rounded-full">
+      <div id="lightbox-counter" class="hidden absolute top-6 left-1/2 -translate-x-1/2 z-10 bg-slate-800/90 keep-white text-xs font-semibold px-3 py-1 rounded-full">
         1 / 1
       </div>
-      <button id="lightbox-prev" onclick="stepLightbox(-1)" class="hidden absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-slate-800/80 text-white flex items-center justify-center">
+      <button id="lightbox-prev" onclick="stepLightbox(-1)" class="hidden absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-slate-800/80 keep-white flex items-center justify-center">
         <i data-lucide="chevron-left" class="w-6 h-6"></i>
       </button>
       <img id="lightbox-img" src="" class="max-w-full max-h-[85dvh] rounded-xl object-contain select-none" />
-      <button id="lightbox-next" onclick="stepLightbox(1)" class="hidden absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-slate-800/80 text-white flex items-center justify-center">
+      <button id="lightbox-next" onclick="stepLightbox(1)" class="hidden absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-slate-800/80 keep-white flex items-center justify-center">
         <i data-lucide="chevron-right" class="w-6 h-6"></i>
       </button>
     </div>
@@ -744,7 +1032,6 @@
       pushRelayUrl: "https://script.google.com/macros/s/AKfycbx1zo665zHesf9k-JZIj1Q_8pPhXu9vTwVQ_ozQjGYSc_hRbmZig-yzm5Entg1_HnyD/exec"
     };
 
-    // KOLEKSI STIKER BERGERAK & EMOTIKON
     const ANIMATED_STICKERS = [
       { label: 'Love Berdetak', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/2764_fe0f/512.gif', fallback: '❤️' },
       { label: 'Cium Sayang', url: 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif', fallback: '😘' },
@@ -765,8 +1052,10 @@
       '🥰','😘','😍','🤩','🤗','🥺','🥹','😊','😁','😂','🤣','😅',
       '😭','😢','😤','😡','😴','🤤','🤔','🤭','🤫','🫡','🫶','🙌',
       '👏','🤝','👍','👌','✌️','🤞','🙏','💪','🌹','💐','💍','🏠',
-      '📺','🍔','🍕','🍣','🧋','☕','🍰','🎁','✈️','🏖️','🎬','🎧'
+      '🐱','🐾','🍡','🧸','🍔','🍕','🍣','🧋','☕','🍰','✈️','🎧'
     ];
+
+    const DEFAULT_ALBUMS = ['Favorit Kita', 'Santai & Malam'];
 
     // INIT FIREBASE
     firebase.initializeApp(APP_CONFIG.firebaseConfig);
@@ -790,6 +1079,7 @@
       vault: {},
       wishlist: {},
       music: {},
+      musicAlbums: {},
       stickers: {},
       settings: {}
     };
@@ -797,6 +1087,7 @@
     let currentUser = JSON.parse(localStorage.getItem('ourspace_user') || 'null');
     let selectedLoginUserId = null;
     let currentTab = 'chat';
+    let currentTheme = localStorage.getItem('ourspace_theme') || 'dark';
     let wishCatFilter = 'ALL';
     let wishStatusFilter = 'ALL';
     let chatImageFile = null;
@@ -804,12 +1095,13 @@
     let selectedVaultFiles = [];
     let activeChatOptionId = null;
     let lastMusicSyncStamp = '';
+    let activeAlbumFilter = 'ALL';
+    let musicShuffle = false;
+    let musicRepeatMode = 'off'; // 'off' | 'all' | 'one'
     let lightboxPhotos = [];
     let lightboxIndex = 0;
 
-    // Swipe-to-Reply state
     let swipeState = { id: null, startX: 0, startY: 0, currentX: 0, dragging: false, moved: false };
-
     const audioEl = document.getElementById('shared-audio');
 
     function saveCache() {
@@ -818,8 +1110,60 @@
       } catch (e) {}
     }
 
+    // ========================================================
+    // THEME ENGINE (GELAP, PUTIH, MOCHI, KUCING, MATCHA, LAVENDER)
+    // ========================================================
+    function applyAppTheme(themeName, saveToCloud = true) {
+      const valid = ['dark', 'light', 'mochi', 'kucing', 'matcha', 'lavender'];
+      if (!valid.includes(themeName)) themeName = 'dark';
+      currentTheme = themeName;
+      document.body.setAttribute('data-theme', themeName);
+      localStorage.setItem('ourspace_theme', themeName);
+
+      // Update theme-color meta bar
+      const metaColors = {
+        dark: '#0f172a',
+        light: '#ffffff',
+        mochi: '#fff5f7',
+        kucing: '#fdf8f2',
+        matcha: '#f3f8f3',
+        lavender: '#f6f3ff'
+      };
+      const metaTag = document.querySelector('meta[name="theme-color"]');
+      if (metaTag) metaTag.setAttribute('content', metaColors[themeName] || '#0f172a');
+
+      // Cute badge on header for Mochi / Kucing / Matcha / Lavender
+      const cuteBadge = document.getElementById('theme-cute-badge');
+      const badges = { mochi: '🍡', kucing: '🐱', matcha: '🍵', lavender: '🪻' };
+      if (cuteBadge) {
+        if (badges[themeName]) {
+          cuteBadge.textContent = badges[themeName];
+          cuteBadge.classList.remove('hidden');
+        } else {
+          cuteBadge.classList.add('hidden');
+        }
+      }
+
+      // Highlight selected theme card in Settings
+      valid.forEach(t => {
+        const btn = document.getElementById('tbtn-' + t);
+        if (!btn) return;
+        if (t === themeName) {
+          btn.style.outline = '2px solid #f43f5e';
+          btn.style.outlineOffset = '2px';
+        } else {
+          btn.style.outline = 'none';
+        }
+      });
+
+      if (saveToCloud && currentUser && currentUser.ID) {
+        db.ref(`users/${currentUser.ID}/theme`).set(themeName).catch(() => {});
+      }
+    }
+
     // BOOTSTRAP INSTAN
     window.addEventListener('DOMContentLoaded', async () => {
+      applyAppTheme(currentTheme, false);
       lucide.createIcons();
       setupAudioListeners();
       initStickerPanels();
@@ -828,6 +1172,7 @@
 
       if (currentUser && state.users[currentUser.ID]) {
         currentUser = state.users[currentUser.ID];
+        if (currentUser.theme) applyAppTheme(currentUser.theme, false);
         showMainApp();
       } else {
         showLoginScreen();
@@ -911,7 +1256,16 @@
         state.music = snap.val() || {};
         saveCache();
         if (currentUser) {
-          renderMusicPlaylist();
+          renderMusicAlbumsAndPlaylist();
+          lucide.createIcons();
+        }
+      });
+
+      db.ref('musicAlbums').on('value', snap => {
+        state.musicAlbums = snap.val() || {};
+        saveCache();
+        if (currentUser) {
+          renderMusicAlbumsAndPlaylist();
           lucide.createIcons();
         }
       });
@@ -991,7 +1345,7 @@
           await db.ref(`users/${currentUser.ID}/fcmToken`).set(token);
           if (statusEl) {
             statusEl.textContent = `Status: Aktif (${token.slice(0, 10)}...)`;
-            statusEl.className = 'text-[11px] text-emerald-400 text-center font-semibold';
+            statusEl.className = 'text-[11px] text-emerald-500 text-center font-semibold';
           }
           if (!silent) showToast('Notifikasi aktif untuk ' + currentUser.Nama + '!');
         }
@@ -1042,7 +1396,7 @@
       }
     }
 
-    // MEDIA UPLOAD (CLOUDINARY — MENDUKUNG ANIMATED GIF/WEBP & AUDIO)
+    // MEDIA UPLOAD (CLOUDINARY)
     async function uploadMedia(file, isAudio = false, labelText = '') {
       setUploadBar(true, labelText || (isAudio ? 'Mengunggah lagu ke cloud...' : 'Mengunggah media...'));
       try {
@@ -1071,7 +1425,6 @@
       }
     }
 
-    // CUSTOM DELETE CONFIRMATION
     function askConfirmDelete(title, desc, onConfirm) {
       document.getElementById('confirm-del-title').textContent = title;
       document.getElementById('confirm-del-desc').textContent = desc;
@@ -1096,8 +1449,8 @@
       const usersList = Object.values(state.users);
       container.innerHTML = usersList.map(u => `
         <button onclick="selectLoginUser('${u.ID}')" id="card-${u.ID}"
-          class="bg-slate-800/80 border-2 ${selectedLoginUserId === u.ID ? 'border-rose-500 bg-slate-800' : 'border-slate-700'} rounded-2xl p-4 flex flex-col items-center gap-2.5 transition-all">
-          <img src="${u.Avatar_URL}" class="w-16 h-16 rounded-full object-cover bg-slate-700" />
+          class="bg-slate-800 border-2 ${selectedLoginUserId === u.ID ? 'border-rose-500' : 'border-slate-700'} rounded-2xl p-4 flex flex-col items-center gap-2.5 transition-all">
+          <img src="${u.Avatar_URL}" class="w-16 h-16 rounded-full object-cover" />
           <span class="font-bold text-sm">${escapeHtml(u.Nama)}</span>
         </button>
       `).join('');
@@ -1119,6 +1472,7 @@
       if (String(pin) === String(userObj.PIN)) {
         currentUser = userObj;
         localStorage.setItem('ourspace_user', JSON.stringify(currentUser));
+        if (currentUser.theme) applyAppTheme(currentUser.theme, false);
         showMainApp();
       } else {
         showToast('PIN salah bro!');
@@ -1147,7 +1501,7 @@
       renderHeaderAndStatus();
       applyChatWallpaper(state.settings.chat_wallpaper || '');
       syncSharedMusicState();
-      renderMusicPlaylist();
+      renderMusicAlbumsAndPlaylist();
       renderChat();
       renderCelengan();
       renderVault();
@@ -1156,7 +1510,6 @@
       enablePushNotif(true);
     }
 
-    // DYNAMIC HEADER (KONTAK HANYA MUNCUL DI CHAT, TAB LAIN JUDUL MENU)
     function updateHeaderMode() {
       const chatInfo = document.getElementById('header-chat-info');
       const secInfo = document.getElementById('header-section-info');
@@ -1175,7 +1528,7 @@
 
       const map = {
         celengan: { title: 'Celengan Berdua', sub: 'Tabungan & target impian kita', icon: 'piggy-bank' },
-        music: { title: 'Dengerin Musik Bareng', sub: 'Putar lagu sinkron berdua', icon: 'headphones' },
+        music: { title: 'Dengerin Musik Bareng', sub: 'Album, shuffle & repeat sinkron', icon: 'headphones' },
         vault: { title: 'Memory Vault', sub: 'Galeri foto slide & cerita kenangan', icon: 'images' },
         wishlist: { title: 'List Persiapan & Wishlist', sub: 'Daftar barang nikah, rumah & impian', icon: 'clipboard-list' }
       };
@@ -1195,14 +1548,14 @@
       const statusEl = document.getElementById('notif-status-text');
       if (statusEl && currentUser.fcmToken) {
         statusEl.textContent = `Status: Aktif (${String(currentUser.fcmToken).slice(0, 10)}...)`;
-        statusEl.className = 'text-[11px] text-emerald-400 text-center font-semibold';
+        statusEl.className = 'text-[11px] text-emerald-500 text-center font-semibold';
       }
 
       const subEl = document.getElementById('header-subtitle');
       const dotEl = document.getElementById('online-dot');
       if (partner.online) {
         subEl.textContent = 'Online';
-        subEl.className = 'text-[11px] text-emerald-400 font-semibold truncate';
+        subEl.className = 'text-[11px] text-emerald-500 font-semibold truncate';
         dotEl.classList.remove('hidden');
       } else {
         dotEl.classList.add('hidden');
@@ -1223,7 +1576,7 @@
       return `Terakhir dilihat ${dateStr} ${timeStr}`;
     }
 
-    // PROFIL KONTAK PASANGAN MODAL (WA/TELEGRAM STYLE)
+    // PROFIL KONTAK PASANGAN MODAL
     function openPartnerProfileModal() {
       const partnerId = currentUser.ID === 'user1' ? 'user2' : 'user1';
       const partner = state.users[partnerId] || { Nama: 'Pasangan', Avatar_URL: '', Bio: '' };
@@ -1236,7 +1589,7 @@
       const pDot = document.getElementById('pprof-dot');
       if (partner.online) {
         pStatus.textContent = 'Online';
-        pStatus.className = 'text-xs text-emerald-400 font-semibold mt-0.5';
+        pStatus.className = 'text-xs text-emerald-500 font-semibold mt-0.5';
         pDot.classList.remove('hidden');
       } else {
         pDot.classList.add('hidden');
@@ -1244,7 +1597,6 @@
         pStatus.className = 'text-xs text-slate-400 mt-0.5';
       }
 
-      // Shared Media in Chat
       const mediaGrid = document.getElementById('pprof-shared-media');
       const photos = Object.values(state.chat)
         .filter(m => m.Media_URL && m.Type !== 'sticker')
@@ -1253,9 +1605,9 @@
 
       mediaGrid.innerHTML = photos.length
         ? photos.slice(0, 12).map(url => `
-            <img src="${url}" onclick="openLightbox('${url}')" class="w-full h-24 rounded-xl object-cover bg-slate-800 cursor-pointer border border-slate-700/60" />
+            <img src="${url}" onclick="openLightbox('${url}')" class="w-full h-24 rounded-xl object-cover cursor-pointer border border-slate-700" />
           `).join('')
-        : `<p class="col-span-3 text-[11px] text-slate-500 text-center py-4 bg-slate-800/40 rounded-xl">Belum ada foto yang dikirim di chat</p>`;
+        : `<p class="col-span-3 text-[11px] text-slate-500 text-center py-4 bg-slate-800 rounded-xl">Belum ada foto yang dikirim di chat</p>`;
 
       openModal('modal-partner-profile');
       lucide.createIcons();
@@ -1267,9 +1619,11 @@
       const overlay = document.getElementById('chat-wallpaper-overlay');
       if (url) {
         tabChat.style.backgroundImage = `url('${url}')`;
+        tabChat.style.backgroundSize = 'cover';
         overlay.classList.remove('hidden');
       } else {
-        tabChat.style.backgroundImage = 'none';
+        tabChat.style.backgroundImage = '';
+        tabChat.style.backgroundSize = '';
         overlay.classList.add('hidden');
       }
     }
@@ -1292,7 +1646,7 @@
     }
 
     // ========================================================
-    // DENGERIN MUSIK BARENG (PLAY, PAUSE, STOP)
+    // DENGERIN MUSIK BARENG (ALBUM, SHUFFLE, REPEAT, STOP)
     // ========================================================
     function setupAudioListeners() {
       audioEl.addEventListener('timeupdate', () => {
@@ -1305,7 +1659,156 @@
       audioEl.addEventListener('ended', () => {
         document.getElementById('mini-disc').classList.remove('animate-spin-slow');
         document.getElementById('modal-disc').classList.remove('animate-spin-slow');
+        playNextTrack(true);
       });
+    }
+
+    function getAllAlbumNames() {
+      const set = new Set(DEFAULT_ALBUMS);
+      Object.values(state.musicAlbums || {}).forEach(a => {
+        if (a && a.Nama) set.add(a.Nama);
+      });
+      Object.values(state.music || {}).forEach(m => {
+        if (m && m.Album) set.add(m.Album);
+      });
+      return Array.from(set);
+    }
+
+    function getFilteredTracks() {
+      const all = Object.values(state.music || {}).reverse();
+      if (activeAlbumFilter === 'ALL') return all;
+      return all.filter(m => (m.Album || 'Favorit Kita') === activeAlbumFilter);
+    }
+
+    function selectAlbumFilter(albumName) {
+      activeAlbumFilter = albumName;
+      renderMusicAlbumsAndPlaylist();
+      lucide.createIcons();
+    }
+
+    async function createNewAlbum() {
+      const name = document.getElementById('new-album-name').value.trim();
+      if (!name) return showToast('Masukkan nama album dulu');
+      const newRef = db.ref('musicAlbums').push();
+      await newRef.set({
+        ID: newRef.key,
+        Nama: name,
+        Created_By: currentUser.Nama
+      });
+      document.getElementById('new-album-name').value = '';
+      closeModal('modal-new-album');
+      activeAlbumFilter = name;
+      renderMusicAlbumsAndPlaylist();
+      lucide.createIcons();
+      showToast(`Album "${name}" dibuat!`);
+    }
+
+    function openMoveAlbumModal(trackId) {
+      const track = state.music[trackId];
+      if (!track) return;
+      document.getElementById('move-track-id').value = trackId;
+      document.getElementById('move-track-title').textContent = track.Judul;
+      const albums = getAllAlbumNames();
+      const sel = document.getElementById('move-track-album-select');
+      sel.innerHTML = albums.map(a => `<option value="${escapeHtml(a)}" ${(track.Album || 'Favorit Kita') === a ? 'selected' : ''}>${escapeHtml(a)}</option>`).join('');
+      openModal('modal-move-album');
+    }
+
+    async function submitMoveTrackAlbum() {
+      const id = document.getElementById('move-track-id').value;
+      const album = document.getElementById('move-track-album-select').value;
+      if (!id || !album) return;
+      await db.ref(`music/${id}/Album`).set(album);
+      closeModal('modal-move-album');
+      showToast(`Lagu dipindahkan ke album "${album}"`);
+    }
+
+    function toggleMusicShuffle() {
+      musicShuffle = !musicShuffle;
+      const btn = document.getElementById('btn-music-shuffle');
+      if (musicShuffle) {
+        btn.className = 'p-2.5 rounded-xl bg-rose-500 keep-white border border-rose-500 shadow transition-colors';
+        showToast('Shuffle (Acak): Aktif');
+      } else {
+        btn.className = 'p-2.5 rounded-xl bg-slate-700 border border-slate-600 text-slate-400 transition-colors';
+        showToast('Shuffle (Acak): Nonaktif');
+      }
+    }
+
+    function cycleMusicRepeat() {
+      const order = ['off', 'all', 'one'];
+      musicRepeatMode = order[(order.indexOf(musicRepeatMode) + 1) % order.length];
+      const btn = document.getElementById('btn-music-repeat');
+      const oneBadge = document.getElementById('repeat-one-badge');
+
+      if (musicRepeatMode === 'off') {
+        btn.className = 'p-2.5 rounded-xl bg-slate-700 border border-slate-600 text-slate-400 relative transition-colors';
+        oneBadge.classList.add('hidden');
+        showToast('Repeat: Mati');
+      } else if (musicRepeatMode === 'all') {
+        btn.className = 'p-2.5 rounded-xl bg-rose-500 keep-white border border-rose-500 relative shadow transition-colors';
+        oneBadge.classList.add('hidden');
+        showToast('Repeat: Ulangi Semua Album');
+      } else {
+        btn.className = 'p-2.5 rounded-xl bg-rose-500 keep-white border border-rose-500 relative shadow transition-colors';
+        oneBadge.classList.remove('hidden');
+        showToast('Repeat: Ulangi 1 Lagu');
+      }
+    }
+
+    async function playNextTrack(autoTriggered = false) {
+      const queue = getFilteredTracks();
+      if (!queue.length) return;
+
+      const curUrl = state.settings?.music?.url || '';
+      const curIdx = queue.findIndex(t => t.Audio_URL === curUrl);
+
+      if (autoTriggered && musicRepeatMode === 'one' && curIdx !== -1) {
+        const cur = queue[curIdx];
+        await playTrackFromPlaylist(cur.Audio_URL, cur.Judul, cur.Album || 'Favorit Kita');
+        return;
+      }
+
+      let nextIdx = 0;
+      if (musicShuffle) {
+        if (queue.length === 1) {
+          nextIdx = 0;
+        } else {
+          do {
+            nextIdx = Math.floor(Math.random() * queue.length);
+          } while (nextIdx === curIdx);
+        }
+      } else {
+        if (curIdx === -1) {
+          nextIdx = 0;
+        } else if (curIdx + 1 < queue.length) {
+          nextIdx = curIdx + 1;
+        } else {
+          if (autoTriggered && musicRepeatMode === 'off') {
+            await stopMusic();
+            return;
+          }
+          nextIdx = 0;
+        }
+      }
+
+      const nextTrack = queue[nextIdx];
+      await playTrackFromPlaylist(nextTrack.Audio_URL, nextTrack.Judul, nextTrack.Album || 'Favorit Kita');
+    }
+
+    async function playPrevTrack() {
+      const queue = getFilteredTracks();
+      if (!queue.length) return;
+      if (audioEl.currentTime > 4) {
+        audioEl.currentTime = 0;
+        await seekMusic(0);
+        return;
+      }
+      const curUrl = state.settings?.music?.url || '';
+      const curIdx = queue.findIndex(t => t.Audio_URL === curUrl);
+      const prevIdx = curIdx <= 0 ? queue.length - 1 : curIdx - 1;
+      const prevTrack = queue[prevIdx];
+      await playTrackFromPlaylist(prevTrack.Audio_URL, prevTrack.Judul, prevTrack.Album || 'Favorit Kita');
     }
 
     function autoFillMusicTitle(input) {
@@ -1320,6 +1823,7 @@
     async function uploadOfflineMusic() {
       const file = document.getElementById('music-file-input').files[0];
       const judul = document.getElementById('music-title-input').value.trim();
+      const album = document.getElementById('music-upload-album').value || 'Favorit Kita';
       if (!file) return showToast('Pilih file lagu offline (MP3/M4A) dulu');
 
       const audioUrl = await uploadMedia(file, true);
@@ -1330,6 +1834,7 @@
       await newRef.set({
         ID: newRef.key,
         Judul: trackTitle,
+        Album: album,
         Audio_URL: audioUrl,
         Uploaded_By: currentUser.Nama,
         Waktu: Date.now()
@@ -1337,7 +1842,7 @@
 
       document.getElementById('music-file-input').value = '';
       document.getElementById('music-title-input').value = '';
-      await playTrackFromPlaylist(audioUrl, trackTitle);
+      await playTrackFromPlaylist(audioUrl, trackTitle, album);
     }
 
     function syncSharedMusicState() {
@@ -1349,7 +1854,7 @@
         miniBar.classList.add('hidden');
         badge.classList.add('hidden');
         document.getElementById('modal-music-title').textContent = 'Belum ada lagu diputar';
-        document.getElementById('modal-music-dj').textContent = 'Pilih dari playlist atau upload lagu di bawah';
+        document.getElementById('modal-music-dj').textContent = 'Pilih dari album atau upload lagu di bawah';
         document.getElementById('music-seek-bar').value = 0;
         document.getElementById('music-cur-time').textContent = '00:00';
         document.getElementById('music-dur-time').textContent = '00:00';
@@ -1363,6 +1868,7 @@
       document.getElementById('mini-music-title').textContent = m.title || 'Lagu Kita';
       document.getElementById('mini-music-sub').textContent = isPlaying ? `Diputar bareng • DJ: ${m.dj || 'Kita'}` : `Dijeda oleh ${m.dj || 'Kita'}`;
       document.getElementById('modal-music-title').textContent = m.title || 'Lagu Kita';
+      document.getElementById('modal-music-album-badge').textContent = m.album || 'Semua Lagu';
       document.getElementById('modal-music-dj').textContent = isStopped
         ? `Dihentikan oleh ${m.dj || 'Kita'}`
         : (isPlaying ? `Sedang diputar oleh ${m.dj || 'Kita'}` : `Dijeda oleh ${m.dj || 'Kita'}`);
@@ -1420,7 +1926,13 @@
 
     async function togglePlayPauseMusic() {
       const m = state.settings?.music;
-      if (!m || !m.url) return showToast('Pilih atau upload lagu dulu di playlist');
+      if (!m || !m.url) {
+        const queue = getFilteredTracks();
+        if (queue.length) {
+          return playTrackFromPlaylist(queue[0].Audio_URL, queue[0].Judul, queue[0].Album || 'Favorit Kita');
+        }
+        return showToast('Pilih atau upload lagu dulu di playlist');
+      }
       const nextPlaying = audioEl.paused;
       if (nextPlaying) audioEl.play(); else audioEl.pause();
 
@@ -1474,13 +1986,14 @@
       showToast('Detik lagu disinkronkan!');
     }
 
-    async function playTrackFromPlaylist(url, title) {
+    async function playTrackFromPlaylist(url, title, album = 'Favorit Kita') {
       audioEl.src = url;
       audioEl.currentTime = 0;
       audioEl.play();
       await db.ref('settings/music').set({
         url: url,
         title: title,
+        album: album,
         playing: true,
         stopped: false,
         seek: 0,
@@ -1497,27 +2010,69 @@
       });
     }
 
-    function renderMusicPlaylist() {
+    function renderMusicAlbumsAndPlaylist() {
+      const allTracks = Object.values(state.music || {}).reverse();
+      const albums = getAllAlbumNames();
+
+      // Populate Upload Album Dropdown
+      const uploadSel = document.getElementById('music-upload-album');
+      if (uploadSel) {
+        const prevVal = uploadSel.value;
+        uploadSel.innerHTML = albums.map(a => `<option value="${escapeHtml(a)}">📁 Album: ${escapeHtml(a)}</option>`).join('');
+        if (prevVal && albums.includes(prevVal)) uploadSel.value = prevVal;
+      }
+
+      // Render Album Filter Tabs
+      const tabsEl = document.getElementById('music-album-tabs');
+      if (tabsEl) {
+        const allTabHtml = `
+          <button onclick="selectAlbumFilter('ALL')"
+            class="px-3.5 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-colors ${activeAlbumFilter === 'ALL' ? 'bg-rose-500 keep-white shadow' : 'bg-slate-800 border border-slate-700'}">
+            🎵 Semua Lagu (${allTracks.length})
+          </button>`;
+
+        const albumTabsHtml = albums.map(alb => {
+          const count = allTracks.filter(t => (t.Album || 'Favorit Kita') === alb).length;
+          const isAct = activeAlbumFilter === alb;
+          return `
+            <button onclick="selectAlbumFilter('${escapeHtml(alb)}')"
+              class="px-3.5 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-colors ${isAct ? 'bg-rose-500 keep-white shadow' : 'bg-slate-800 border border-slate-700'}">
+              💿 ${escapeHtml(alb)} (${count})
+            </button>`;
+        }).join('');
+
+        tabsEl.innerHTML = allTabHtml + albumTabsHtml;
+      }
+
+      // Render Filtered Track List
       const list = document.getElementById('music-playlist');
-      const tracks = Object.values(state.music).reverse();
+      const tracks = getFilteredTracks();
       if (!tracks.length) {
-        list.innerHTML = `<p class="col-span-full text-xs text-slate-500 text-center py-6 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Belum ada lagu di playlist. Upload lagu MP3 dari perangkat kamu di atas!</p>`;
+        list.innerHTML = `<p class="col-span-full text-xs text-slate-500 text-center py-6 bg-slate-800 rounded-2xl border border-dashed border-slate-700">Belum ada lagu di album "${escapeHtml(activeAlbumFilter === 'ALL' ? 'Semua Lagu' : activeAlbumFilter)}".</p>`;
         return;
       }
+
       const curUrl = state.settings?.music?.url || '';
       list.innerHTML = tracks.map(m => {
         const active = m.Audio_URL === curUrl && !state.settings?.music?.stopped;
+        const albName = m.Album || 'Favorit Kita';
         return `
-          <div class="bg-slate-800/90 border ${active ? 'border-rose-500' : 'border-slate-700/70'} rounded-xl p-3 flex items-center justify-between gap-2">
-            <div onclick="playTrackFromPlaylist('${m.Audio_URL}', '${escapeHtml(m.Judul)}')" class="min-w-0 flex-1 cursor-pointer">
-              <p class="text-xs font-bold ${active ? 'text-rose-400' : 'text-white'} truncate">${escapeHtml(m.Judul)}</p>
-              <p class="text-[10px] text-slate-400">Diupload oleh ${escapeHtml(m.Uploaded_By || 'Kita')}</p>
+          <div class="bg-slate-800 border ${active ? 'border-rose-500 ring-1 ring-rose-500/40' : 'border-slate-700'} rounded-xl p-3 flex items-center justify-between gap-2">
+            <div onclick="playTrackFromPlaylist('${m.Audio_URL}', '${escapeHtml(m.Judul)}', '${escapeHtml(albName)}')" class="min-w-0 flex-1 cursor-pointer">
+              <p class="text-xs font-bold ${active ? 'text-rose-500' : ''} truncate">${escapeHtml(m.Judul)}</p>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-700 text-slate-400">${escapeHtml(albName)}</span>
+                <span class="text-[10px] text-slate-400 truncate">• ${escapeHtml(m.Uploaded_By || 'Kita')}</span>
+              </div>
             </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button onclick="playTrackFromPlaylist('${m.Audio_URL}', '${escapeHtml(m.Judul)}')" class="p-2 rounded-lg bg-rose-500/20 text-rose-400">
+            <div class="flex items-center gap-1 shrink-0">
+              <button onclick="openMoveAlbumModal('${m.ID}')" title="Pindah Album" class="p-2 rounded-lg bg-slate-700 text-slate-400 hover:text-sky-500">
+                <i data-lucide="folder-input" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="playTrackFromPlaylist('${m.Audio_URL}', '${escapeHtml(m.Judul)}', '${escapeHtml(albName)}')" title="Putar" class="p-2 rounded-lg bg-rose-500/20 text-rose-500">
                 <i data-lucide="play" class="w-3.5 h-3.5"></i>
               </button>
-              <button onclick="deleteTrack('${m.ID}')" class="p-2 rounded-lg bg-slate-700/60 text-slate-400 hover:text-rose-400">
+              <button onclick="deleteTrack('${m.ID}')" title="Hapus" class="p-2 rounded-lg bg-slate-700 text-slate-400 hover:text-rose-500">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               </button>
             </div>
@@ -1526,13 +2081,13 @@
     }
 
     // ========================================================
-    // EMOJI & STICKER DRAWER (ANIMATED GIF + CUSTOM STICKER)
+    // EMOJI & STICKER DRAWER
     // ========================================================
     function initStickerPanels() {
       const animPanel = document.getElementById('sticker-panel-animated');
       animPanel.innerHTML = ANIMATED_STICKERS.map(st => `
         <button type="button" onclick="sendSticker('${st.url}', '${escapeHtml(st.label)}')"
-          class="bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60 rounded-xl p-2 flex flex-col items-center justify-center gap-1 active:scale-90 transition-transform">
+          class="bg-slate-700 border border-slate-600 rounded-xl p-2 flex flex-col items-center justify-center gap-1 active:scale-90 transition-transform">
           <img src="${st.url}" alt="${escapeHtml(st.label)}" class="w-12 h-12 object-contain"
             onerror="this.outerHTML='<span class=\\'text-3xl animate-bounce\\'>${st.fallback}</span>'" />
           <span class="text-[9px] text-slate-400 truncate w-full text-center">${escapeHtml(st.label)}</span>
@@ -1542,7 +2097,7 @@
       const emojiPanel = document.getElementById('sticker-panel-emoji');
       emojiPanel.innerHTML = EMOJI_LIST.map(em => `
         <button type="button" onclick="insertEmojiToInput('${em}')"
-          class="p-1.5 rounded-lg hover:bg-slate-800 text-xl flex items-center justify-center active:scale-90 transition-transform">
+          class="p-1.5 rounded-lg text-xl flex items-center justify-center active:scale-90 transition-transform">
           ${em}
         </button>
       `).join('');
@@ -1559,9 +2114,9 @@
         return;
       }
       customPanel.innerHTML = items.map(st => `
-        <div class="relative group bg-slate-800/80 border border-slate-700/60 rounded-xl p-2 flex items-center justify-center">
+        <div class="relative group bg-slate-700 border border-slate-600 rounded-xl p-2 flex items-center justify-center">
           <img src="${st.URL}" onclick="sendSticker('${st.URL}', 'Stiker')" class="w-14 h-14 object-contain cursor-pointer active:scale-90 transition-transform" />
-          <button type="button" onclick="deleteCustomSticker('${st.ID}')" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center shadow">×</button>
+          <button type="button" onclick="deleteCustomSticker('${st.ID}')" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-600 keep-white text-[10px] font-bold flex items-center justify-center shadow">×</button>
         </div>
       `).join('');
     }
@@ -1581,12 +2136,11 @@
         document.getElementById('sticker-panel-' + t).classList.toggle('hidden', t !== tabName);
         const btn = document.getElementById('stab-' + t);
         btn.className = t === tabName
-          ? 'px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 text-white'
-          : 'px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300';
+          ? 'px-3 py-1 rounded-full text-xs font-semibold bg-rose-500 keep-white'
+          : 'px-3 py-1 rounded-full text-xs font-semibold bg-slate-700 text-slate-300';
       });
     }
 
-    // KLIK EMOT MASUK KE TEXT BOX (BUKAN LANGSUNG KEKIRIM)
     function insertEmojiToInput(emoji) {
       const input = document.getElementById('chat-input');
       const start = input.selectionStart ?? input.value.length;
@@ -1645,7 +2199,7 @@
     }
 
     // ========================================================
-    // 1. ROOM CHAT (SWIPE-TO-REPLY, AVATAR KIRI/KANAN, DELETE)
+    // 1. ROOM CHAT (WHATSAPP COMPACT BUBBLES + SWIPE-TO-REPLY)
     // ========================================================
     function setReplyMessage(msgId) {
       const m = state.chat[msgId];
@@ -1702,7 +2256,6 @@
       });
     }
 
-    // Touch & Pointer Swipe-to-Reply Handlers
     function handleChatPointerDown(e, msgId) {
       if (e.button !== undefined && e.button !== 0) return;
       swipeState = {
@@ -1744,7 +2297,6 @@
     function handleChatPointerUp(e, msgId) {
       if (!swipeState.dragging || swipeState.id !== msgId) return;
       const dx = swipeState.currentX;
-      const wasMoved = swipeState.moved;
       swipeState.dragging = false;
 
       const bubbleWrap = document.getElementById(`chat-bubble-wrap-${msgId}`);
@@ -1774,11 +2326,15 @@
       const msgs = Object.values(state.chat);
 
       if (!msgs.length) {
-        inner.innerHTML = `<div class="text-center text-xs text-slate-400 mt-10 bg-slate-900/70 py-2 px-4 rounded-full w-fit mx-auto">Belum ada pesan. Mulai sapa duluan! ❤️</div>`;
+        inner.innerHTML = `<div class="text-center text-xs bg-slate-800 py-2 px-4 rounded-full w-fit mx-auto mt-8 shadow">Belum ada pesan. Mulai sapa duluan! ❤️</div>`;
         return;
       }
 
-      inner.innerHTML = msgs.map(m => {
+      inner.innerHTML = msgs.map((m, idx) => {
+        const prevMsg = idx > 0 ? msgs[idx - 1] : null;
+        const isFirstInGroup = !prevMsg || prevMsg.Sender_ID !== m.Sender_ID;
+        const rowSpacing = idx === 0 ? '' : (isFirstInGroup ? 'mt-2.5' : 'mt-[3px]');
+
         const isMe = m.Sender_ID === currentUser.ID;
         const time = formatTime(m.Waktu);
         const showOpts = activeChatOptionId === m.ID;
@@ -1786,9 +2342,9 @@
 
         const replyQuoteHtml = m.Reply_To ? `
           <div data-reply-quote="1" onclick="event.stopPropagation(); scrollToChatMessage('${m.Reply_To.ID}')"
-            class="mb-1.5 px-2.5 py-1.5 rounded-xl text-left cursor-pointer border-l-4 ${isMe ? 'bg-black/20 border-white/80' : 'bg-slate-900/80 border-rose-500'}">
-            <p class="text-[10px] font-bold ${isMe ? 'text-rose-100' : 'text-rose-400'} truncate">${escapeHtml(m.Reply_To.Sender_Name || 'Pesan')}</p>
-            <p class="text-[11px] ${isMe ? 'text-white/90' : 'text-slate-300'} truncate">${escapeHtml(m.Reply_To.Text || '')}</p>
+            class="mb-1 px-2 py-1 rounded-lg text-left cursor-pointer border-l-[3px] ${isMe ? 'bg-black/15 border-white' : 'bg-slate-700 border-rose-500'}">
+            <p class="text-[11px] font-bold ${isMe ? 'keep-white' : 'text-rose-500'} truncate">${escapeHtml(m.Reply_To.Sender_Name || 'Pesan')}</p>
+            <p class="text-xs opacity-90 truncate">${escapeHtml(m.Reply_To.Text || '')}</p>
           </div>` : '';
 
         let contentHtml = '';
@@ -1796,66 +2352,78 @@
           contentHtml = `
             <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
               ${replyQuoteHtml}
-              <img src="${m.Media_URL}" class="w-28 h-28 sm:w-32 sm:h-32 object-contain drop-shadow-lg" />
-              <span class="text-[10px] text-slate-300 bg-slate-950/60 px-2 py-0.5 rounded-full mt-1">${time}</span>
+              <img src="${m.Media_URL}" class="w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow" />
+              <span class="text-[10px] bg-slate-800/90 px-1.5 py-0.5 rounded-full mt-0.5 shadow-sm">${time}</span>
             </div>`;
         } else {
-          const imgHtml = m.Media_URL ? `<img src="${m.Media_URL}" onclick="openLightbox('${m.Media_URL}')" class="rounded-xl max-h-64 w-auto mb-1.5 cursor-pointer object-cover" />` : '';
-          const textHtml = m.Pesan ? `<p class="text-sm leading-relaxed break-words whitespace-pre-wrap">${escapeHtml(m.Pesan)}</p>` : '';
-          contentHtml = isMe ? `
-            <div class="bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-2xl rounded-br-sm px-3.5 py-2.5 shadow-md">
-              ${replyQuoteHtml}
-              ${imgHtml}
-              ${textHtml}
-              <p class="text-[10px] text-rose-100/80 text-right mt-1">${time}</p>
-            </div>` : `
-            <div class="bg-slate-800/95 backdrop-blur border border-slate-700/70 text-slate-100 rounded-2xl rounded-bl-sm px-3.5 py-2.5 shadow-md">
-              ${replyQuoteHtml}
-              ${imgHtml}
-              ${textHtml}
-              <p class="text-[10px] text-slate-400 mt-1">${time}</p>
-            </div>`;
+          const imgHtml = m.Media_URL ? `<img src="${m.Media_URL}" onclick="openLightbox('${m.Media_URL}')" class="rounded-lg max-h-60 w-auto mb-1 cursor-pointer object-cover" />` : '';
+          const tailClass = isFirstInGroup ? (isMe ? 'rounded-tr-none' : 'rounded-tl-none') : '';
+          const bubbleClass = isMe ? 'wa-bubble-me' : 'wa-bubble-them';
+
+          if (m.Pesan) {
+            contentHtml = `
+              <div class="${bubbleClass} rounded-xl ${tailClass} px-2.5 py-1.5 shadow-sm w-fit max-w-full">
+                ${replyQuoteHtml}
+                ${imgHtml}
+                <div class="text-[15px] leading-[1.35] break-words whitespace-pre-wrap"><span>${escapeHtml(m.Pesan)}</span><span class="float-right ml-2.5 mt-1.5 text-[10px] leading-none opacity-75 select-none">${time}</span><span class="clear-both block"></span></div>
+              </div>`;
+          } else {
+            contentHtml = `
+              <div class="${bubbleClass} rounded-xl ${tailClass} p-1.5 shadow-sm w-fit max-w-full relative">
+                ${replyQuoteHtml}
+                ${imgHtml}
+                <span class="block text-right text-[10px] leading-none opacity-75 px-1">${time}</span>
+              </div>`;
+          }
         }
 
         const actionBarHtml = showOpts ? `
-          <div class="mt-1 flex items-center gap-1.5 ${isMe ? 'justify-end mr-9' : 'justify-start ml-9'}">
-            <button onclick="event.stopPropagation(); setReplyMessage('${m.ID}')" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-sky-400 text-[10px] font-semibold flex items-center gap-1">
+          <div class="mt-1 flex items-center gap-1.5 ${isMe ? 'justify-end mr-8' : 'justify-start ml-8'}">
+            <button onclick="event.stopPropagation(); setReplyMessage('${m.ID}')" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-sky-500 text-[11px] font-semibold flex items-center gap-1 shadow">
               <i data-lucide="reply" class="w-3 h-3"></i> Balas
             </button>
-            <button onclick="event.stopPropagation(); deleteChatMessage('${m.ID}')" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-rose-500/40 text-rose-400 text-[10px] font-semibold flex items-center gap-1">
+            <button onclick="event.stopPropagation(); deleteChatMessage('${m.ID}')" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-rose-500/40 text-rose-500 text-[11px] font-semibold flex items-center gap-1 shadow">
               <i data-lucide="trash-2" class="w-3 h-3"></i> Hapus
             </button>
           </div>` : '';
 
+        const myAvatarHtml = isFirstInGroup
+          ? `<img src="${currentUser.Avatar_URL}" class="w-6 h-6 rounded-full object-cover border border-rose-500/40 shrink-0 mt-0.5" />`
+          : `<div class="w-6 shrink-0"></div>`;
+
+        const partnerAvatarHtml = isFirstInGroup
+          ? `<img src="${partner.Avatar_URL}" onclick="event.stopPropagation(); openPartnerProfileModal()" class="w-6 h-6 rounded-full object-cover border border-slate-600 shrink-0 mt-0.5 cursor-pointer" />`
+          : `<div class="w-6 shrink-0"></div>`;
+
         if (isMe) {
           return `
-            <div id="chat-row-${m.ID}" class="chat-swipe-row relative w-full flex flex-col items-end"
+            <div id="chat-row-${m.ID}" class="chat-swipe-row relative w-full flex flex-col items-end ${rowSpacing}"
               onpointerdown="handleChatPointerDown(event, '${m.ID}')"
               onpointermove="handleChatPointerMove(event, '${m.ID}')"
               onpointerup="handleChatPointerUp(event, '${m.ID}')"
               onpointercancel="handleChatPointerUp(event, '${m.ID}')">
-              <div id="chat-swipe-icon-${m.ID}" style="opacity:0" class="absolute right-12 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-800/90 text-rose-400 flex items-center justify-center pointer-events-none">
-                <i data-lucide="reply" class="w-4 h-4"></i>
+              <div id="chat-swipe-icon-${m.ID}" style="opacity:0" class="absolute right-10 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-800 text-rose-500 flex items-center justify-center pointer-events-none shadow">
+                <i data-lucide="reply" class="w-3.5 h-3.5"></i>
               </div>
-              <div id="chat-bubble-wrap-${m.ID}" onclick="toggleChatOptionBar('${m.ID}', event)" class="flex items-end justify-end gap-2 max-w-[85%] sm:max-w-[72%] md:max-w-[60%] cursor-pointer">
-                <div class="min-w-0">${contentHtml}</div>
-                <img src="${currentUser.Avatar_URL}" class="w-7 h-7 rounded-full object-cover bg-slate-800 border border-rose-500/40 shrink-0" />
+              <div id="chat-bubble-wrap-${m.ID}" onclick="toggleChatOptionBar('${m.ID}', event)" class="flex items-start justify-end gap-1.5 max-w-[82%] sm:max-w-[66%] md:max-w-[52%] cursor-pointer">
+                <div class="min-w-0 flex flex-col items-end">${contentHtml}</div>
+                ${myAvatarHtml}
               </div>
               ${actionBarHtml}
             </div>`;
         } else {
           return `
-            <div id="chat-row-${m.ID}" class="chat-swipe-row relative w-full flex flex-col items-start"
+            <div id="chat-row-${m.ID}" class="chat-swipe-row relative w-full flex flex-col items-start ${rowSpacing}"
               onpointerdown="handleChatPointerDown(event, '${m.ID}')"
               onpointermove="handleChatPointerMove(event, '${m.ID}')"
               onpointerup="handleChatPointerUp(event, '${m.ID}')"
               onpointercancel="handleChatPointerUp(event, '${m.ID}')">
-              <div id="chat-swipe-icon-${m.ID}" style="opacity:0" class="absolute left-12 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-800/90 text-rose-400 flex items-center justify-center pointer-events-none">
-                <i data-lucide="reply" class="w-4 h-4"></i>
+              <div id="chat-swipe-icon-${m.ID}" style="opacity:0" class="absolute left-10 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-800 text-rose-500 flex items-center justify-center pointer-events-none shadow">
+                <i data-lucide="reply" class="w-3.5 h-3.5"></i>
               </div>
-              <div id="chat-bubble-wrap-${m.ID}" onclick="toggleChatOptionBar('${m.ID}', event)" class="flex items-end justify-start gap-2 max-w-[85%] sm:max-w-[72%] md:max-w-[60%] cursor-pointer">
-                <img src="${partner.Avatar_URL}" onclick="event.stopPropagation(); openPartnerProfileModal()" class="w-7 h-7 rounded-full object-cover bg-slate-800 border border-slate-700 shrink-0 cursor-pointer" />
-                <div class="min-w-0">${contentHtml}</div>
+              <div id="chat-bubble-wrap-${m.ID}" onclick="toggleChatOptionBar('${m.ID}', event)" class="flex items-start justify-start gap-1.5 max-w-[82%] sm:max-w-[66%] md:max-w-[52%] cursor-pointer">
+                ${partnerAvatarHtml}
+                <div class="min-w-0 flex flex-col items-start">${contentHtml}</div>
               </div>
               ${actionBarHtml}
             </div>`;
@@ -1914,7 +2482,7 @@
     }
 
     // ========================================================
-    // 2. CELENGAN MULTI-KANTONG (+ DELETE)
+    // 2. CELENGAN MULTI-KANTONG
     // ========================================================
     function deleteCelenganPos(idPos, namaPos) {
       askConfirmDelete(`Hapus Pos "${namaPos}"?`, 'Semua riwayat mutasi di dalam pos ini juga akan dihapus.', async () => {
@@ -1943,7 +2511,7 @@
 
       if (!posList.length) {
         document.getElementById('total-celengan-all').textContent = 'Rp 0';
-        list.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-8 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Belum ada pos tabungan. Klik "+ Pos Baru" di atas!</div>`;
+        list.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-8 bg-slate-800 rounded-2xl border border-dashed border-slate-700">Belum ada pos tabungan. Klik "+ Pos Baru" di atas!</div>`;
         return;
       }
 
@@ -1956,25 +2524,25 @@
         const tglText = pos.Target_Tanggal ? `Target: ${formatDate(pos.Target_Tanggal)}` : 'Tanpa batas waktu';
 
         return `
-          <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between">
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-md flex flex-col justify-between">
             <div class="h-32 w-full relative">
               <img src="${pos.Cover_URL}" class="w-full h-full object-cover" />
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
-              <button onclick="deleteCelenganPos('${pos.ID_Pos}', '${escapeHtml(pos.Nama_Pos)}')" title="Hapus Pos" class="absolute top-2.5 right-2.5 p-2 rounded-xl bg-black/60 hover:bg-rose-600 text-slate-200 hover:text-white transition-colors">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent"></div>
+              <button onclick="deleteCelenganPos('${pos.ID_Pos}', '${escapeHtml(pos.Nama_Pos)}')" title="Hapus Pos" class="absolute top-2.5 right-2.5 p-2 rounded-xl bg-black/60 hover:bg-rose-600 keep-white transition-colors">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               </button>
-              <div class="absolute bottom-2.5 left-3.5 right-3.5 flex justify-between items-end">
+              <div class="absolute bottom-2.5 left-3.5 right-3.5 flex justify-between items-end keep-white">
                 <div>
-                  <h4 class="font-bold text-base text-white">${escapeHtml(pos.Nama_Pos)}</h4>
-                  <p class="text-[11px] text-slate-300">${tglText}</p>
+                  <h4 class="font-bold text-base">${escapeHtml(pos.Nama_Pos)}</h4>
+                  <p class="text-[11px] opacity-85">${tglText}</p>
                 </div>
-                <span class="bg-rose-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg">${pct}%</span>
+                <span class="bg-rose-500 text-xs font-bold px-2.5 py-1 rounded-lg">${pct}%</span>
               </div>
             </div>
             <div class="p-4 space-y-3">
               <div>
                 <div class="flex justify-between text-xs mb-1.5">
-                  <span class="text-emerald-400 font-bold">${formatRupiah(terkumpul)}</span>
+                  <span class="text-emerald-500 font-bold">${formatRupiah(terkumpul)}</span>
                   <span class="text-slate-400">dari ${formatRupiah(target)}</span>
                 </div>
                 <div class="w-full h-2.5 bg-slate-700 rounded-full overflow-hidden">
@@ -1982,10 +2550,10 @@
                 </div>
               </div>
               <div class="grid grid-cols-2 gap-2 pt-1">
-                <button onclick="openDetailPos('${pos.ID_Pos}')" class="py-2 rounded-xl bg-slate-700/70 hover:bg-slate-700 text-xs font-semibold text-slate-200">
+                <button onclick="openDetailPos('${pos.ID_Pos}')" class="py-2 rounded-xl bg-slate-700 text-xs font-semibold">
                   Riwayat (${mutasi.length})
                 </button>
-                <button onclick="openTxModal('${pos.ID_Pos}', '${escapeHtml(pos.Nama_Pos)}')" class="py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
+                <button onclick="openTxModal('${pos.ID_Pos}', '${escapeHtml(pos.Nama_Pos)}')" class="py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-500 text-xs font-semibold">
                   + Setor / Tarik
                 </button>
               </div>
@@ -2070,23 +2638,23 @@
       const sumU2 = mutasi.filter(m => m.Sender_ID === u2.ID).reduce((a, b) => b.Jenis === 'Setor' ? a + Number(b.Nominal) : a - Number(b.Nominal), 0);
 
       document.getElementById('detail-pos-stats').innerHTML = `
-        <div class="flex justify-between"><span>Kontribusi ${escapeHtml(u1.Nama)}:</span><span class="font-bold text-rose-400">${formatRupiah(sumU1)}</span></div>
-        <div class="flex justify-between"><span>Kontribusi ${escapeHtml(u2.Nama)}:</span><span class="font-bold text-pink-400">${formatRupiah(sumU2)}</span></div>
+        <div class="flex justify-between"><span>Kontribusi ${escapeHtml(u1.Nama)}:</span><span class="font-bold text-rose-500">${formatRupiah(sumU1)}</span></div>
+        <div class="flex justify-between"><span>Kontribusi ${escapeHtml(u2.Nama)}:</span><span class="font-bold text-pink-500">${formatRupiah(sumU2)}</span></div>
       `;
 
       document.getElementById('detail-pos-mutasi').innerHTML = mutasi.length ? mutasi.map(m => {
         const sender = state.users[m.Sender_ID]?.Nama || m.Sender_ID;
         const isSetor = m.Jenis === 'Setor';
         return `
-          <div class="bg-slate-800 border border-slate-700/60 rounded-xl p-3 flex justify-between items-center gap-2">
+          <div class="bg-slate-800 border border-slate-700 rounded-xl p-3 flex justify-between items-center gap-2">
             <div>
-              <p class="text-xs font-bold ${isSetor ? 'text-emerald-400' : 'text-rose-400'}">${isSetor ? '+' : '-'} ${formatRupiah(m.Nominal)}</p>
-              <p class="text-[11px] text-slate-300">${escapeHtml(sender)} • ${escapeHtml(m.Catatan || m.Jenis)}</p>
+              <p class="text-xs font-bold ${isSetor ? 'text-emerald-500' : 'text-rose-500'}">${isSetor ? '+' : '-'} ${formatRupiah(m.Nominal)}</p>
+              <p class="text-[11px]">${escapeHtml(sender)} • ${escapeHtml(m.Catatan || m.Jenis)}</p>
               <p class="text-[10px] text-slate-500">${formatDate(m.Waktu)}</p>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
-              ${m.Bukti_URL ? `<button onclick="openLightbox('${m.Bukti_URL}')" class="text-[11px] bg-slate-700 px-2.5 py-1.5 rounded-lg text-sky-400">Bukti</button>` : ''}
-              <button onclick="deleteCelenganMutasi('${m.ID_Tx}', '${idPos}')" class="p-1.5 rounded-lg bg-slate-700/70 text-slate-400 hover:text-rose-400">
+              ${m.Bukti_URL ? `<button onclick="openLightbox('${m.Bukti_URL}')" class="text-[11px] bg-slate-700 px-2.5 py-1.5 rounded-lg text-sky-500">Bukti</button>` : ''}
+              <button onclick="deleteCelenganMutasi('${m.ID_Tx}', '${idPos}')" class="p-1.5 rounded-lg bg-slate-700 text-slate-400 hover:text-rose-500">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               </button>
             </div>
@@ -2150,10 +2718,10 @@
       strip.innerHTML = selectedVaultFiles.map((file, idx) => {
         const blobUrl = URL.createObjectURL(file);
         return `
-          <div class="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-700 shrink-0 bg-slate-800">
+          <div class="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-700 shrink-0">
             <img src="${blobUrl}" class="w-full h-full object-cover" />
-            <span class="absolute bottom-1 left-1 bg-black/75 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">${idx + 1}</span>
-            <button type="button" onclick="removeVaultSelectedFile(${idx})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-600 text-white text-xs font-bold flex items-center justify-center shadow">×</button>
+            <span class="absolute bottom-1 left-1 bg-black/75 keep-white text-[10px] font-bold px-1.5 py-0.5 rounded">${idx + 1}</span>
+            <button type="button" onclick="removeVaultSelectedFile(${idx})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-600 keep-white text-xs font-bold flex items-center justify-center shadow">×</button>
           </div>`;
       }).join('');
     }
@@ -2202,7 +2770,7 @@
       const list = document.getElementById('vault-list');
       const items = Object.values(state.vault).reverse();
       if (!items.length) {
-        list.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-10 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Belum ada foto di Memory Vault. Upload momen pertama kalian!</div>`;
+        list.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-10 bg-slate-800 rounded-2xl border border-dashed border-slate-700">Belum ada foto di Memory Vault. Upload momen pertama kalian!</div>`;
         return;
       }
 
@@ -2214,7 +2782,7 @@
         let mediaSection = '';
         if (isMulti) {
           const slidesHtml = photos.map((url, idx) => `
-            <div class="w-full shrink-0 snap-center bg-slate-950 flex items-center justify-center">
+            <div class="w-full shrink-0 snap-center bg-black flex items-center justify-center">
               <img src="${url}" onclick="openLightboxGallery('${v.ID}', ${idx})" class="w-full h-80 sm:h-96 object-cover cursor-pointer" />
             </div>
           `).join('');
@@ -2224,20 +2792,20 @@
           `).join('');
 
           mediaSection = `
-            <div class="relative group bg-slate-950">
+            <div class="relative group bg-black">
               <div id="vault-slider-${v.ID}" onscroll="updateVaultSlideIndicator('${v.ID}', ${photos.length})"
                 class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar">
                 ${slidesHtml}
               </div>
-              <span id="vault-counter-${v.ID}" class="absolute top-3 right-3 bg-black/70 backdrop-blur text-white text-[11px] font-bold px-2.5 py-1 rounded-full pointer-events-none">
+              <span id="vault-counter-${v.ID}" class="absolute top-3 right-3 bg-black/70 backdrop-blur keep-white text-[11px] font-bold px-2.5 py-1 rounded-full pointer-events-none">
                 1/${photos.length}
               </span>
               <button onclick="stepVaultSlide('${v.ID}', -1, ${photos.length})" aria-label="Sebelumnya"
-                class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center">
+                class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 keep-white flex items-center justify-center">
                 <i data-lucide="chevron-left" class="w-4 h-4"></i>
               </button>
               <button onclick="stepVaultSlide('${v.ID}', 1, ${photos.length})" aria-label="Berikutnya"
-                class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center">
+                class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 keep-white flex items-center justify-center">
                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
               </button>
             </div>
@@ -2247,28 +2815,28 @@
           `;
         } else if (photos.length === 1) {
           mediaSection = `
-            <img src="${photos[0]}" onclick="openLightboxGallery('${v.ID}', 0)" class="w-full h-80 sm:h-96 object-cover cursor-pointer bg-slate-950" />
+            <img src="${photos[0]}" onclick="openLightboxGallery('${v.ID}', 0)" class="w-full h-80 sm:h-96 object-cover cursor-pointer bg-black" />
           `;
         }
 
         return `
-          <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl overflow-hidden shadow-lg">
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-md">
             <div class="px-3.5 py-2.5 flex items-center justify-between gap-2">
               <div class="flex items-center gap-2 min-w-0">
-                <img src="${uploader?.Avatar_URL || ''}" class="w-6 h-6 rounded-full object-cover bg-slate-700 shrink-0" />
+                <img src="${uploader?.Avatar_URL || ''}" class="w-6 h-6 rounded-full object-cover shrink-0" />
                 <span class="text-xs font-semibold truncate">${escapeHtml(uploader?.Nama || 'Kita')}</span>
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <span class="text-[10px] text-slate-400">${formatDate(v.Tanggal)}</span>
-                <button onclick="deleteVaultPost('${v.ID}', '${escapeHtml(v.Judul)}')" title="Hapus Postingan" class="p-1.5 rounded-lg bg-slate-700/60 hover:bg-rose-600/80 text-slate-300 hover:text-white transition-colors">
+                <button onclick="deleteVaultPost('${v.ID}', '${escapeHtml(v.Judul)}')" title="Hapus Postingan" class="p-1.5 rounded-lg bg-slate-700 text-slate-400 hover:text-rose-500 transition-colors">
                   <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                 </button>
               </div>
             </div>
             ${mediaSection}
             <div class="p-3.5">
-              <h4 class="font-bold text-sm text-white">${escapeHtml(v.Judul)}</h4>
-              ${v.Cerita ? `<p class="text-xs text-slate-300 mt-1 leading-relaxed whitespace-pre-wrap">${escapeHtml(v.Cerita)}</p>` : ''}
+              <h4 class="font-bold text-sm">${escapeHtml(v.Judul)}</h4>
+              ${v.Cerita ? `<p class="text-xs text-slate-400 mt-1 leading-relaxed whitespace-pre-wrap">${escapeHtml(v.Cerita)}</p>` : ''}
             </div>
           </div>`;
       }).join('');
@@ -2320,7 +2888,7 @@
         const btn = document.getElementById('wcat-' + c);
         if (!btn) return;
         btn.className = c === cat
-          ? 'px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500 text-white shrink-0'
+          ? 'px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500 keep-white shrink-0'
           : 'px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 shrink-0';
       });
       renderWishlist();
@@ -2333,8 +2901,8 @@
         const btn = document.getElementById('wish-filter-' + s);
         if (!btn) return;
         btn.className = s === status
-          ? 'px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-700 text-white'
-          : 'px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-800/70 text-slate-400';
+          ? 'px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-700'
+          : 'px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-400';
       });
       renderWishlist();
       lucide.createIcons();
@@ -2380,7 +2948,6 @@
       const catFiltered = wishCatFilter === 'ALL' ? all : all.filter(w => w.Kategori === wishCatFilter);
       const items = wishStatusFilter === 'ALL' ? catFiltered : catFiltered.filter(w => w.Status === wishStatusFilter);
 
-      // Update Summary Budget based on current category view
       const totalEst = catFiltered.reduce((acc, w) => acc + Number(w.Harga || 0), 0);
       const boughtList = catFiltered.filter(w => w.Status === 'Tercapai');
       const totalBought = boughtList.reduce((acc, w) => acc + Number(w.Harga || 0), 0);
@@ -2388,43 +2955,43 @@
       document.getElementById('wish-bought-summary').textContent = `Terbeli: ${formatRupiah(totalBought)} (${boughtList.length}/${catFiltered.length} item)`;
 
       if (!items.length) {
-        list.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-10 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">Belum ada item di kategori ini. Klik "+ Tambah Barang / List" di atas!</div>`;
+        list.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-10 bg-slate-800 rounded-2xl border border-dashed border-slate-700">Belum ada item di kategori ini. Klik "+ Tambah Barang / List" di atas!</div>`;
         return;
       }
 
       list.innerHTML = items.map(w => {
         const done = w.Status === 'Tercapai';
         return `
-          <div class="bg-slate-800/90 border ${done ? 'border-emerald-500/40' : 'border-slate-700/80'} rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between">
+          <div class="bg-slate-800 border ${done ? 'border-emerald-500/50' : 'border-slate-700'} rounded-2xl overflow-hidden shadow-md flex flex-col justify-between">
             <div>
-              <div class="relative h-40 w-full bg-slate-900">
+              <div class="relative h-40 w-full bg-black">
                 <img src="${w.Foto_URL}" onclick="openLightbox('${w.Foto_URL}')" class="w-full h-full object-cover cursor-pointer" />
-                <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                  <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-black/70 backdrop-blur text-slate-200">${escapeHtml(w.Kategori)}</span>
-                  ${done ? `<span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500 text-white font-bold">Terbeli ✓</span>` : ''}
+                <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 keep-white">
+                  <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-black/70 backdrop-blur">${escapeHtml(w.Kategori)}</span>
+                  ${done ? `<span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500 font-bold">Terbeli ✓</span>` : ''}
                 </div>
-                <div class="absolute top-2.5 right-2.5 flex items-center gap-1">
-                  <button onclick="openEditWishModal('${w.ID}')" title="Edit" class="p-1.5 rounded-lg bg-black/65 hover:bg-slate-700 text-slate-200">
+                <div class="absolute top-2.5 right-2.5 flex items-center gap-1 keep-white">
+                  <button onclick="openEditWishModal('${w.ID}')" title="Edit" class="p-1.5 rounded-lg bg-black/65">
                     <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                   </button>
-                  <button onclick="deleteWishItem('${w.ID}', '${escapeHtml(w.Nama_Item)}')" title="Hapus" class="p-1.5 rounded-lg bg-black/65 hover:bg-rose-600 text-slate-200">
+                  <button onclick="deleteWishItem('${w.ID}', '${escapeHtml(w.Nama_Item)}')" title="Hapus" class="p-1.5 rounded-lg bg-black/65 hover:bg-rose-600">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                   </button>
                 </div>
               </div>
               <div class="p-3.5">
-                <h4 class="font-bold text-sm ${done ? 'line-through text-slate-400' : 'text-white'}">${escapeHtml(w.Nama_Item)}</h4>
-                <p class="text-xs text-rose-400 font-extrabold mt-0.5">${Number(w.Harga) > 0 ? formatRupiah(w.Harga) : 'Estimasi harga belum diisi'}</p>
-                ${w.Deskripsi ? `<p class="text-xs text-slate-300 mt-2 leading-relaxed whitespace-pre-wrap">${escapeHtml(w.Deskripsi)}</p>` : ''}
+                <h4 class="font-bold text-sm ${done ? 'line-through text-slate-400' : ''}">${escapeHtml(w.Nama_Item)}</h4>
+                <p class="text-xs text-rose-500 font-extrabold mt-0.5">${Number(w.Harga) > 0 ? formatRupiah(w.Harga) : 'Estimasi harga belum diisi'}</p>
+                ${w.Deskripsi ? `<p class="text-xs text-slate-400 mt-2 leading-relaxed whitespace-pre-wrap">${escapeHtml(w.Deskripsi)}</p>` : ''}
               </div>
             </div>
 
             <div class="px-3.5 pb-3.5 pt-1 flex items-center gap-2">
-              <button onclick="toggleWish('${w.ID}')" class="flex-1 text-xs py-2 px-3 rounded-xl font-semibold ${done ? 'bg-slate-700 text-slate-300' : 'bg-emerald-500 hover:bg-emerald-600 text-white'}">
+              <button onclick="toggleWish('${w.ID}')" class="flex-1 text-xs py-2 px-3 rounded-xl font-semibold ${done ? 'bg-slate-700' : 'bg-emerald-500 hover:bg-emerald-600 keep-white'}">
                 ${done ? 'Batal Terbeli' : '✓ Tandai Terbeli'}
               </button>
               ${w.Link_URL ? `
-                <a href="${w.Link_URL}" target="_blank" class="text-xs py-2 px-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-sky-400 font-semibold flex items-center gap-1 shrink-0">
+                <a href="${w.Link_URL}" target="_blank" class="text-xs py-2 px-3 rounded-xl bg-slate-700 text-sky-500 font-semibold flex items-center gap-1 shrink-0">
                   <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Link
                 </a>` : ''}
             </div>
@@ -2500,6 +3067,7 @@
       document.getElementById('prof-nama').value = currentUser.Nama;
       document.getElementById('prof-bio').value = currentUser.Bio || '';
       document.getElementById('prof-pin').value = '';
+      applyAppTheme(currentTheme, false);
       openModal('modal-settings');
       lucide.createIcons();
     }
