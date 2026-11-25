@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.ourspace_ecru.twa",
+        "sha256_cert_fingerprints": ["B0:7A:DB:15:84:93:40:ED:F4:C2:25:07:90:DA:B7:7D:F5:E2:31:7C:D4:F7:54:E1:73:5B:4E:F5:A9:44:65:B4"]
+      }
+    }]
