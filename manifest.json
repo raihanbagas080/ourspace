@@ -1,12 +1,12 @@
 {
   "name": "OurSpace",
   "short_name": "OurSpace",
-  "description": "Ruang Privat Kita Berdua",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/833/833472.png",
