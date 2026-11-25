@@ -1132,54 +1132,6 @@
       </div>
     </div>
 
-    <!-- MODAL: TAMBAH / EDIT LIST BARANG (CUSTOM LIST + MULTI-LINK MAX 3) -->
-    <div id="modal-new-wish" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 max-h-[88dvh] overflow-y-auto no-scrollbar space-y-3">
-        <div class="flex justify-between items-center">
-          <h3 id="wish-modal-heading" class="font-bold text-base">Tambah List Barang / Persiapan</h3>
-          <button onclick="closeModal('modal-new-wish')" class="text-slate-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-        <input type="hidden" id="wish-edit-id" />
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">Nama Barang / Kebutuhan *</label>
-          <input id="wish-nama" type="text" autocomplete="off" placeholder="Contoh: Smart TV 43 Inch / Mahar / Kasur" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
-        </div>
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">Kategori / List</label>
-          <div class="flex gap-2">
-            <select id="wish-kategori" class="flex-1 border rounded-xl px-3 py-2.5 text-sm min-w-0"></select>
-            <button type="button" onclick="openModal('modal-new-wish-cat')" class="px-3 py-2 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-500 text-xs font-bold shrink-0">
-              + Baru
-            </button>
-          </div>
-        </div>
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">Estimasi Harga (Rp)</label>
-          <input id="wish-harga" type="number" placeholder="Contoh: 3500000" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
-        </div>
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">Deskripsi / Catatan Spesifikasi</label>
-          <textarea id="wish-deskripsi" rows="2" placeholder="Contoh: Merk Samsung / LG 4K UHD, ukuran 43 inch untuk ruang tamu" class="w-full border rounded-xl px-3.5 py-2 text-sm"></textarea>
-        </div>
-
-        <div class="space-y-2 bg-slate-800 border border-slate-700 rounded-xl p-3">
-          <div class="flex items-center justify-between">
-            <label class="text-[11px] font-bold text-rose-500">Link Produk / Toko (Maks. 3 Link)</label>
-            <button type="button" id="btn-add-wish-link" onclick="addWishLinkSlot()" class="text-[11px] font-bold text-emerald-500 flex items-center gap-1">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Link
-            </button>
-          </div>
-          <div id="wish-links-container" class="space-y-2.5"></div>
-        </div>
-
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">Foto Barang / Referensi</label>
-          <input id="wish-foto" type="file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800" />
-        </div>
-        <button onclick="submitNewWish()" class="w-full bg-rose-500 hover:bg-rose-600 keep-white font-semibold py-3 rounded-xl text-sm">Simpan ke List</button>
-      </div>
-    </div>
-
     <!-- MODAL: KONFIRMASI HAPUS -->
     <div id="modal-confirm-delete" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-2xl">
@@ -1312,7 +1264,6 @@
     let wishCatFilter = 'ALL';
     let wishStatusFilter = 'ALL';
     let wishViewMode = 'card';
-    let wishStatusFilter = 'ALL';
     let wishFormLinks = [{ source: 'Shopee', customSource: '', url: '' }];
     let chatAttachmentFile = null;
     let replyingToMessage = null;
@@ -3936,6 +3887,78 @@
           `${currentUser.Nama} nyentang: ${item.Nama_Item}`
         );
       }
+    }
+    
+        function getNormalizedItemLinks(w) {
+      if (Array.isArray(w.Links) && w.Links.length) return w.Links.filter(l => l && l.url);
+      if (w.Links && typeof w.Links === 'object') return Object.values(w.Links).filter(l => l && l.url);
+      if (w.Link_URL) return [{ source: 'Link Produk', url: w.Link_URL }];
+      return [];
+    }
+
+    function getLinkBadgeStyle(source) {
+      const s = String(source || '').toLowerCase();
+      if (s.includes('shopee')) return { icon: '🛍️', bg: 'bg-orange-500/15 border-orange-500/40 text-orange-500' };
+      if (s.includes('tokopedia')) return { icon: '🟢', bg: 'bg-emerald-500/15 border-emerald-500/40 text-emerald-500' };
+      if (s.includes('tiktok')) return { icon: '🎵', bg: 'bg-pink-500/15 border-pink-500/40 text-pink-500' };
+      if (s.includes('lazada')) return { icon: '💙', bg: 'bg-blue-500/15 border-blue-500/40 text-blue-500' };
+      if (s.includes('maps')) return { icon: '📍', bg: 'bg-sky-500/15 border-sky-500/40 text-sky-500' };
+      return { icon: '🔗', bg: 'bg-slate-700 border-slate-600 text-rose-500' };
+    }
+
+    function renderWishLinkInputs() {
+      const container = document.getElementById('wish-links-container');
+      const addBtn = document.getElementById('btn-add-wish-link');
+      if (!container) return;
+
+      if (addBtn) addBtn.classList.toggle('hidden', wishFormLinks.length >= 3);
+
+      container.innerHTML = wishFormLinks.map((lnk, idx) => `
+        <div class="space-y-1.5 bg-slate-900 border border-slate-700 rounded-xl p-2.5">
+          <div class="flex items-center gap-2">
+            <select onchange="updateWishLinkField(${idx}, 'source', this.value)"
+              class="border rounded-lg px-2 py-1.5 text-xs font-semibold shrink-0">
+              ${LINK_SOURCES.map(src => `<option value="${src}" ${lnk.source === src ? 'selected' : ''}>${src}</option>`).join('')}
+            </select>
+            <input type="url" value="${escapeHtml(lnk.url)}" oninput="updateWishLinkField(${idx}, 'url', this.value)"
+              placeholder="Tempel link https://..." class="flex-1 border rounded-lg px-2.5 py-1.5 text-xs min-w-0" />
+            ${wishFormLinks.length > 1 ? `
+              <button type="button" onclick="removeWishLinkSlot(${idx})" class="p-1 text-slate-400 hover:text-rose-500 shrink-0">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>` : ''}
+          </div>
+          ${lnk.source === 'Custom' ? `
+            <input type="text" value="${escapeHtml(lnk.customSource)}" oninput="updateWishLinkField(${idx}, 'customSource', this.value)"
+              placeholder="Nama toko/sumber (misal: IKEA / Web Resmi)" class="w-full border rounded-lg px-2.5 py-1.5 text-xs" />
+          ` : ''}
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function updateWishLinkField(idx, field, val) {
+      if (!wishFormLinks[idx]) return;
+      wishFormLinks[idx][field] = val;
+      if (field === 'source') renderWishLinkInputs();
+    }
+
+    function addWishLinkSlot() {
+      if (wishFormLinks.length >= 3) return showToast('Maksimal 3 link per item');
+      wishFormLinks.push({ source: 'Tokopedia', customSource: '', url: '' });
+      renderWishLinkInputs();
+    }
+
+    function removeWishLinkSlot(idx) {
+      wishFormLinks.splice(idx, 1);
+      if (!wishFormLinks.length) wishFormLinks.push({ source: 'Shopee', customSource: '', url: '' });
+      renderWishLinkInputs();
+    }
+
+    function deleteWishItem(id, namaItem) {
+      askConfirmDelete(`Hapus "${namaItem}"?`, 'Item ini akan dihapus dari daftar list.', async () => {
+        await db.ref(`wishlist/${id}`).remove();
+        showToast('Item dihapus dari list');
+      });
     }
 
     // ========================================================
