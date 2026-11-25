@@ -1369,6 +1369,7 @@
         saveCache();
         if (currentUser) {
           renderChat();
+          markPartnerMessagesAsRead();
           lucide.createIcons();
         }
       });
@@ -2660,13 +2661,42 @@
 
       setTimeout(() => { swipeState.moved = false; }, 60);
     }
+    
+    function markPartnerMessagesAsRead() {
+      if (!currentUser || currentTab !== 'chat' || document.hidden) return;
+      const updates = {};
+      Object.values(state.chat || {}).forEach(m => {
+        if (m && m.ID && m.Sender_ID !== currentUser.ID && !m.read) {
+          updates[`chat/${m.ID}/read`] = true;
+        }
+      });
+      if (Object.keys(updates).length > 0) {
+        db.ref().update(updates).catch(() => {});
+      }
+    }
 
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) markPartnerMessagesAsRead();
+    });
+    window.addEventListener('focus', markPartnerMessagesAsRead);
+
+    function renderChatTicks(m, isMe, partnerOnline) {
+      if (!isMe) return '';
+      if (m.read) {
+        return `<svg class="inline-block w-3.5 h-3.5 ml-1 text-sky-300 align-text-bottom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg>`;
+      }
+      if (partnerOnline) {
+        return `<svg class="inline-block w-3.5 h-3.5 ml-1 opacity-90 align-text-bottom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg>`;
+      }
+      return `<svg class="inline-block w-3.5 h-3.5 ml-1 opacity-75 align-text-bottom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+    }
+    
     function renderChat() {
       const box = document.getElementById('chat-messages');
       const inner = document.getElementById('chat-messages-inner');
       const isAtBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 140;
       const partnerId = currentUser.ID === 'user1' ? 'user2' : 'user1';
-      const partner = state.users[partnerId] || { Avatar_URL: '' };
+      const partner = state.users[partnerId] || { Avatar_URL: '', online: false };
       const msgs = Object.values(state.chat);
 
       if (!msgs.length) {
@@ -2681,6 +2711,7 @@
 
         const isMe = m.Sender_ID === currentUser.ID;
         const time = formatTime(m.Waktu);
+        const ticksHtml = renderChatTicks(m, isMe, Boolean(partner.online));
         const showOpts = activeChatOptionId === m.ID;
         const isSticker = m.Type === 'sticker';
         const isVoice = m.Type === 'voice';
@@ -2700,7 +2731,7 @@
             <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
               ${replyQuoteHtml}
               <img src="${m.Media_URL}" class="w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow" />
-              <span class="text-[10px] bg-slate-800/90 px-1.5 py-0.5 rounded-full mt-0.5 shadow-sm">${time}</span>
+              <span class="text-[10px] bg-slate-800/90 px-1.5 py-0.5 rounded-full mt-0.5 shadow-sm inline-flex items-center">${time}${ticksHtml}</span>
             </div>`;
         } else if (isVoice && m.Media_URL) {
           const tailClass = isFirstInGroup ? (isMe ? 'rounded-tr-none' : 'rounded-tl-none') : '';
@@ -2712,9 +2743,9 @@
                 <i data-lucide="mic" class="w-4 h-4 shrink-0"></i>
                 <audio controls preload="metadata" src="${m.Media_URL}" onclick="event.stopPropagation()" class="vn-audio"></audio>
               </div>
-              <div class="flex items-center justify-between text-[10px] opacity-80 mt-1 px-0.5">
+              <div class="flex items-center justify-between text-[10px] opacity-80 mt-1 px-0.5 gap-2">
                 <span>Voice Note ${m.Duration ? '• ' + escapeHtml(m.Duration) : ''}</span>
-                <span>${time}</span>
+                <span class="inline-flex items-center">${time}${ticksHtml}</span>
               </div>
             </div>`;
         } else if (isVideo && m.Media_URL) {
@@ -2724,7 +2755,7 @@
             <div class="${bubbleClass} rounded-xl ${tailClass} p-1.5 shadow-sm w-fit max-w-full">
               ${replyQuoteHtml}
               <video src="${m.Media_URL}" controls playsinline onclick="event.stopPropagation()" class="rounded-lg max-h-60 w-auto mb-1 bg-black"></video>
-              ${m.Pesan ? `<div class="text-[15px] leading-[1.35] break-words whitespace-pre-wrap px-1"><span>${escapeHtml(m.Pesan)}</span><span class="float-right ml-2.5 mt-1.5 text-[10px] leading-none opacity-75">${time}</span><span class="clear-both block"></span></div>` : `<span class="block text-right text-[10px] leading-none opacity-75 px-1">${time}</span>`}
+              ${m.Pesan ? `<div class="text-[15px] leading-[1.35] break-words whitespace-pre-wrap px-1"><span>${escapeHtml(m.Pesan)}</span><span class="float-right ml-2.5 mt-1.5 text-[10px] leading-none opacity-85 inline-flex items-center">${time}${ticksHtml}</span><span class="clear-both block"></span></div>` : `<span class="flex justify-end items-center text-[10px] leading-none opacity-85 px-1">${time}${ticksHtml}</span>`}
             </div>`;
         } else if (isFile && m.Media_URL) {
           const tailClass = isFirstInGroup ? (isMe ? 'rounded-tr-none' : 'rounded-tl-none') : '';
@@ -2744,7 +2775,7 @@
                 </div>
                 <i data-lucide="download" class="w-4 h-4 shrink-0 opacity-85"></i>
               </a>
-              ${m.Pesan ? `<div class="text-[15px] leading-[1.35] break-words whitespace-pre-wrap mt-1.5 px-0.5"><span>${escapeHtml(m.Pesan)}</span><span class="float-right ml-2.5 mt-1.5 text-[10px] leading-none opacity-75">${time}</span><span class="clear-both block"></span></div>` : `<span class="block text-right text-[10px] leading-none opacity-75 mt-1 px-0.5">${time}</span>`}
+              ${m.Pesan ? `<div class="text-[15px] leading-[1.35] break-words whitespace-pre-wrap mt-1.5 px-0.5"><span>${escapeHtml(m.Pesan)}</span><span class="float-right ml-2.5 mt-1.5 text-[10px] leading-none opacity-85 inline-flex items-center">${time}${ticksHtml}</span><span class="clear-both block"></span></div>` : `<span class="flex justify-end items-center text-[10px] leading-none opacity-85 mt-1 px-0.5">${time}${ticksHtml}</span>`}
             </div>`;
         } else {
           const imgHtml = m.Media_URL ? `<img src="${m.Media_URL}" onclick="openLightbox('${m.Media_URL}')" class="rounded-lg max-h-60 w-auto mb-1 cursor-pointer object-cover" />` : '';
@@ -2756,14 +2787,14 @@
               <div class="${bubbleClass} rounded-xl ${tailClass} px-2.5 py-1.5 shadow-sm w-fit max-w-full">
                 ${replyQuoteHtml}
                 ${imgHtml}
-                <div class="text-[15px] leading-[1.35] break-words whitespace-pre-wrap"><span>${escapeHtml(m.Pesan)}</span><span class="float-right ml-2.5 mt-1.5 text-[10px] leading-none opacity-75 select-none">${time}</span><span class="clear-both block"></span></div>
+                <div class="text-[15px] leading-[1.35] break-words whitespace-pre-wrap"><span>${escapeHtml(m.Pesan)}</span><span class="float-right ml-2.5 mt-1.5 text-[10px] leading-none opacity-85 select-none inline-flex items-center">${time}${ticksHtml}</span><span class="clear-both block"></span></div>
               </div>`;
           } else {
             contentHtml = `
               <div class="${bubbleClass} rounded-xl ${tailClass} p-1.5 shadow-sm w-fit max-w-full relative">
                 ${replyQuoteHtml}
                 ${imgHtml}
-                <span class="block text-right text-[10px] leading-none opacity-75 px-1">${time}</span>
+                <span class="flex justify-end items-center text-[10px] leading-none opacity-85 px-1">${time}${ticksHtml}</span>
               </div>`;
           }
         }
@@ -3814,6 +3845,7 @@
       });
       updateHeaderMode();
       if (tab === 'chat') {
+        markPartnerMessagesAsRead();
         const box = document.getElementById('chat-messages');
         box.scrollTop = box.scrollHeight;
       }
