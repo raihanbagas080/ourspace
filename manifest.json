@@ -2,19 +2,17 @@
   "name": "OurSpace",
   "short_name": "OurSpace",
   "start_url": "./index.html",
-  "scope": "./",
   "display": "standalone",
   "background_color": "#FFF5F7",
   "theme_color": "#F43F5E",
   "icons": [
     {
-      "src": "https://URL_LOGO_APLIKASI_192x192.png",
+      "src": "https://LINK_LOGO_OURSPACE_KAMU.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "https://URL_LOGO_APLIKASI_512x512.png",
+      "src": "https://LINK_LOGO_OURSPACE_KAMU.png",
       "sizes": "512x512",
       "type": "image/png"
     }
